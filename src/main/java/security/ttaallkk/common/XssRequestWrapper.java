@@ -1,8 +1,10 @@
 package security.ttaallkk.common;
 
+import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 
 import javax.servlet.ReadListener;
@@ -11,7 +13,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletRequestWrapper;
 
 /**
-* Request로 들어오는 요청값에 대하여 XSS필터링 적용
+* Request body로 들어오는 json 요청값에 대하여 XSS필터링 적용
 */
 public class XssRequestWrapper extends HttpServletRequestWrapper{
 
@@ -20,18 +22,16 @@ public class XssRequestWrapper extends HttpServletRequestWrapper{
     public XssRequestWrapper(HttpServletRequest request) {
         super(request);
         try {
-            InputStream is = request.getInputStream();
-            if (is != null) {
-                StringBuffer stringBuffer = new StringBuffer();
-                while(true) {
-                    int data = is.read();
-                    if (data < 0) break;
-                    stringBuffer.append((char) data);
-                }
-
-                String result = cleanXss(stringBuffer.toString());
-                body = result.getBytes(StandardCharsets.UTF_8);
+            String inputLine;
+            InputStream inputStream = request.getInputStream(); //HTTP 요청값을 InputStream을 통해 바이트 단위로 받음
+            BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream, "UTF-8")); //한글문자 그대로 받기위해 InputStreamReader를 사용하여 InputStream을을 UTF-8로 인코딩하여 버퍼에 저장
+            StringBuffer stringBuffer = new StringBuffer();
+            while ((inputLine = bufferedReader.readLine()) != null) { 
+                stringBuffer.append(inputLine); //BufferedReader를 통해 버퍼를 순회하며 StringBuffer에 append하여 body데이터 가공 
             }
+            bufferedReader.close();
+            String result = cleanXss(stringBuffer.toString()); //가공된 StringBuffer값에서 XSS 필터링 처리
+            body = result.getBytes(StandardCharsets.UTF_8);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -71,7 +71,7 @@ public class XssRequestWrapper extends HttpServletRequestWrapper{
         value = value.replaceAll("'", "&#39;");
         value = value.replaceAll("eval\\((.*)\\)", "");
         value = value.replaceAll("[\\\"\\\'][\\s]*javascript:(.*)[\\\"\\\']", "\"\"");
-        //value = value.replaceAll("script", "");
+        value = value.replaceAll("script", "");
         return value;
     }
 }

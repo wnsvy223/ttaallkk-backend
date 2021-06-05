@@ -18,6 +18,6 @@ public class XssFilter extends OncePerRequestFilter {
 			filterChain.doFilter(new XssRequestWrapper(request), response); 
 		}else{
 			filterChain.doFilter(request, response);
-		} 
+		}
     } 
 }

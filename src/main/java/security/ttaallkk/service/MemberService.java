@@ -5,6 +5,7 @@ import security.ttaallkk.domain.MemberRole;
 import security.ttaallkk.dto.RefreshTokenDto;
 import security.ttaallkk.dto.SignUpDto;
 import security.ttaallkk.dto.response.LoginResponse;
+import security.ttaallkk.exception.DisplayNameAlreadyExistException;
 import security.ttaallkk.exception.EmailAlreadyExistException;
 import security.ttaallkk.exception.InvalidRefreshTokenException;
 import security.ttaallkk.exception.PasswordNotMatchException;
@@ -50,6 +51,7 @@ public class MemberService implements UserDetailsService {
     @Transactional
     public void signUp(SignUpDto signUpDto) {
         validateDuplicateUserByEmail(signUpDto.getEmail()); //이메일 중복가입 체크
+        validateDuplicateUserByDisplayName(signUpDto.getDisplayName()); //닉네임 중복가입 체크
         Set<MemberRole> roles = new HashSet<>();
         //roles.add(MemberRole.ADMIN);
         roles.add(MemberRole.USER);
@@ -163,5 +165,14 @@ public class MemberService implements UserDetailsService {
      */
     private void validateDuplicateUserByEmail(String email) {
         if(memberRepository.findMemberByEmail(email).isPresent()) throw new EmailAlreadyExistException("이미 가입된 사용자 이메일 입니다. 새로운 이메일로 가입을 진행하세요.");
+    }
+
+    /**
+     * 회원가입 닉네임 중복체크
+     * @param displayName
+     * @throws DisplayNameAlreadyExistException
+     */
+    private void validateDuplicateUserByDisplayName(String displayName){
+        if(memberRepository.findMemberByDisplayName(displayName).isPresent()) throw new DisplayNameAlreadyExistException("이미 가입된 사용자 닉네임 입니다. 새로운 닉네임으로 가입을 진행하세요.");
     }
 }

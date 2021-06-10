@@ -1,4 +1,5 @@
 package security.ttaallkk.controller;
+
 import lombok.RequiredArgsConstructor;
 import security.ttaallkk.domain.Member;
 import security.ttaallkk.dto.LoginDto;
@@ -6,26 +7,25 @@ import security.ttaallkk.dto.RefreshTokenDto;
 import security.ttaallkk.dto.SignUpDto;
 import security.ttaallkk.dto.response.LoginResponse;
 import security.ttaallkk.dto.response.Response;
-import security.ttaallkk.security.JwtFilter;
 import security.ttaallkk.security.JwtProvider;
+import security.ttaallkk.service.MemberSearchService;
 import security.ttaallkk.service.MemberService;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpHeaders;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
-import java.util.Optional;
+import java.util.List;
+
 import javax.validation.Valid;
 
 @Controller
@@ -38,10 +38,14 @@ public class MemberController {
     private final JwtProvider jwtProvider;
     private final AuthenticationManager authenticationManager;
 
+    @Autowired
+    private MemberSearchService memberSearchService;
+
+    
     /**
      * 회원 가입
      * @param SignUpDto
-     * @return custom response
+     * @return Response
      */
     @PostMapping("/signUp")
     public ResponseEntity<Response> signUp(@Valid @RequestBody SignUpDto signUpDto) {
@@ -57,7 +61,7 @@ public class MemberController {
     /**
      * 회원 탈퇴
      * @param email
-     * @return custom response
+     * @return Response
      */
     @PostMapping("/signOut")
     public ResponseEntity<Response> deleteUser(@Valid @RequestBody LoginDto loginDto){
@@ -72,7 +76,7 @@ public class MemberController {
     /**
      * 로그인
      * @param loginDto
-     * @return json response
+     * @return LoginResponse
      */
     @PostMapping("/login")
     public ResponseEntity<LoginResponse> login(@Valid @RequestBody LoginDto loginDto) {
@@ -105,7 +109,7 @@ public class MemberController {
     /**
      * refreshToken 으로 accessToken 재발급
      * @param refreshTokenDto accessToken 재발급 요청 dto
-     * @return json response
+     * @return LoginResponse
      */
     @PostMapping("/refreshToken")
     public ResponseEntity<LoginResponse> refreshToken(@RequestBody RefreshTokenDto refreshTokenDto) {
@@ -113,22 +117,20 @@ public class MemberController {
         return ResponseEntity.ok(response);
     }
 
-
     /**
-     * xss 필터 테스트
-     * @param loginDto
-     * @return xss필터링된 사용자 엔티티
+     * 유저 검색(HibernateSearch를 이용한 FullTextSearch)
+     * @param keyword
+     * @return SearchMemberResponse
      */
-    @PostMapping("/xss")
-    public ResponseEntity<String> me(@RequestBody LoginDto loginDto){
-        Optional<Member> member = memberService.findMemeberByEmail(loginDto.getEmail());
-        String displayName = member.get().getDisplayName();
-        return ResponseEntity.ok(displayName);
+    @GetMapping("/search/{keyword}")
+    public ResponseEntity<List<Member>> search(@PathVariable("keyword") String keyword){
+        List<Member> searchMemebers = memberSearchService.searchMemberByEmailOrDisplayName(keyword);
+        return ResponseEntity.ok(searchMemebers);
     }
 
     /**
      * 테스트
-     * @return json response
+     * @return Response
      */
     @PreAuthorize("hasRole('ROLE_USER')")
     @GetMapping("/test")

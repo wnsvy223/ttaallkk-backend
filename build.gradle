@@ -34,6 +34,12 @@ dependencies {
 	// StringEscapeUtils(commons-lang3 -> commons-test)
 	implementation 'org.apache.commons:commons-text:1.9'
 
+	// hibernate search & lucene
+	implementation 'org.hibernate:hibernate-search-orm:5.11.9.Final'
+	implementation 'org.hibernate:hibernate-core:5.4.30.Final'
+	implementation files('lib/arirang/arirang-morph-1.0.3.jar')
+	implementation files('lib/arirang/arirang.lucene-analyzer-6.1-1.0.0.jar')
+
 	compileOnly 'org.projectlombok:lombok'
 	developmentOnly 'org.springframework.boot:spring-boot-devtools'
 	runtimeOnly 'org.mariadb.jdbc:mariadb-java-client'

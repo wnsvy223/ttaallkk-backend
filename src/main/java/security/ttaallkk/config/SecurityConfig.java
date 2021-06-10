@@ -70,6 +70,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .and()
             .authorizeRequests()
                 .antMatchers(HttpMethod.POST, "/api/signUp", "/api/login", "/api/refreshToken").permitAll()//회원가입, 로그인, 리프래시토큰발급 앤드포인트는 인증없이 허용.
+                .antMatchers(HttpMethod.GET, "/api/search/*").permitAll() //유저 검색 앤드포인트 허용
                 .anyRequest().authenticated() //그 이외의 앤드포인트는 인증필요.
                 .and()    
             .exceptionHandling()

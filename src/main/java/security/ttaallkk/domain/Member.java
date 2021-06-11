@@ -41,10 +41,11 @@ import java.util.Set;
     filters = {@TokenFilterDef(factory = LowerCaseFilterFactory.class)})
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class Member {
+public class Member extends CommonDateTime{
     @Id
     @GeneratedValue
     @Column(name = "member_id")
+    @JsonIgnore
     private Long id;
 
     @Column(unique = true, name = "email")

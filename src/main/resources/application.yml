@@ -1,7 +1,7 @@
 jwt:
   header: Authorization
   secretKey : ThisIsSecretKeyLFEKMMVDAPGMVCXEPGIYQSKZE #SecretKey
-  accessToken-valid-seconds : 300 #30분
+  accessToken-valid-seconds : 1800 #30분
   refreshToken-valid-seconds : 86400 #24시간
 
 spring:

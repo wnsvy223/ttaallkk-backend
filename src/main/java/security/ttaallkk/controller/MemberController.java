@@ -89,8 +89,8 @@ public class MemberController {
         log.info(authentication + " 로그인 처리 authentication");
 
         //jwt accessToken & refreshToken 발급
-        String accessToken = jwtProvider.generateToken(authentication, false);
-        String refreshToken = jwtProvider.generateToken(authentication, true);
+        String accessToken = jwtProvider.generateAccessToken(authentication);
+        String refreshToken = jwtProvider.generateRefreshToken(authentication);
 
         //회원 DB에 refreshToken 저장
         memberService.findMemberAndSaveRefreshToken(authentication.getName(), refreshToken);

@@ -135,14 +135,14 @@ public class MemberService implements UserDetailsService {
         if (!refreshTokenDto.getGrantType().equals("refreshToken"))
             throw new RefreshTokenGrantTypeException("올바른 grantType 을 입력해주세요");
 
-        Authentication authentication = jwtProvider.getAuthentication(refreshTokenDto.getRefreshToken());
+        Authentication authentication = jwtProvider.getAuthenticationFromRefreshToken(refreshTokenDto.getRefreshToken());
 
         Member member = memberRepository.findMemberByEmailAndRefreshToken(authentication.getName(), refreshTokenDto.getRefreshToken())
                 .orElseThrow(() -> new InvalidRefreshTokenException("유효하지 않은 리프레시 토큰입니다")); //InvalidRefreshTokenException 예외 Handler
 
         //jwt accessToken & refreshToken 발급
-        String accessToken = jwtProvider.generateToken(authentication, false);
-        String refreshToken = jwtProvider.generateToken(authentication, true);
+        String accessToken = jwtProvider.generateAccessToken(authentication);
+        String refreshToken = jwtProvider.generateRefreshToken(authentication);
 
         //refreshToken 저장 (refreshToken 은 한번 사용후 폐기)
         member.updateRefreshToken(refreshToken);

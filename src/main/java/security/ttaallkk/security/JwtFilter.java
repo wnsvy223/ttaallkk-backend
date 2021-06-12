@@ -34,7 +34,7 @@ public class JwtFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         String token = resolveToken(request); //토큰 추출
-        if(StringUtils.hasText(token) && jwtProvider.isValidToken(token)){ //토큰 검증
+        if(StringUtils.hasText(token) && jwtProvider.isValidToken(token, false)){ //토큰 검증
             log.info("추출된 토큰 : " + token);
             //jwt 에서 추출된 데이터가 들어있는 Authentication
             Authentication authentication = jwtProvider.getAuthentication(token);

@@ -22,15 +22,19 @@ import java.util.stream.Collectors;
 @Log4j2
 public class JwtProvider{
 
-    private final String secretKey;
-    private final long accessTokenValidMilliSeconds;
-    private final long refreshTokenValidMilliSeconds;
-    private Key key;
+    private final String secretKeyAccessToken; //엑세스 토큰 secretKey
+    private final String secretKeyRefreshToken; //리프래시 토큰 secretKey
+    private final long accessTokenValidMilliSeconds; //엑세스 토큰 만료시간
+    private final long refreshTokenValidMilliSeconds; //리프래시 토큰 만료시간
+    private Key keyAccessToken; //암호화된 엑세스 토큰 secretKey
+    private Key keyRefreshToken; //암호화된 리프래시 토큰 secretKey 
 
-    public JwtProvider(@Value("${jwt.secretKey}") String secretKey,
+    public JwtProvider(@Value("${jwt.secretKey-accessToken}") String secretKeyAccessToken,
+                       @Value("${jwt.secretKey-refreshToken}") String secretKeyRefreshToken,
                        @Value("${jwt.accessToken-valid-seconds}")long accessTokenValidSeconds,
                        @Value("${jwt.refreshToken-valid-seconds}")long refreshTokenValidSeconds) {
-        this.secretKey = secretKey;
+        this.secretKeyAccessToken = secretKeyAccessToken;
+        this.secretKeyRefreshToken = secretKeyRefreshToken;
         this.accessTokenValidMilliSeconds = accessTokenValidSeconds * 1000;
         this.refreshTokenValidMilliSeconds = refreshTokenValidSeconds * 1000;
     }
@@ -40,40 +44,71 @@ public class JwtProvider{
      */
     @PostConstruct
     protected void init() {
-        this.key = Keys.hmacShaKeyFor(this.secretKey.getBytes());
+        this.keyAccessToken = Keys.hmacShaKeyFor(this.secretKeyAccessToken.getBytes());
+        this.keyRefreshToken = Keys.hmacShaKeyFor(this.secretKeyRefreshToken.getBytes());
     }
 
     /**
-     * jwt 생성
-     * @param authentication UserDetailsService 에서 인증 성공된 User 의 값들이 담긴 객체
-     * @param isRefreshToken accessToken refreshToken 구분
-     * @return 생성된 토큰
+     * 엑세스 토큰 생성
+     * @param authentication UserDetailsService 에서 인증 성공된 User의 값들이 담긴 객체
+     * @return 생성된 엑세스 토큰
      */
-    public String generateToken(Authentication authentication, boolean isRefreshToken) {
+    public String generateAccessToken(Authentication authentication) {
         String authorities = authentication.getAuthorities().stream()
                 .map(grantedAuthority -> grantedAuthority.getAuthority())
                 .collect(Collectors.joining(","));
-
-        long now = (new Date()).getTime();
-        Date validateDay;
-        if(isRefreshToken) validateDay = new Date(now + this.refreshTokenValidMilliSeconds);
-        else validateDay = new Date(now + this.accessTokenValidMilliSeconds);
+        long now = new Date().getTime();
+        Date exitredTime = new Date(now + this.accessTokenValidMilliSeconds);
 
         return Jwts.builder()
                 .setSubject(authentication.getName())
                 .claim("roles", authorities)
-                .signWith(key, SignatureAlgorithm.HS256)
-                .setExpiration(validateDay)
+                .signWith(keyAccessToken, SignatureAlgorithm.HS256)
+                .setExpiration(exitredTime)
                 .compact();
     }
 
     /**
-     * jwt 추출 데이터 Authentication 에 넣기
-     * @param token 토큰값
+     * 리프래시 토큰 생성
+     * @param authentication UserDetailsService 에서 인증 성공된 User의 값들이 담긴 객체
+     * @return 생성된 리프래시 토큰
+     */
+    public String generateRefreshToken(Authentication authentication) {
+        String authorities = authentication.getAuthorities().stream()
+                .map(grantedAuthority -> grantedAuthority.getAuthority())
+                .collect(Collectors.joining(","));
+        long now = new Date().getTime();
+        Date exitredTime = new Date(now + this.refreshTokenValidMilliSeconds);
+
+        return Jwts.builder()
+                .setSubject(authentication.getName())
+                .claim("roles", authorities)
+                .signWith(keyRefreshToken, SignatureAlgorithm.HS256)
+                .setExpiration(exitredTime)
+                .compact();
+    }
+
+    /**
+     * 엑세스 토큰 추출 데이터 Authentication 에 넣기
+     * @param accessToken 엑세스 토큰
      * @return 회원 정보 담긴 인증객체
      */
-    public Authentication getAuthentication(String token) {
-        Claims claims = Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token).getBody();
+    public Authentication getAuthentication(String accessToken) {
+        Claims claims = Jwts.parserBuilder().setSigningKey(keyAccessToken).build().parseClaimsJws(accessToken).getBody();
+
+        String[] roles = claims.get("roles").toString().split(",");
+        List<SimpleGrantedAuthority> authorities = Arrays.stream(roles).map(role -> new SimpleGrantedAuthority(role)).collect(Collectors.toList());
+
+        return new UsernamePasswordAuthenticationToken(claims.getSubject(), "", authorities);
+    }
+    
+    /**
+     * 리프래시 토큰 추출 데이터 Authentication 에 넣기
+     * @param refreshToken 리프래시 토큰
+     * @return 회원 정보 담긴 인증객체
+     */
+    public Authentication getAuthenticationFromRefreshToken(String refreshToken) {
+        Claims claims = Jwts.parserBuilder().setSigningKey(keyRefreshToken).build().parseClaimsJws(refreshToken).getBody();
 
         String[] roles = claims.get("roles").toString().split(",");
         List<SimpleGrantedAuthority> authorities = Arrays.stream(roles).map(role -> new SimpleGrantedAuthority(role)).collect(Collectors.toList());
@@ -84,11 +119,16 @@ public class JwtProvider{
     /**
      * 추출된 jwt 토큰 유효성 검증
      * @param token 토큰값
+     * @param isRefreshToken 리프래시 토큰인지 유무(엑세스 토큰과 리프래시 토큰은 서로 다른 secretKey값을 기반으로 생성 및 검증이 이루어짐.)
      * @return 유효한 토큰인지 검증 결과
      */
-    public boolean isValidToken(String token){
+    public boolean isValidToken(String token, boolean isRefreshToken){
         try {
-            Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token);
+            if(isRefreshToken){
+                Jwts.parserBuilder().setSigningKey(keyRefreshToken).build().parseClaimsJws(token);
+            }else{
+                Jwts.parserBuilder().setSigningKey(keyAccessToken).build().parseClaimsJws(token);
+            }
             return true;
         } catch (TokenNotFoundException e) {
             log.error("토큰을 찾을 수 없습니다.");

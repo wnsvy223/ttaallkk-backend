@@ -26,6 +26,8 @@ import org.springframework.web.bind.annotation.*;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 
 @Controller
@@ -52,9 +54,9 @@ public class MemberController {
         log.info("회원가입 : " + signUpDto.getEmail());
         memberService.signUp(signUpDto);
         Response response = Response.builder()
-            .status(HttpStatus.CREATED.value())
-            .message("회원가입성공")
-            .build();
+                .status(HttpStatus.CREATED.value())
+                .message("회원가입성공")
+                .build();
         return ResponseEntity.ok(response);
     }
 
@@ -64,22 +66,22 @@ public class MemberController {
      * @return Response
      */
     @PostMapping("/signOut")
-    public ResponseEntity<Response> deleteUser(@Valid @RequestBody LoginDto loginDto){
+    public ResponseEntity<Response> deleteUser(@Valid @RequestBody LoginDto loginDto) {
         memberService.signOut(loginDto.getEmail(), loginDto.getPassword());
         Response response = Response.builder()
-            .status(HttpStatus.OK.value())
-            .message("회원탈퇴성공")
-            .build();
+                .status(HttpStatus.OK.value())
+                .message("회원탈퇴성공")
+                .build();
         return ResponseEntity.ok(response);
     }
 
     /**
      * 로그인
      * @param loginDto
-     * @return LoginResponse
+     * @return LoginResponse + accessToken cookie + refreshToken cookie
      */
     @PostMapping("/login")
-    public ResponseEntity<LoginResponse> login(@Valid @RequestBody LoginDto loginDto) {
+    public ResponseEntity<LoginResponse> login(@Valid @RequestBody LoginDto loginDto, HttpServletResponse httpServletResponse) {
 
         UsernamePasswordAuthenticationToken authenticationToken =
                 new UsernamePasswordAuthenticationToken(loginDto.getEmail(), loginDto.getPassword());
@@ -103,17 +105,32 @@ public class MemberController {
                 .refreshToken(refreshToken)
                 .issuedAt(LocalDateTime.now())
                 .build();
+        
+        //엑세스토큰 + 리프래시토큰 쿠키 생성
+        httpServletResponse.addCookie(createTokenCookie("accessToken", accessToken, 1800));
+        httpServletResponse.addCookie(createTokenCookie("refreshToken", refreshToken, 64000));
+
         return ResponseEntity.ok(response);
     }
 
     /**
      * refreshToken 으로 accessToken 재발급
      * @param refreshTokenDto accessToken 재발급 요청 dto
-     * @return LoginResponse
+     * @param refreshTokenFromCookie 클라이언트 쿠키에서 전송된 기존의 리프래시 토큰
+     * @return LoginResponse + accessToken cookie + refreshToken cookie
      */
     @PostMapping("/refreshToken")
-    public ResponseEntity<LoginResponse> refreshToken(@RequestBody RefreshTokenDto refreshTokenDto) {
-        LoginResponse response = memberService.refreshToken(refreshTokenDto);
+    public ResponseEntity<LoginResponse> refreshToken(
+                HttpServletResponse httpServletResponse,
+                @RequestBody RefreshTokenDto refreshTokenDto,
+                @CookieValue(value = "refreshToken") String refreshTokenFromCookie) {
+
+        LoginResponse response = memberService.refreshToken(refreshTokenDto, refreshTokenFromCookie);
+
+        //엑세스토큰 + 리프래시토큰 쿠키 생성
+        httpServletResponse.addCookie(createTokenCookie("accessToken", response.getAccessToken(), 1800));
+        httpServletResponse.addCookie(createTokenCookie("refreshToken", response.getRefreshToken(), 64000));
+
         return ResponseEntity.ok(response);
     }
 
@@ -123,7 +140,7 @@ public class MemberController {
      * @return SearchMemberResponse
      */
     @GetMapping("/search/{keyword}")
-    public ResponseEntity<List<Member>> search(@PathVariable("keyword") String keyword){
+    public ResponseEntity<List<Member>> search(@PathVariable("keyword") String keyword) {
         List<Member> searchMemebers = memberSearchService.searchMemberByEmailOrDisplayName(keyword);
         return ResponseEntity.ok(searchMemebers);
     }
@@ -140,5 +157,21 @@ public class MemberController {
                 .message("테스트 성공")
                 .build();
         return ResponseEntity.ok(response);
+    }
+
+    /**
+     * 토큰 저장된 쿠키 발급
+     * @param key
+     * @param value
+     * @param maxAge
+     * @return cookie
+     */
+    private Cookie createTokenCookie(String key, String value, int maxAge) {
+        Cookie cookie = new Cookie(key, value);
+        cookie.setHttpOnly(true);
+        cookie.setSecure(true);
+        cookie.setMaxAge(maxAge);
+        cookie.setPath("/");
+        return cookie;
     }
 }

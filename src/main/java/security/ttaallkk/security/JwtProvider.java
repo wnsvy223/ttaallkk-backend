@@ -117,34 +117,25 @@ public class JwtProvider{
     }
     
     /**
-     * 추출된 jwt 토큰 유효성 검증
-     * @param token 토큰값
-     * @param isRefreshToken 리프래시 토큰인지 유무(엑세스 토큰과 리프래시 토큰은 서로 다른 secretKey값을 기반으로 생성 및 검증이 이루어짐.)
-     * @return 유효한 토큰인지 검증 결과
+     * 추출된 엑세스 토큰 유효성 검증
+     * @param accessToken 엑세스 토큰값
+     * @return 유효한 엑세스 토큰인지 검증 결과
      */
-    public boolean isValidToken(String token, boolean isRefreshToken){
+    public boolean isValidToken(String accessToken){
         try {
-            if(isRefreshToken){
-                Jwts.parserBuilder().setSigningKey(keyRefreshToken).build().parseClaimsJws(token);
-            }else{
-                Jwts.parserBuilder().setSigningKey(keyAccessToken).build().parseClaimsJws(token);
-            }
+            Jwts.parserBuilder().setSigningKey(keyAccessToken).build().parseClaimsJws(accessToken);
             return true;
         } catch (TokenNotFoundException e) {
             log.error("토큰을 찾을 수 없습니다.");
-            return false;
         } catch (io.jsonwebtoken.security.SecurityException | MalformedJwtException e) {
             log.error("잘못된 JWT 서명입니다.");
-            return false;
         } catch (ExpiredJwtException e) {
             log.error("만료된 토큰입니다.");
-            return false;
         } catch (UnsupportedJwtException e) {
             log.error("지원하지 않는 토큰입니다.");
-            return false;
         } catch (IllegalArgumentException  e) {
             log.error("JWT Claims 문자열이 잘못되었습니다.");
-            return false;
         }
+        return false;
     }
 }

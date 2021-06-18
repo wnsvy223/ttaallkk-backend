@@ -31,7 +31,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.HashSet;
-import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -74,7 +73,7 @@ public class MemberService implements UserDetailsService {
      * @exception PasswordNotMatchException
      */
     @Transactional
-    public void signOut(String email, String password){
+    public void signOut(String email, String password) {
         Member member = memberRepository.findMemberByEmail(email)
             .orElseThrow(() -> new UsernameNotFoundException(email + " 이메일이 일치하지 않습니다"));
         if(passwordEncoder.matches(password, member.getPassword())){
@@ -118,27 +117,19 @@ public class MemberService implements UserDetailsService {
         member.updateRefreshToken(refreshToken);
     }
 
-    // 테스트
-    @Transactional
-    public Optional<Member> findMemeberByEmail(String email){
-        Optional<Member> member = memberRepository.findMemberByEmail(email);
-        return member;
-    }
-
     /**
      * refreshToken 으로 accessToken 재발급
      * @param refreshTokenDto accessToken 재발급 요청 dto
      * @return json response
      */
     @Transactional
-    public LoginResponse refreshToken(RefreshTokenDto refreshTokenDto) {
+    public LoginResponse refreshToken(RefreshTokenDto refreshTokenDto, String refreshTokenFromCookie) {
         if (!refreshTokenDto.getGrantType().equals("refreshToken"))
             throw new RefreshTokenGrantTypeException("올바른 grantType 을 입력해주세요");
+        Authentication authentication = jwtProvider.getAuthenticationFromRefreshToken(refreshTokenFromCookie);
 
-        Authentication authentication = jwtProvider.getAuthenticationFromRefreshToken(refreshTokenDto.getRefreshToken());
-
-        Member member = memberRepository.findMemberByEmailAndRefreshToken(authentication.getName(), refreshTokenDto.getRefreshToken())
-                .orElseThrow(() -> new InvalidRefreshTokenException("유효하지 않은 리프레시 토큰입니다")); //InvalidRefreshTokenException 예외 Handler
+        Member member = memberRepository.findMemberByEmailAndRefreshToken(authentication.getName(), refreshTokenFromCookie)
+                .orElseThrow(() -> new InvalidRefreshTokenException("유효하지 않은 리프래시 토큰입니다")); //InvalidRefreshTokenException 예외 Handler
 
         //jwt accessToken & refreshToken 발급
         String accessToken = jwtProvider.generateAccessToken(authentication);
@@ -172,7 +163,7 @@ public class MemberService implements UserDetailsService {
      * @param displayName
      * @throws DisplayNameAlreadyExistException
      */
-    private void validateDuplicateUserByDisplayName(String displayName){
+    private void validateDuplicateUserByDisplayName(String displayName) {
         if(memberRepository.findMemberByDisplayName(displayName).isPresent()) throw new DisplayNameAlreadyExistException("이미 가입된 사용자 닉네임 입니다. 새로운 닉네임으로 가입을 진행하세요.");
     }
 }

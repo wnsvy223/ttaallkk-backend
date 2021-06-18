@@ -14,9 +14,11 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
+import org.springframework.web.util.WebUtils;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
@@ -33,15 +35,18 @@ public class JwtFilter extends OncePerRequestFilter {
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
-        String token = resolveToken(request); //토큰 추출
-        if(StringUtils.hasText(token) && jwtProvider.isValidToken(token, false)){ //토큰 검증
-            log.info("추출된 토큰 : " + token);
-            //jwt 에서 추출된 데이터가 들어있는 Authentication
-            Authentication authentication = jwtProvider.getAuthentication(token);
-            log.info(authentication + " Authentication 생성");
-
-            //SecurityContextHolder 에 Authentication 를 세팅하기 때문에 @PreAuthorize 로 권한 파악가능
-            SecurityContextHolder.getContext().setAuthentication(authentication);
+        Cookie cookie = WebUtils.getCookie(request, "accessToken"); //요청값에서 엑세스 토큰 키값을 가진 쿠키 추출
+        if(cookie != null){
+            String accessToken = cookie.getValue(); //쿠키에서 추출한 엑세스 토큰값
+            if(StringUtils.hasText(accessToken) && jwtProvider.isValidToken(accessToken)){ //엑세스 토큰 검증
+                log.info("추출된 토큰 : " + accessToken);
+                //jwt 에서 추출된 데이터가 들어있는 Authentication
+                Authentication authentication = jwtProvider.getAuthentication(accessToken);
+                log.info(authentication + " Authentication 생성");
+    
+                //SecurityContextHolder 에 Authentication 를 세팅하기 때문에 @PreAuthorize 로 권한 파악가능
+                SecurityContextHolder.getContext().setAuthentication(authentication);
+            }
         }
         filterChain.doFilter(request, response);
     }

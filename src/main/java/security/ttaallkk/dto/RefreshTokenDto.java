@@ -9,5 +9,6 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class RefreshTokenDto {
     private String grantType;
-    private String refreshToken;
+    //private String refreshToken;
+    private String email;
 }

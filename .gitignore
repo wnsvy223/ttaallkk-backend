@@ -35,3 +35,7 @@ out/
 
 ### VS Code ###
 .vscode/
+
+### Lucene ###
+security.ttaallkk.domain.Member/write.lock
+security.ttaallkk.domain.Member/segments_1

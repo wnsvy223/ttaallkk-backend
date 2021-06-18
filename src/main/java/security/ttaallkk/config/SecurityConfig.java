@@ -97,7 +97,9 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         final UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         CorsConfiguration corsConfiguration = new CorsConfiguration();
         corsConfiguration.applyPermitDefaultValues();
-        corsConfiguration.addAllowedOrigin("http://localhost:3000"); //허용 오리진
+        //corsConfiguration.addAllowedOrigin("http://localhost:3000"); //허용 오리진(setAllowCredentials옵션 사용 시 패턴방식으로 사용)
+        corsConfiguration.addAllowedOriginPattern("*"); //패턴방식의 CORS 오리진 허용
+        corsConfiguration.setAllowCredentials(true);
         corsConfiguration.addAllowedMethod("*");
         corsConfiguration.addExposedHeader("Authorization"); //Bearer토큰 사용을 위해 Authorization헤더 허용
         source.registerCorsConfiguration("/**", corsConfiguration);

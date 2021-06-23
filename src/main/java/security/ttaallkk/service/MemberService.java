@@ -105,6 +105,19 @@ public class MemberService implements UserDetailsService {
     }
 
     /**
+     * 이메일로 회원정보 조회
+     * @param email
+     * @return 조회된 회원 정보
+     */
+    @Transactional
+    public Member findMemberByEmail(String email){
+        Member member = memberRepository.findMemberByEmail(email)
+                .orElseThrow(() -> new UsernameNotFoundException(email + "이메일이 일치하지 않습니다."));
+        return member;
+    }
+
+
+    /**
      * 회원에게 refreshToken 저장
      * @param email 요청 이메일
      * @param refreshToken refreshToken 값

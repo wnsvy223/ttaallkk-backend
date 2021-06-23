@@ -98,9 +98,17 @@ public class MemberController {
             //회원 DB에 refreshToken 저장
             memberService.findMemberAndSaveRefreshToken(authentication.getName(), refreshToken);
 
+            //인증된 athentication객체로 회원 정보 조회
+            Member member = memberService.findMemberByEmail(authentication.getName());
+            
+            //커스텀 로그인 응답 DTO 생성
             LoginResponse response = LoginResponse.builder()
                     .status(HttpStatus.OK.value())
                     .message("로그인 성공")
+                    .email(member.getEmail())
+                    .uid(member.getUid())
+                    .displayName(member.getDisplayName())
+                    .profileUrl(member.getProfileUrl())
                     .accessToken(accessToken)
                     .expiredAt(LocalDateTime.now().plusSeconds(jwtProvider.getAccessTokenValidMilliSeconds()/1000))
                     .refreshToken(refreshToken)

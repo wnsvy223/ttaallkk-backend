@@ -10,6 +10,10 @@ import java.time.LocalDateTime;
 public class LoginResponse {
     private int status;
     private String message;
+    private String email;
+    private String uid;
+    private String displayName;
+    private String profileUrl;
     private String accessToken;
     private LocalDateTime expiredAt;          //만료 시간
     private String refreshToken;

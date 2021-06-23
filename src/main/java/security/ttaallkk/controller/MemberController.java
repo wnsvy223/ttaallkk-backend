@@ -90,27 +90,33 @@ public class MemberController {
         Authentication authentication = authenticationManager.authenticate(authenticationToken);
         log.info(authentication + " 로그인 처리 authentication");
 
-        //jwt accessToken & refreshToken 발급
-        String accessToken = jwtProvider.generateAccessToken(authentication);
-        String refreshToken = jwtProvider.generateRefreshToken(authentication);
+        if(authentication.isAuthenticated()){ 
+            //jwt accessToken & refreshToken 발급
+            String accessToken = jwtProvider.generateAccessToken(authentication);
+            String refreshToken = jwtProvider.generateRefreshToken(authentication);
 
-        //회원 DB에 refreshToken 저장
-        memberService.findMemberAndSaveRefreshToken(authentication.getName(), refreshToken);
+            //회원 DB에 refreshToken 저장
+            memberService.findMemberAndSaveRefreshToken(authentication.getName(), refreshToken);
 
-        LoginResponse response = LoginResponse.builder()
-                .status(HttpStatus.OK.value())
-                .message("로그인 성공")
-                .accessToken(accessToken)
-                .expiredAt(LocalDateTime.now().plusSeconds(jwtProvider.getAccessTokenValidMilliSeconds()/1000))
-                .refreshToken(refreshToken)
-                .issuedAt(LocalDateTime.now())
-                .build();
-        
-        //엑세스토큰 + 리프래시토큰 쿠키 생성
-        httpServletResponse.addCookie(createTokenCookie("accessToken", accessToken, 1800));
-        httpServletResponse.addCookie(createTokenCookie("refreshToken", refreshToken, 64000));
+            LoginResponse response = LoginResponse.builder()
+                    .status(HttpStatus.OK.value())
+                    .message("로그인 성공")
+                    .accessToken(accessToken)
+                    .expiredAt(LocalDateTime.now().plusSeconds(jwtProvider.getAccessTokenValidMilliSeconds()/1000))
+                    .refreshToken(refreshToken)
+                    .issuedAt(LocalDateTime.now())
+                    .build();
 
-        return ResponseEntity.ok(response);
+            //엑세스토큰 + 리프래시토큰 쿠키 생성
+            httpServletResponse.addCookie(createTokenCookie("accessToken", accessToken, 1800));
+            httpServletResponse.addCookie(createTokenCookie("refreshToken", refreshToken, 64000));
+
+            //로그인 인증처리가 성공할 경우에만 응답 + 쿠키 전송
+            return ResponseEntity.ok(response);
+        }else{
+            //인증 실패 시 404 오류 응답
+            return ResponseEntity.badRequest().build();
+        }   
     }
 
     /**

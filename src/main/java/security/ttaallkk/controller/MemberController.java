@@ -7,23 +7,17 @@ import security.ttaallkk.dto.RefreshTokenDto;
 import security.ttaallkk.dto.SignUpDto;
 import security.ttaallkk.dto.response.LoginResponse;
 import security.ttaallkk.dto.response.Response;
-import security.ttaallkk.security.JwtProvider;
 import security.ttaallkk.service.MemberSearchService;
 import security.ttaallkk.service.MemberService;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
-import java.time.LocalDateTime;
 import java.util.List;
 
 import javax.servlet.http.Cookie;
@@ -37,11 +31,8 @@ public class MemberController {
 
     private final Logger log = LoggerFactory.getLogger(MemberController.class);
     private final MemberService memberService;
-    private final JwtProvider jwtProvider;
     private final AuthenticationManager authenticationManager;
-
-    @Autowired
-    private MemberSearchService memberSearchService;
+    private final MemberSearchService memberSearchService;
 
     
     /**
@@ -66,7 +57,7 @@ public class MemberController {
      * @return Response
      */
     @PostMapping("/signOut")
-    public ResponseEntity<Response> deleteUser(@Valid @RequestBody LoginDto loginDto) {
+    public ResponseEntity<Response> signOut(@Valid @RequestBody LoginDto loginDto) {
         memberService.signOut(loginDto.getEmail(), loginDto.getPassword());
         Response response = Response.builder()
                 .status(HttpStatus.OK.value())
@@ -83,48 +74,14 @@ public class MemberController {
     @PostMapping("/login")
     public ResponseEntity<LoginResponse> login(@Valid @RequestBody LoginDto loginDto, HttpServletResponse httpServletResponse) {
 
-        UsernamePasswordAuthenticationToken authenticationToken =
-                new UsernamePasswordAuthenticationToken(loginDto.getEmail(), loginDto.getPassword());
+        //로그인 서비스 로직
+        LoginResponse loginResponse = memberService.login(loginDto, authenticationManager);
 
-        //아이디 체크는 Authentication 에 사용자 입력 아이디, 비번을 넣어줘야지 작동
-        Authentication authentication = authenticationManager.authenticate(authenticationToken);
-        log.info(authentication + " 로그인 처리 authentication");
-
-        if(authentication.isAuthenticated()){ 
-            //jwt accessToken & refreshToken 발급
-            String accessToken = jwtProvider.generateAccessToken(authentication);
-            String refreshToken = jwtProvider.generateRefreshToken(authentication);
-
-            //회원 DB에 refreshToken 저장
-            memberService.findMemberAndSaveRefreshToken(authentication.getName(), refreshToken);
-
-            //인증된 athentication객체로 회원 정보 조회
-            Member member = memberService.findMemberByEmail(authentication.getName());
-            
-            //커스텀 로그인 응답 DTO 생성
-            LoginResponse response = LoginResponse.builder()
-                    .status(HttpStatus.OK.value())
-                    .message("로그인 성공")
-                    .email(member.getEmail())
-                    .uid(member.getUid())
-                    .displayName(member.getDisplayName())
-                    .profileUrl(member.getProfileUrl())
-                    .accessToken(accessToken)
-                    .expiredAt(LocalDateTime.now().plusSeconds(jwtProvider.getAccessTokenValidMilliSeconds()/1000))
-                    .refreshToken(refreshToken)
-                    .issuedAt(LocalDateTime.now())
-                    .build();
-
-            //엑세스토큰 + 리프래시토큰 쿠키 생성
-            httpServletResponse.addCookie(createTokenCookie("accessToken", accessToken, 1800));
-            httpServletResponse.addCookie(createTokenCookie("refreshToken", refreshToken, 64000));
-
-            //로그인 인증처리가 성공할 경우에만 응답 + 쿠키 전송
-            return ResponseEntity.ok(response);
-        }else{
-            //인증 실패 시 404 오류 응답
-            return ResponseEntity.badRequest().build();
-        }   
+        //엑세스토큰 + 리프래시토큰 쿠키 생성
+        httpServletResponse.addCookie(createTokenCookie("accessToken", loginResponse.getAccessToken(), 1800));
+        httpServletResponse.addCookie(createTokenCookie("refreshToken", loginResponse.getRefreshToken(), 64000));
+    
+        return ResponseEntity.ok(loginResponse);
     }
 
     /**
@@ -139,13 +96,14 @@ public class MemberController {
                 @RequestBody RefreshTokenDto refreshTokenDto,
                 @CookieValue(value = "refreshToken") String refreshTokenFromCookie) {
 
-        LoginResponse response = memberService.refreshToken(refreshTokenDto, refreshTokenFromCookie);
+        //토큰 재발급 서비스 로직
+        LoginResponse loginResponse = memberService.refreshToken(refreshTokenDto, refreshTokenFromCookie);
 
         //엑세스토큰 + 리프래시토큰 쿠키 생성
-        httpServletResponse.addCookie(createTokenCookie("accessToken", response.getAccessToken(), 1800));
-        httpServletResponse.addCookie(createTokenCookie("refreshToken", response.getRefreshToken(), 64000));
+        httpServletResponse.addCookie(createTokenCookie("accessToken", loginResponse.getAccessToken(), 1800));
+        httpServletResponse.addCookie(createTokenCookie("refreshToken", loginResponse.getRefreshToken(), 64000));
 
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(loginResponse);
     }
 
     /**
@@ -159,19 +117,6 @@ public class MemberController {
         return ResponseEntity.ok(searchMemebers);
     }
 
-    /**
-     * 테스트
-     * @return Response
-     */
-    @PreAuthorize("hasRole('ROLE_USER')")
-    @GetMapping("/test")
-    public ResponseEntity<Response> test() {
-        Response response = Response.builder()
-                .status(HttpStatus.OK.value())
-                .message("테스트 성공")
-                .build();
-        return ResponseEntity.ok(response);
-    }
 
     /**
      * 토큰 저장된 쿠키 발급

@@ -40,7 +40,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     private final JwtAccessDeniedHandler jwtAccessDeniedHandler;
 
     /**
-     * AuthenticationManager 을 외부에서 사용하기 위해 @Bean
+     * AuthenticationManager 을 외부에서 사용하기 위해 @Bean 등록
      */
     @Bean
     @Override

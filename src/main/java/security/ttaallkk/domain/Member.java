@@ -92,5 +92,11 @@ public class Member extends CommonDateTime{
     public void updateRefreshToken(String refreshToken) {
         this.refreshToken = refreshToken;
     }
+
+    //프로필 정보 갱신
+    public void updateProfile(String displayName, String profileUrl){
+        this.displayName = displayName;
+        this.profileUrl = profileUrl;
+    }
 }
 

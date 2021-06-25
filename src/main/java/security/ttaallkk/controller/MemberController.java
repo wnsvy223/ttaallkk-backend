@@ -2,9 +2,10 @@ package security.ttaallkk.controller;
 
 import lombok.RequiredArgsConstructor;
 import security.ttaallkk.domain.Member;
-import security.ttaallkk.dto.LoginDto;
-import security.ttaallkk.dto.RefreshTokenDto;
-import security.ttaallkk.dto.SignUpDto;
+import security.ttaallkk.dto.request.LoginDto;
+import security.ttaallkk.dto.request.MemeberUpdateDto;
+import security.ttaallkk.dto.request.RefreshTokenDto;
+import security.ttaallkk.dto.request.SignUpDto;
 import security.ttaallkk.dto.response.LoginResponse;
 import security.ttaallkk.dto.response.Response;
 import security.ttaallkk.service.MemberSearchService;
@@ -105,6 +106,20 @@ public class MemberController {
 
         return ResponseEntity.ok(loginResponse);
     }
+
+    /**
+     * 유저 프로필 정보 업데이트
+     * @param uid 업데이트할 유저의 고유 아이디
+     * @param memeberUpdateDto 업데이트 할 데이터
+     * @return Response
+     */
+    @PutMapping("/user/{uid}")
+    public ResponseEntity<Response> updateProfile(@RequestBody MemeberUpdateDto memeberUpdateDto, @PathVariable("uid") String uid) {
+        
+        Response response = memberService.updateProfile(memeberUpdateDto, uid);
+        
+        return ResponseEntity.ok(response);
+    } 
 
     /**
      * 유저 검색(HibernateSearch를 이용한 FullTextSearch)

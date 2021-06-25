@@ -1,4 +1,4 @@
-package security.ttaallkk.dto;
+package security.ttaallkk.dto.request;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

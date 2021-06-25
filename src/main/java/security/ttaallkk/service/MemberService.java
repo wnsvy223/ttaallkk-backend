@@ -2,10 +2,12 @@ package security.ttaallkk.service;
 import lombok.RequiredArgsConstructor;
 import security.ttaallkk.domain.Member;
 import security.ttaallkk.domain.MemberRole;
-import security.ttaallkk.dto.LoginDto;
-import security.ttaallkk.dto.RefreshTokenDto;
-import security.ttaallkk.dto.SignUpDto;
+import security.ttaallkk.dto.request.LoginDto;
+import security.ttaallkk.dto.request.MemeberUpdateDto;
+import security.ttaallkk.dto.request.RefreshTokenDto;
+import security.ttaallkk.dto.request.SignUpDto;
 import security.ttaallkk.dto.response.LoginResponse;
+import security.ttaallkk.dto.response.Response;
 import security.ttaallkk.exception.DisplayNameAlreadyExistException;
 import security.ttaallkk.exception.EmailAlreadyExistException;
 import security.ttaallkk.exception.InvalidRefreshTokenException;
@@ -203,6 +205,28 @@ public class MemberService implements UserDetailsService {
                 .expiredAt(LocalDateTime.now().plusSeconds(jwtProvider.getAccessTokenValidMilliSeconds()/1000))
                 .refreshToken(refreshToken)
                 .issuedAt(LocalDateTime.now())
+                .build();
+
+        return response;
+    }
+
+    /**
+     * 유저 프로필 업데이트
+     * @param MemeberUpdateDto //업데이트 요청 객체(displayName + profileUrl)
+     * @param uid //사용자 고유 uid
+     */
+    @Transactional
+    public Response updateProfile(MemeberUpdateDto memeberUpdateDto, String uid) {
+        validateDuplicateUserByDisplayName(memeberUpdateDto.getDisplayName()); //닉네임 중복체크
+
+        Member member = memberRepository.findMemberByUid(uid)
+                .orElseThrow(() -> new UsernameNotFoundException("사용자 정보를 찾을 수 없습니다."));
+
+        member.updateProfile(memeberUpdateDto.getDisplayName(), memeberUpdateDto.getProfileUrl());
+
+        Response response = Response.builder()
+                .status(200)
+                .message("프로필 업데이트 성공")
                 .build();
 
         return response;

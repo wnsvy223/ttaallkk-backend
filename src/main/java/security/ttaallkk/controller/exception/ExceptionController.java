@@ -1,4 +1,4 @@
-package security.ttaallkk.controller;
+package security.ttaallkk.controller.exception;
 
 import lombok.RequiredArgsConstructor;
 import security.ttaallkk.dto.response.Response;

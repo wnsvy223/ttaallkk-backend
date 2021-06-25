@@ -1,9 +1,11 @@
-package security.ttaallkk.domain;
+package security.ttaallkk.domain.member;
 
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import security.ttaallkk.domain.CommonDateTime;
+
 import javax.persistence.*;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;

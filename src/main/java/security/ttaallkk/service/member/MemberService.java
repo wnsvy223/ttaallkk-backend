@@ -1,7 +1,7 @@
-package security.ttaallkk.service;
+package security.ttaallkk.service.member;
 import lombok.RequiredArgsConstructor;
-import security.ttaallkk.domain.Member;
-import security.ttaallkk.domain.MemberRole;
+import security.ttaallkk.domain.member.Member;
+import security.ttaallkk.domain.member.MemberRole;
 import security.ttaallkk.dto.request.LoginDto;
 import security.ttaallkk.dto.request.MemeberUpdateDto;
 import security.ttaallkk.dto.request.RefreshTokenDto;
@@ -13,7 +13,7 @@ import security.ttaallkk.exception.EmailAlreadyExistException;
 import security.ttaallkk.exception.InvalidRefreshTokenException;
 import security.ttaallkk.exception.PasswordNotMatchException;
 import security.ttaallkk.exception.RefreshTokenGrantTypeException;
-import security.ttaallkk.repository.MemberRepository;
+import security.ttaallkk.repository.member.MemberRepository;
 import security.ttaallkk.security.JwtProvider;
 
 import org.apache.commons.lang3.RandomStringUtils;

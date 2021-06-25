@@ -1,4 +1,4 @@
-package security.ttaallkk.service;
+package security.ttaallkk.service.member;
 
 import java.util.List;
 
@@ -16,7 +16,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import lombok.extern.log4j.Log4j2;
-import security.ttaallkk.domain.Member;
+import security.ttaallkk.domain.member.Member;
 
 
 /**

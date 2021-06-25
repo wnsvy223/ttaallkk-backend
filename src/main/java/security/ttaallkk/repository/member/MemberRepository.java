@@ -1,10 +1,10 @@
-package security.ttaallkk.repository;
+package security.ttaallkk.repository.member;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
-import security.ttaallkk.domain.Member;
+import security.ttaallkk.domain.member.Member;
 
 import java.util.Optional;
 

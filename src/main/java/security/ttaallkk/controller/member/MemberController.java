@@ -1,15 +1,15 @@
-package security.ttaallkk.controller;
+package security.ttaallkk.controller.member;
 
 import lombok.RequiredArgsConstructor;
-import security.ttaallkk.domain.Member;
+import security.ttaallkk.domain.member.Member;
 import security.ttaallkk.dto.request.LoginDto;
 import security.ttaallkk.dto.request.MemeberUpdateDto;
 import security.ttaallkk.dto.request.RefreshTokenDto;
 import security.ttaallkk.dto.request.SignUpDto;
 import security.ttaallkk.dto.response.LoginResponse;
 import security.ttaallkk.dto.response.Response;
-import security.ttaallkk.service.MemberSearchService;
-import security.ttaallkk.service.MemberService;
+import security.ttaallkk.service.member.MemberSearchService;
+import security.ttaallkk.service.member.MemberService;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

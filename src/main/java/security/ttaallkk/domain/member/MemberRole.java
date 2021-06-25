@@ -1,4 +1,4 @@
-package security.ttaallkk.domain;
+package security.ttaallkk.domain.member;
 import lombok.Getter;
 
 

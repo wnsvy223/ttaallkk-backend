@@ -6,7 +6,7 @@ import security.ttaallkk.security.JwtAccessDeniedHandler;
 import security.ttaallkk.security.JwtAuthenticationEntryPoint;
 import security.ttaallkk.security.JwtFilter;
 import security.ttaallkk.security.JwtProvider;
-import security.ttaallkk.service.MemberService;
+import security.ttaallkk.service.member.MemberService;
 
 import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
 import org.springframework.context.annotation.Bean;

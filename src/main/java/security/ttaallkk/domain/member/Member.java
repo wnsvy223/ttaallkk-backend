@@ -21,6 +21,7 @@ import org.hibernate.search.annotations.Indexed;
 import org.hibernate.search.annotations.TokenFilterDef;
 import org.hibernate.search.annotations.TokenizerDef;
 
+import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -43,9 +44,10 @@ import java.util.Set;
     filters = {@TokenFilterDef(factory = LowerCaseFilterFactory.class)})
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class Member extends CommonDateTime{
+public class Member extends CommonDateTime implements Serializable{
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.AUTO, generator = "member_seq")
+    @SequenceGenerator(name="member_seq", sequenceName="MEMBER_SEQ", allocationSize = 1)
     @Column(name = "member_id")
     @JsonIgnore
     private Long id;

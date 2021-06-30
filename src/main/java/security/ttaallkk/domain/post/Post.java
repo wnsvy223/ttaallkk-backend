@@ -11,7 +11,6 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.Lob;
 import javax.persistence.ManyToOne;
-import javax.persistence.SequenceGenerator;
 
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -41,8 +40,7 @@ import org.hibernate.search.annotations.TokenizerDef;
 
 public class Post extends CommonDateTime{
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO, generator = "post_seq")
-    @SequenceGenerator(name="post_seq", sequenceName="POST_SEQ", allocationSize = 1)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name="post_id")
     private Long id;
 
@@ -50,6 +48,11 @@ public class Post extends CommonDateTime{
     @ManyToOne(targetEntity = Member.class, fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @JoinColumn(name = "uid", referencedColumnName = "uid")
     private Member writer;
+
+    //게시글 분류 카테고리
+    @ManyToOne(targetEntity = Category.class, fetch = FetchType.LAZY)
+    @JoinColumn(name ="category_id")
+    private Category category;
 
     @Column(name = "title")
     @Field

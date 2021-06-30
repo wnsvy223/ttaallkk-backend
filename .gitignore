@@ -39,3 +39,6 @@ out/
 ### Lucene ###
 security.ttaallkk.domain.member.Member
 security.ttaallkk.domain.post.Post
+
+### Query DSL ###
+/src/main/generated/*

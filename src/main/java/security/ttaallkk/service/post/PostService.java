@@ -13,6 +13,7 @@ import security.ttaallkk.dto.request.PostCreateDto;
 import security.ttaallkk.exception.UidNotFoundException;
 import security.ttaallkk.repository.member.MemberRepository;
 import security.ttaallkk.repository.post.PostRepository;
+import security.ttaallkk.repository.post.PostRepositorySupport;
 
 @Service
 @RequiredArgsConstructor
@@ -20,7 +21,8 @@ import security.ttaallkk.repository.post.PostRepository;
 @Log4j2
 public class PostService {
  
-    private final PostRepository postRepository;
+    private final PostRepository postRepository; //JPA Repository
+    private final PostRepositorySupport postRepositorySupport; //Query DSL Repository
     private final MemberRepository memberRepository;
 
     /**

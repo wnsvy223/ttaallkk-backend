@@ -5,6 +5,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import security.ttaallkk.domain.CommonDateTime;
+import security.ttaallkk.domain.post.Post;
 
 import javax.persistence.Column;
 import javax.persistence.ElementCollection;
@@ -15,6 +16,7 @@ import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.OneToMany;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
@@ -30,7 +32,9 @@ import org.hibernate.search.annotations.TokenFilterDef;
 import org.hibernate.search.annotations.TokenizerDef;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -59,7 +63,7 @@ public class Member extends CommonDateTime implements Serializable{
     @JsonIgnore
     private Long id;
 
-    @Column(unique = true, name = "email")
+    @Column(name = "email", unique = true)
     @Field
     @Analyzer(definition = "emailanAlyzer")
     private String email;
@@ -68,12 +72,12 @@ public class Member extends CommonDateTime implements Serializable{
     @JsonIgnore
     private String password;
 
-    @Column(unique = true, name = "displayName")
+    @Column( name = "displayName", unique = true)
     @Field
     @Analyzer(definition = "koreanAnalyzer")
     private String displayName;
 
-    @Column(unique = true, name = "uid")
+    @Column( name = "uid", unique = true)
     private String uid;
 
     @Column(name = "profileUrl")
@@ -88,6 +92,10 @@ public class Member extends CommonDateTime implements Serializable{
     @Column(name = "refreshToken")
     @JsonIgnore
     private String refreshToken;
+
+    //게시글
+    @OneToMany(mappedBy="writer", fetch = FetchType.LAZY)
+    private List<Post> posts = new ArrayList<>();
 
     @Builder
     public Member(String email, String password, String displayName, String uid, String profileUrl,Set<MemberRole> roles) {

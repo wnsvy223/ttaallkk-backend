@@ -9,6 +9,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import security.ttaallkk.domain.member.Member;
 import security.ttaallkk.domain.post.Post;
+import security.ttaallkk.domain.post.PostStatus;
+import security.ttaallkk.dto.querydsl.PostWithMemberDto;
 import security.ttaallkk.dto.request.PostCreateDto;
 import security.ttaallkk.exception.UidNotFoundException;
 import security.ttaallkk.repository.member.MemberRepository;
@@ -31,8 +33,7 @@ public class PostService {
      * @return Post : 생성된 게시글 정보
      */
     @Transactional
-    public Post createPost(PostCreateDto postCreateDto){
-        
+    public Post createPost(PostCreateDto postCreateDto) {        
         Member member = memberRepository.findMemberByUid(postCreateDto.getWriteUid())
             .orElseThrow(() -> new UidNotFoundException("존재하지 않는 Uid입니다."));
         
@@ -40,6 +41,7 @@ public class PostService {
             .writer(member)
             .title(postCreateDto.getTitle())
             .content(postCreateDto.getContent())
+            .postStatus(PostStatus.NORMAL)
             .build();
 
         return postRepository.save(post);
@@ -48,20 +50,29 @@ public class PostService {
     /**
      * 해당 uid의 사용자가 작성한 게시글 조회
      * @param uid
-     * @return List<Post> 조회된 게시글 목록
+     * @return List<PostByMemberDto> : 조회된 게시글의 작성자 정보를 포함한 목록
      */
     @Transactional
-    public List<Post> findPostByUid(String uid){
-        List<Post> result = postRepository.findPostByWriterUid(uid);
+    public List<PostWithMemberDto> findPostByUid(String uid) {
+        List<PostWithMemberDto> result = postRepositorySupport.findPostByUid(uid);
 
         return result;
+    }
+
+    /**
+     * 해당 uid의 사용자가 작성한 모든 게시글 삭제
+     * @param uid
+     */
+    @Transactional
+    public void deletePostsByUid(String uid) {
+        postRepository.deletePostsByUid(uid);
     }
 
     /**
      * 모든 게시글 삭제
      */
     @Transactional
-    public void deleteAllPost(){
+    public void deleteAllPost() {
         postRepository.deleteAll();
     }
 }

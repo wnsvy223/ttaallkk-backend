@@ -1,8 +1,6 @@
 package security.ttaallkk.controller.post;
 
-import java.util.Collection;
 import java.util.List;
-import java.util.Optional;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -15,7 +13,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
-import security.ttaallkk.domain.post.Post;
+import security.ttaallkk.dto.querydsl.PostWithMemberDto;
 import security.ttaallkk.dto.request.PostCreateDto;
 import security.ttaallkk.dto.response.Response;
 import security.ttaallkk.service.post.PostService;
@@ -34,7 +32,7 @@ public class PostController {
      * @return Response
      */
     @PostMapping("/")
-    public ResponseEntity<Response> createPost(@RequestBody PostCreateDto postCreateDto){
+    public ResponseEntity<Response> createPost(@RequestBody PostCreateDto postCreateDto) {
         postService.createPost(postCreateDto);
 
         Response response = Response.builder()
@@ -46,11 +44,11 @@ public class PostController {
     /**
      * uid로 게시글 조회
      * @param uid
-     * @return List<Post>
+     * @return List<PostByMemberDto>
      */
-    @GetMapping("/{uid}")
-    public ResponseEntity<List<Post>> search(@PathVariable("uid") String uid) {
-        List<Post> result = postService.findPostByUid(uid);
+    @GetMapping("/user/{uid}")
+    public ResponseEntity<List<PostWithMemberDto>> search(@PathVariable("uid") String uid) {
+        List<PostWithMemberDto> result = postService.findPostByUid(uid);
         return ResponseEntity.ok(result);
     }
 

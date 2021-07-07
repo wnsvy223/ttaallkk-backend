@@ -4,6 +4,8 @@ package security.ttaallkk.domain.post;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -45,8 +47,8 @@ public class Post extends CommonDateTime{
     private Long id;
 
     //FK로 사용될 값을 Member Entity의 PK인 id대신 uid사용을 위해 referencedColumnName설정(JPA에서 기본값으로 PK인 id를 사용하도록 되어있음)
-    @ManyToOne(targetEntity = Member.class, fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    @JoinColumn(name = "uid", referencedColumnName = "uid")
+    @ManyToOne(targetEntity = Member.class, fetch = FetchType.LAZY)
+    @JoinColumn(name = "writer", referencedColumnName = "uid")
     private Member writer;
 
     //게시글 분류 카테고리
@@ -65,13 +67,18 @@ public class Post extends CommonDateTime{
     @Analyzer(definition = "koreanAnalyzer_post")
     private String content;
 
-    @Column(name="likeCnt")
+    @Column(name = "likeCnt")
     private Integer likeCnt;
 
+    @Column(name = "postStatus")
+    @Enumerated(EnumType.STRING)
+    private PostStatus postStatus;
+    
     @Builder
-    public Post(Member writer, String title, String content){
+    public Post(Member writer, String title, String content, PostStatus postStatus){
         this.writer = writer;
         this.title = title;
         this.content = content;
+        this.postStatus = postStatus;
     }
 }

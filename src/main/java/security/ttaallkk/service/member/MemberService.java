@@ -15,6 +15,7 @@ import security.ttaallkk.exception.PasswordNotMatchException;
 import security.ttaallkk.exception.RefreshTokenGrantTypeException;
 import security.ttaallkk.repository.member.MemberRepository;
 import security.ttaallkk.security.JwtProvider;
+import security.ttaallkk.service.post.PostService;
 
 import org.apache.commons.lang3.RandomStringUtils;
 import org.slf4j.Logger;
@@ -47,6 +48,7 @@ public class MemberService implements UserDetailsService {
     private final MemberRepository memberRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtProvider jwtProvider;
+    private final PostService postService;
 
     
     /**
@@ -105,6 +107,7 @@ public class MemberService implements UserDetailsService {
         Member member = memberRepository.findMemberByEmail(email)
             .orElseThrow(() -> new UsernameNotFoundException(email + " 이메일이 일치하지 않습니다"));
         if(passwordEncoder.matches(password, member.getPassword())){
+            removeAllPostBySignOutMember(member.getUid());
             memberRepository.deleteByEmail(email);
         }else{
             throw new PasswordNotMatchException("비밀번호가 틀렸습니다.");
@@ -248,5 +251,13 @@ public class MemberService implements UserDetailsService {
      */
     private void validateDuplicateUserByDisplayName(String displayName) {
         if(memberRepository.findMemberByDisplayName(displayName).isPresent()) throw new DisplayNameAlreadyExistException("이미 가입된 사용자 닉네임 입니다. 새로운 닉네임으로 가입을 진행하세요.");
+    }
+
+    /**
+     * 회원탈퇴 시 해당 사용자가 작성한 글도 모두 삭제
+     * @param uid
+     */
+    private void removeAllPostBySignOutMember(String uid){
+        postService.deletePostsByUid(uid);
     }
 }

@@ -19,5 +19,5 @@ public interface PostRepository extends JpaRepository<Post, Long>, QuerydslPredi
     //JPA는 Bulk수행을 제공하지 않기 때문에 jpql로 쿼리로 직접수행 및 @Modifying의 옵션으로 영속성 처리.
     @Modifying(clearAutomatically = true, flushAutomatically = true)
     @Query("delete from Post p where p.writer.uid = :uid")
-    void deletePostsByUid(@Param("uid") String uid);
+    void deleteAllPostByUid(@Param("uid") String uid);
 }

@@ -2,6 +2,8 @@ package security.ttaallkk.service.post;
 
 import java.util.List;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -48,6 +50,30 @@ public class PostService {
     }
 
     /**
+     * 최신 게시글 조회
+     * @param limit
+     * @return List<PostWithMemberDto> : 조회된 게시글의 작성자 정보를 포함한 목록
+     */
+    @Transactional
+    public List<PostWithMemberDto> findPostByRecent(int limit) {
+        List<PostWithMemberDto> result = postRepositorySupport.findPostByRecent(limit);
+
+        return result;
+    }
+
+    /**
+     * 페이징
+     * @param pageable
+     * @return Page<PostWithMemberDto> : 페이징정보 + 조회된 게시글의 작성자 정보를 포함한 목록
+     */
+    @Transactional
+    public Page<PostWithMemberDto> paging(Pageable pageable) {
+        Page<PostWithMemberDto> result = postRepositorySupport.paging(pageable);
+
+        return result;
+    }
+
+    /**
      * 해당 uid의 사용자가 작성한 게시글 조회
      * @param uid
      * @return List<PostByMemberDto> : 조회된 게시글의 작성자 정보를 포함한 목록
@@ -57,15 +83,6 @@ public class PostService {
         List<PostWithMemberDto> result = postRepositorySupport.findPostByUid(uid);
 
         return result;
-    }
-
-    /**
-     * 해당 uid의 사용자가 작성한 모든 게시글 삭제
-     * @param uid
-     */
-    @Transactional
-    public void deletePostsByUid(String uid) {
-        postRepository.deletePostsByUid(uid);
     }
 
     /**

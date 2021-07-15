@@ -14,8 +14,8 @@ import security.ttaallkk.exception.InvalidRefreshTokenException;
 import security.ttaallkk.exception.PasswordNotMatchException;
 import security.ttaallkk.exception.RefreshTokenGrantTypeException;
 import security.ttaallkk.repository.member.MemberRepository;
+import security.ttaallkk.repository.post.PostRepository;
 import security.ttaallkk.security.JwtProvider;
-import security.ttaallkk.service.post.PostService;
 
 import org.apache.commons.lang3.RandomStringUtils;
 import org.slf4j.Logger;
@@ -46,9 +46,9 @@ public class MemberService implements UserDetailsService {
 
     private final Logger log = LoggerFactory.getLogger(MemberService.class);
     private final MemberRepository memberRepository;
+    private final PostRepository postRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtProvider jwtProvider;
-    private final PostService postService;
 
     
     /**
@@ -258,6 +258,6 @@ public class MemberService implements UserDetailsService {
      * @param uid
      */
     private void removeAllPostBySignOutMember(String uid){
-        postService.deletePostsByUid(uid);
+        postRepository.deleteAllPostByUid(uid);
     }
 }

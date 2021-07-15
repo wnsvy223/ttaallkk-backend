@@ -17,6 +17,8 @@ public class PostWithMemberDto{
 
     private String profileUrl;
 
+    private Long id;
+    
     private String title;
 
     private String content;
@@ -32,6 +34,7 @@ public class PostWithMemberDto{
                 String email, 
                 String displayName, 
                 String profileUrl, 
+                Long id,
                 String title, 
                 String content, 
                 PostStatus postStatus,
@@ -41,6 +44,7 @@ public class PostWithMemberDto{
         this.email = email;
         this.displayName = displayName;
         this.profileUrl = profileUrl;
+        this.id = id;
         this.title = title;
         this.content = content;
         this.postStatus = postStatus;

@@ -2,6 +2,9 @@ package security.ttaallkk.controller.post;
 
 import java.util.List;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -10,6 +13,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
@@ -42,12 +46,37 @@ public class PostController {
     }
 
     /**
-     * uid로 게시글 조회
+     * 메인 페이지 게시글 페이징 최신 게시글 15개 조회
+     * @return List<PostWithMemberDto>
+     */
+    @GetMapping("/")
+    public ResponseEntity<List<PostWithMemberDto>> getPostsForPreView() {
+        List<PostWithMemberDto> result = postService.findPostByRecent(15);
+        return ResponseEntity.ok(result);
+    }
+
+    /**
+     * 페이징
+     * @param page
+     * @param pageable
+     * @return Page<PostWithMemberDto>
+     */
+    @GetMapping
+    public ResponseEntity<Page<PostWithMemberDto>> getPostsByPageNumber(
+                @RequestParam(value = "page", defaultValue = "0") int page, 
+                @PageableDefault(size = 20) Pageable pageable) {
+
+        Page<PostWithMemberDto> result = postService.paging(pageable);
+        return ResponseEntity.ok(result);
+    }
+
+    /**
+     * 작성자 uid로 게시글 조회
      * @param uid
      * @return List<PostByMemberDto>
      */
     @GetMapping("/user/{uid}")
-    public ResponseEntity<List<PostWithMemberDto>> search(@PathVariable("uid") String uid) {
+    public ResponseEntity<List<PostWithMemberDto>> getPostsByWriterUid(@PathVariable("uid") String uid) {
         List<PostWithMemberDto> result = postService.findPostByUid(uid);
         return ResponseEntity.ok(result);
     }
@@ -57,7 +86,7 @@ public class PostController {
      * @return Response
      */
     @DeleteMapping("/all")
-    public ResponseEntity<Response> deletePost(){
+    public ResponseEntity<Response> deletePost() {
         postService.deleteAllPost();
         
         Response response = Response.builder()

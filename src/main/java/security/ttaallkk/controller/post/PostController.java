@@ -17,9 +17,11 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
+import security.ttaallkk.domain.post.Post;
 import security.ttaallkk.dto.querydsl.PostWithMemberDto;
 import security.ttaallkk.dto.request.PostCreateDto;
 import security.ttaallkk.dto.response.Response;
+import security.ttaallkk.service.post.PostSearchService;
 import security.ttaallkk.service.post.PostService;
 
 @Controller
@@ -29,6 +31,7 @@ import security.ttaallkk.service.post.PostService;
 public class PostController {
 
     private final PostService postService;
+    private final PostSearchService postSearchService;
     
     /**
      * 게시글 생성
@@ -67,6 +70,22 @@ public class PostController {
                 @PageableDefault(size = 20) Pageable pageable) {
 
         Page<PostWithMemberDto> result = postService.paging(pageable);
+        return ResponseEntity.ok(result);
+    }
+
+    /**
+     * 게시글 Full Text Search + Paging
+     * @param keyword
+     * @param page
+     * @param pageable
+     * @return Page<Post>
+     */
+    @GetMapping("/search")
+    public ResponseEntity<Page<Post>> searchPost(
+                @RequestParam(value = "keyword") String keyword,
+                @RequestParam(value = "page", defaultValue = "0") int page,
+                @PageableDefault(size = 10) Pageable pageable) {
+        Page<Post> result = postSearchService.searchPostByTitleOrContent(keyword, pageable);
         return ResponseEntity.ok(result);
     }
 

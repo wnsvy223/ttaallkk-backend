@@ -94,6 +94,7 @@ public class Member extends CommonDateTime implements Serializable{
     private String refreshToken;
 
     //게시글
+    @JsonIgnore
     @OneToMany(mappedBy="writer", fetch = FetchType.LAZY)
     private List<Post> posts = new ArrayList<>();
 

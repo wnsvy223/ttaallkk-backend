@@ -58,10 +58,22 @@ public class MemberSearchService {
             .forEntity(Member.class)
             .get();     
         
-        //email검색은 와일드 카드, displayName은 arirang anlyzer를 이용한 FullTextSearch후 boolean쿼리로 둘 중 하나 만족 시 조회.
+        //email과 displayName 필드를 각각 와일드카드 FullTextSearch후 boolean쿼리로 둘 중 하나 만족 시 조회.
         Query query = queryBuilder.bool()
-            .should(queryBuilder.keyword().wildcard().onField("email").matching(keyword + "*").createQuery())
-            .should(queryBuilder.keyword().onField("displayName").matching(keyword).createQuery())
+            .should(queryBuilder
+                .keyword()
+                .wildcard()
+                .onField("email")
+                .matching("*" + keyword + "*")
+                .createQuery()
+            )
+            .should(queryBuilder
+                .keyword()
+                .wildcard()
+                .onField("displayName")
+                .matching("*" + keyword + "*")
+                .createQuery()
+            )
             .createQuery();
 
         FullTextQuery fullTextQuery = fullTextEntityManager.createFullTextQuery(query, Member.class);

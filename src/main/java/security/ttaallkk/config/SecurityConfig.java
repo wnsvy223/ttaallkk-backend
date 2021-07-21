@@ -68,6 +68,9 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .disable() //CSRF 비활성화
             .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS) //토큰을 활용하면 세션을 사용하지 않으므로 STATELESS로 설정.
                 .and()
+            .anonymous()
+                .authorities("ROLE_ANONYMOUS") //익명 유저에게 ROLE_ANONYMOUS권한 부여
+                .and()
             .authorizeRequests()
                 .antMatchers(HttpMethod.POST, "/api/signUp", "/api/login", "/api/refreshToken", "/api/post/**").permitAll()//회원가입, 로그인, 리프래시토큰발급 앤드포인트는 인증없이 허용.
                 .antMatchers(HttpMethod.GET, "/api/search/**", "/api/post/**").permitAll() //유저 검색 앤드포인트 허용

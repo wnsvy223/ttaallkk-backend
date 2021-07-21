@@ -47,6 +47,8 @@ public class PostRepositorySupport extends QuerydslRepositorySupport {
                     post.id,
                     post.title,
                     post.content,
+                    post.likeCnt,
+                    post.views,
                     post.postStatus,
                     post.createdAt,
                     post.modifiedAt
@@ -77,6 +79,8 @@ public class PostRepositorySupport extends QuerydslRepositorySupport {
                     post.id,
                     post.title,
                     post.content,
+                    post.likeCnt,
+                    post.views,
                     post.postStatus,
                     post.createdAt,
                     post.modifiedAt
@@ -104,6 +108,8 @@ public class PostRepositorySupport extends QuerydslRepositorySupport {
                     post.id,
                     post.title,
                     post.content,
+                    post.likeCnt,
+                    post.views,
                     post.postStatus,
                     post.createdAt,
                     post.modifiedAt

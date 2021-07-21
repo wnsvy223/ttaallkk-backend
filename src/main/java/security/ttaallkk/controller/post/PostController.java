@@ -20,6 +20,7 @@ import lombok.extern.log4j.Log4j2;
 import security.ttaallkk.domain.post.Post;
 import security.ttaallkk.dto.querydsl.PostWithMemberDto;
 import security.ttaallkk.dto.request.PostCreateDto;
+import security.ttaallkk.dto.response.PostDetailsDto;
 import security.ttaallkk.dto.response.Response;
 import security.ttaallkk.service.post.PostSearchService;
 import security.ttaallkk.service.post.PostService;
@@ -46,6 +47,17 @@ public class PostController {
             .status(200)
             .message("게시글 작성 성공").build();
         return ResponseEntity.ok(response);
+    }
+
+    /**
+     * 게시글 내용 조회
+     * @param postId
+     * @return PostDetailsDto
+     */
+    @GetMapping("/{postId}")
+    public ResponseEntity<PostDetailsDto> getPostDetails(@PathVariable("postId") Long postId) {
+        PostDetailsDto result = postService.findPostByPostId(postId);
+        return ResponseEntity.ok(result);
     }
 
     /**
@@ -84,7 +96,7 @@ public class PostController {
     public ResponseEntity<Page<Post>> searchPost(
                 @RequestParam(value = "keyword") String keyword,
                 @RequestParam(value = "page", defaultValue = "0") int page,
-                @PageableDefault(size = 10) Pageable pageable) {
+                @PageableDefault(size = 20) Pageable pageable) {
         Page<Post> result = postSearchService.searchPostByTitleOrContent(keyword, pageable);
         return ResponseEntity.ok(result);
     }

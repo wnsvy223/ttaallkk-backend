@@ -23,6 +23,10 @@ public class PostWithMemberDto{
 
     private String content;
 
+    private Integer likeCnt;
+
+    private Integer views;
+
     private PostStatus postStatus;
 
     private LocalDateTime createdAt;
@@ -36,7 +40,9 @@ public class PostWithMemberDto{
                 String profileUrl, 
                 Long id,
                 String title, 
-                String content, 
+                String content,
+                Integer likeCnt,
+                Integer views,
                 PostStatus postStatus,
                 LocalDateTime createdAt,
                 LocalDateTime modifiedAt) {
@@ -47,6 +53,8 @@ public class PostWithMemberDto{
         this.id = id;
         this.title = title;
         this.content = content;
+        this.likeCnt = likeCnt;
+        this.views = views;
         this.postStatus = postStatus;
         this.createdAt = createdAt;
         this.modifiedAt = modifiedAt;

@@ -4,6 +4,8 @@ import java.util.List;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -14,6 +16,8 @@ import security.ttaallkk.domain.post.Post;
 import security.ttaallkk.domain.post.PostStatus;
 import security.ttaallkk.dto.querydsl.PostWithMemberDto;
 import security.ttaallkk.dto.request.PostCreateDto;
+import security.ttaallkk.dto.response.PostDetailsDto;
+import security.ttaallkk.exception.PostNotFoundException;
 import security.ttaallkk.exception.UidNotFoundException;
 import security.ttaallkk.repository.member.MemberRepository;
 import security.ttaallkk.repository.post.PostRepository;
@@ -44,9 +48,29 @@ public class PostService {
             .title(postCreateDto.getTitle())
             .content(postCreateDto.getContent())
             .postStatus(PostStatus.NORMAL)
+            .views(0)
+            .likeCnt(0)
             .build();
 
         return postRepository.save(post);
+    }
+
+    /**
+     * 게시글 내용보기
+     * @param postId
+     * @return PostDetailsDto
+     */
+    @Transactional
+    public PostDetailsDto findPostByPostId(Long postId) {
+        Post post = postRepository.findPostByPostId(postId).orElseThrow(PostNotFoundException::new);
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        //일반유저 또는 익명유저의 경우에만 조회수 증가(관리자는 조회수 증가 X)
+        if (authentication.getAuthorities().stream().anyMatch(a -> a.getAuthority().equals("ROLE_USER") || a.getAuthority().equals("ROLE_ANONYMOUS"))){
+            post.updateViewsCount(); //조회수 증가(업데이트는 어플리케이션 레벨에서 수행하는 것을 권장)
+        }
+        PostDetailsDto result = PostDetailsDto.convertResponseDto(post);
+        
+        return result;
     }
 
     /**

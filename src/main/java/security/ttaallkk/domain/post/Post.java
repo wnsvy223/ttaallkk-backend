@@ -23,6 +23,7 @@ import security.ttaallkk.domain.member.Member;
 
 import org.apache.lucene.analysis.ko.KoreanFilterFactory;
 import org.apache.lucene.analysis.ko.KoreanTokenizerFactory;
+import org.hibernate.annotations.DynamicUpdate;
 import org.hibernate.search.annotations.Analyzer;
 import org.hibernate.search.annotations.AnalyzerDef;
 import org.hibernate.search.annotations.Field;
@@ -35,6 +36,7 @@ import org.hibernate.search.annotations.TokenizerDef;
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Indexed
+@DynamicUpdate
 @AnalyzerDef(
     name = "koreanAnalyzer_post", 
     tokenizer = @TokenizerDef(factory = KoreanTokenizerFactory.class),
@@ -48,7 +50,7 @@ public class Post extends CommonDateTime{
 
     //FK로 사용될 값을 Member Entity의 PK인 id대신 uid사용을 위해 referencedColumnName설정(JPA에서 기본값으로 PK인 id를 사용하도록 되어있음)
     @ManyToOne(targetEntity = Member.class, fetch = FetchType.LAZY)
-    @JoinColumn(name = "writer", referencedColumnName = "uid")
+    @JoinColumn(name = "writer", referencedColumnName = "uid", nullable = false)
     private Member writer;
 
     //게시글 분류 카테고리
@@ -67,18 +69,28 @@ public class Post extends CommonDateTime{
     @Analyzer(definition = "koreanAnalyzer_post")
     private String content;
 
-    @Column(name = "likeCnt")
+    @Column(name = "likeCnt", nullable = false)
     private Integer likeCnt;
 
-    @Column(name = "postStatus")
+    @Column(name = "views", nullable = false)
+    private Integer views;
+
+    @Column(name = "postStatus", nullable = false)
     @Enumerated(EnumType.STRING)
     private PostStatus postStatus;
     
     @Builder
-    public Post(Member writer, String title, String content, PostStatus postStatus){
+    public Post(Member writer, String title, String content, PostStatus postStatus, Integer views, Integer likeCnt){
         this.writer = writer;
         this.title = title;
         this.content = content;
         this.postStatus = postStatus;
+        this.views = views;
+        this.likeCnt = likeCnt;
+    }
+
+    // 조회수 증가
+    public void updateViewsCount(){
+        this.views++;
     }
 }

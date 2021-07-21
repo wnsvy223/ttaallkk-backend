@@ -63,21 +63,21 @@ public class Member extends CommonDateTime implements Serializable{
     @JsonIgnore
     private Long id;
 
-    @Column(name = "email", unique = true)
+    @Column(name = "email", unique = true, nullable = false)
     @Field
     @Analyzer(definition = "emailanAlyzer")
     private String email;
 
-    @Column(name = "password")
+    @Column(name = "password", nullable = false)
     @JsonIgnore
     private String password;
 
-    @Column( name = "displayName", unique = true)
+    @Column( name = "displayName", unique = true, nullable = false)
     @Field
     @Analyzer(definition = "koreanAnalyzer")
     private String displayName;
 
-    @Column( name = "uid", unique = true)
+    @Column( name = "uid", unique = true, nullable = false)
     private String uid;
 
     @Column(name = "profileUrl")

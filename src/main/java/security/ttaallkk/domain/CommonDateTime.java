@@ -22,7 +22,7 @@ import lombok.Getter;
 public abstract class CommonDateTime {
 
     @CreatedDate
-    @Column(nullable = false)
+    @Column(nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
     @LastModifiedDate

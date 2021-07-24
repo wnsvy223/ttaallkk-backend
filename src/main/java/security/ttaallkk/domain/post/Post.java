@@ -42,7 +42,7 @@ import org.hibernate.search.annotations.TokenizerDef;
     tokenizer = @TokenizerDef(factory = KoreanTokenizerFactory.class),
     filters = {@TokenFilterDef(factory = KoreanFilterFactory.class)})
 
-public class Post extends CommonDateTime{
+public class Post extends CommonDateTime {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name="post_id")
@@ -80,7 +80,7 @@ public class Post extends CommonDateTime{
     private PostStatus postStatus;
     
     @Builder
-    public Post(Member writer, String title, String content, PostStatus postStatus, Integer views, Integer likeCnt){
+    public Post(Member writer, String title, String content, PostStatus postStatus, Integer views, Integer likeCnt) {
         this.writer = writer;
         this.title = title;
         this.content = content;
@@ -89,8 +89,14 @@ public class Post extends CommonDateTime{
         this.likeCnt = likeCnt;
     }
 
-    // 조회수 증가
-    public void updateViewsCount(){
+    //조회수 증가
+    public void updateViewsCount() {
         this.views++;
+    }
+
+    //게시글 수정
+    public void updatePost(String title, String content) {
+        this.title = title;
+        this.content = content;
     }
 }

@@ -6,11 +6,13 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -20,6 +22,7 @@ import lombok.extern.log4j.Log4j2;
 import security.ttaallkk.domain.post.Post;
 import security.ttaallkk.dto.querydsl.PostWithMemberDto;
 import security.ttaallkk.dto.request.PostCreateDto;
+import security.ttaallkk.dto.request.PostUpdateDto;
 import security.ttaallkk.dto.response.PostDetailsDto;
 import security.ttaallkk.dto.response.Response;
 import security.ttaallkk.service.post.PostSearchService;
@@ -58,6 +61,37 @@ public class PostController {
     public ResponseEntity<PostDetailsDto> getPostDetails(@PathVariable("postId") Long postId) {
         PostDetailsDto result = postService.findPostByPostId(postId);
         return ResponseEntity.ok(result);
+    }
+
+    /**
+     * 게시글 수정
+     * @param postUpdateDto
+     * @return
+     */
+    @PutMapping("/{postId}")
+    public ResponseEntity<Response> updatePost(
+                @RequestBody PostUpdateDto postUpdateDto, 
+                @PathVariable("postId") Long postId) {
+
+        Response response = postService.updatePost(postUpdateDto, postId);
+        
+        return ResponseEntity
+                .status(response.getStatus())
+                .body(response);
+    }
+
+    /**
+     * 게시글 삭제(단일 삭제)
+     * @param postId
+     * @return Response
+     */
+    @DeleteMapping("/{postId}")
+    public ResponseEntity<Response> deletePost(@PathVariable("postId") Long postId) {
+        Response response = postService.deletePost(postId);
+        
+        return ResponseEntity
+                .status(response.getStatus())
+                .body(response);
     }
 
     /**
@@ -113,16 +147,17 @@ public class PostController {
     }
 
     /**
-     * 모든 게시글 삭제
+     * 게시글 삭제(전체 삭제) - 관리자만 전체 삭제 가능
      * @return Response
      */
     @DeleteMapping("/all")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     public ResponseEntity<Response> deletePost() {
         postService.deleteAllPost();
         
         Response response = Response.builder()
             .status(200)
-            .message("게시글 삭제 성공").build();
+            .message("게시글 전체 삭제 성공").build();
         return ResponseEntity.ok(response);
     }
 }

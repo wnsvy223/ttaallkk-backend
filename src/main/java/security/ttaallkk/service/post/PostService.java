@@ -16,7 +16,9 @@ import security.ttaallkk.domain.post.Post;
 import security.ttaallkk.domain.post.PostStatus;
 import security.ttaallkk.dto.querydsl.PostWithMemberDto;
 import security.ttaallkk.dto.request.PostCreateDto;
+import security.ttaallkk.dto.request.PostUpdateDto;
 import security.ttaallkk.dto.response.PostDetailsDto;
+import security.ttaallkk.dto.response.Response;
 import security.ttaallkk.exception.PostNotFoundException;
 import security.ttaallkk.exception.UidNotFoundException;
 import security.ttaallkk.repository.member.MemberRepository;
@@ -58,7 +60,7 @@ public class PostService {
     /**
      * 게시글 내용보기
      * @param postId
-     * @return PostDetailsDto
+     * @return PostDetailsDto : 게시글 상세내용 정보
      */
     @Transactional
     public PostDetailsDto findPostByPostId(Long postId) {
@@ -71,6 +73,60 @@ public class PostService {
         PostDetailsDto result = PostDetailsDto.convertResponseDto(post);
         
         return result;
+    }
+
+    /**
+     * 게시글 수정
+     * @param postUpdateDto
+     * @param postId
+     * @return Response
+     */
+    @Transactional
+    public Response updatePost(PostUpdateDto postUpdateDto, Long postId) {
+        Post post = postRepository.findPostByPostId(postId).orElseThrow(PostNotFoundException::new);
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        //현재 인증된 사용자의 이메일이 게시글 작성자 이메일과 같을 경우에만 수정 가능
+        if(post.getWriter().getEmail().equals(authentication.getName())){
+            post.updatePost(
+                postUpdateDto.getTitle(), 
+                postUpdateDto.getContent()
+            );
+            return Response.builder()
+                .status(200)
+                .message("게시글 수정 성공")
+                .build();
+        }else{
+            return Response.builder()
+                .status(403)
+                .message("게시글을 수정할 수 있는 권한이 없습니다.")
+                .build();
+        }  
+    }
+    
+    /**
+     * 게시글 삭제
+     * @param postId
+     * @return Response
+     */
+    @Transactional
+    public Response deletePost(Long postId) {
+        Post post = postRepository.findPostByPostId(postId).orElseThrow(PostNotFoundException::new);
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        //현재 인증된 사용자의 이메일이 게시글 작성자 이메일과 같을 경우에만 삭제 가능
+        if(post.getWriter().getEmail().equals(authentication.getName())){
+            postRepository.deleteById(postId);
+            return Response.builder()
+                .status(200)
+                .message("게시글 삭제 성공")
+                .build();
+        }else{
+            return Response.builder()
+                .status(403)
+                .message("게시글을 삭제할 수 있는 권한이 없습니다.")
+                .build();
+        }  
     }
 
     /**

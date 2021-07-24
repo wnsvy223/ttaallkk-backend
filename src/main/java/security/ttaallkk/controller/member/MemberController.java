@@ -26,7 +26,7 @@ import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 
 @Controller
-@RequestMapping("/api")
+@RequestMapping("/api/user")
 @RequiredArgsConstructor
 public class MemberController {
 
@@ -113,7 +113,7 @@ public class MemberController {
      * @param memeberUpdateDto 업데이트 할 데이터
      * @return Response
      */
-    @PutMapping("/user/{uid}")
+    @PutMapping("/{uid}")
     public ResponseEntity<Response> updateProfile(@RequestBody MemeberUpdateDto memeberUpdateDto, @PathVariable("uid") String uid) {
         
         Response response = memberService.updateProfile(memeberUpdateDto, uid);

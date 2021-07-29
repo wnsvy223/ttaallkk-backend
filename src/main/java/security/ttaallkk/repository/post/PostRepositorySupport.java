@@ -16,7 +16,7 @@ import security.ttaallkk.domain.post.Post;
 import security.ttaallkk.dto.querydsl.PostWithMemberDto;
 
 import static security.ttaallkk.domain.post.QPost.post;
-import static security.ttaallkk.domain.member.QMember.member;;
+import static security.ttaallkk.domain.member.QMember.member;
 
 /**
  * Post Entity QueryDSL Repository

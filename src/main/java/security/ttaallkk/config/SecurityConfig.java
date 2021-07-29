@@ -72,9 +72,10 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .authorities("ROLE_ANONYMOUS") //익명 유저에게 ROLE_ANONYMOUS권한 부여
                 .and()
             .authorizeRequests()
-                .antMatchers(HttpMethod.POST, "/api/signUp", "/api/login", "/api/refreshToken", "/api/post/**").permitAll()//회원가입, 로그인, 리프래시토큰발급 앤드포인트는 인증없이 허용.
-                .antMatchers(HttpMethod.GET, "/api/search/**", "/api/post/**").permitAll() //유저 검색 앤드포인트 허용
-                .antMatchers(HttpMethod.DELETE, "/api/post/**").permitAll()
+                .antMatchers(HttpMethod.POST, "/api/signUp", "/api/login", "/api/refreshToken", "/api/post/**", "/api/comment/**").permitAll()//회원가입, 로그인, 리프래시토큰발급 앤드포인트는 인증없이 허용.
+                .antMatchers(HttpMethod.GET, "/api/search/**", "/api/post/**", "/api/comment/**").permitAll() //유저 검색 앤드포인트 허용
+                .antMatchers(HttpMethod.DELETE, "/api/post/**", "/api/comment/**").permitAll()
+                .antMatchers(HttpMethod.PUT, "/api/post/**", "/api/comment/**").permitAll()
                 .anyRequest().authenticated() //그 이외의 앤드포인트는 인증필요.
                 .and()    
             .exceptionHandling()

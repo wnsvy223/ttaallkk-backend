@@ -62,7 +62,6 @@ public class PostService {
      * @param postId
      * @return PostDetailsDto : 게시글 상세내용 정보
      */
-    @Transactional
     public PostDetailsDto findPostByPostId(Long postId) {
         Post post = postRepository.findPostByPostId(postId).orElseThrow(PostNotFoundException::new);
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -105,7 +104,7 @@ public class PostService {
     }
     
     /**
-     * 게시글 삭제
+     * 게시글 단일 삭제
      * @param postId
      * @return Response
      */
@@ -134,7 +133,6 @@ public class PostService {
      * @param limit
      * @return List<PostWithMemberDto> : 조회된 게시글의 작성자 정보를 포함한 목록
      */
-    @Transactional
     public List<PostWithMemberDto> findPostByRecent(int limit) {
         List<PostWithMemberDto> result = postRepositorySupport.findPostByRecent(limit);
 
@@ -146,7 +144,6 @@ public class PostService {
      * @param pageable
      * @return Page<PostWithMemberDto> : 페이징정보 + 조회된 게시글의 작성자 정보를 포함한 목록
      */
-    @Transactional
     public Page<PostWithMemberDto> paging(Pageable pageable) {
         Page<PostWithMemberDto> result = postRepositorySupport.paging(pageable);
 
@@ -158,7 +155,6 @@ public class PostService {
      * @param uid
      * @return List<PostByMemberDto> : 조회된 게시글의 작성자 정보를 포함한 목록
      */
-    @Transactional
     public List<PostWithMemberDto> findPostByUid(String uid) {
         List<PostWithMemberDto> result = postRepositorySupport.findPostByUid(uid);
 
@@ -166,7 +162,7 @@ public class PostService {
     }
 
     /**
-     * 모든 게시글 삭제
+     * 게시글 전체 삭제
      */
     @Transactional
     public void deleteAllPost() {

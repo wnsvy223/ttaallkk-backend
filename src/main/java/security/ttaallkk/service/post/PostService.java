@@ -17,7 +17,9 @@ import security.ttaallkk.domain.post.PostStatus;
 import security.ttaallkk.dto.querydsl.PostWithMemberDto;
 import security.ttaallkk.dto.request.PostCreateDto;
 import security.ttaallkk.dto.request.PostUpdateDto;
+import security.ttaallkk.dto.response.CommentResponseDto;
 import security.ttaallkk.dto.response.PostDetailsDto;
+import security.ttaallkk.dto.response.PostWithCommentsResponseDto;
 import security.ttaallkk.dto.response.Response;
 import security.ttaallkk.exception.PostNotFoundException;
 import security.ttaallkk.exception.UidNotFoundException;
@@ -72,6 +74,21 @@ public class PostService {
         PostDetailsDto result = PostDetailsDto.convertResponseDto(post);
         
         return result;
+    }
+
+    /**
+     * 게시글과 게시글에 연관된 계층댓글 함께 조회
+     * @param postId
+     * @return PostWithCommentsResponseDto
+     */
+    public PostWithCommentsResponseDto findPostByPostIdWithComments(Long postId) { 
+        Post post = postRepository.findPostByPostId(postId).orElseThrow(PostNotFoundException::new); //게시글 데이터를 조회
+        List<CommentResponseDto> comments = CommentResponseDto.convertCommentStructure(post.getComments()); //게시글에 연관된 댓글데이터를 가져와서 계층형 댓글구조로 변환
+        PostWithCommentsResponseDto postWithCommentsDto = PostWithCommentsResponseDto.builder() //PostWithCommentsResponseDto생성하여 데이터 세팅 후 반환
+            .post(post)
+            .comments(comments)
+            .build();
+        return postWithCommentsDto;
     }
 
     /**

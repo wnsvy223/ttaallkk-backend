@@ -24,6 +24,7 @@ import security.ttaallkk.dto.querydsl.PostWithMemberDto;
 import security.ttaallkk.dto.request.PostCreateDto;
 import security.ttaallkk.dto.request.PostUpdateDto;
 import security.ttaallkk.dto.response.PostDetailsDto;
+import security.ttaallkk.dto.response.PostWithCommentsResponseDto;
 import security.ttaallkk.dto.response.Response;
 import security.ttaallkk.service.post.PostSearchService;
 import security.ttaallkk.service.post.PostService;
@@ -60,6 +61,17 @@ public class PostController {
     @GetMapping("/{postId}")
     public ResponseEntity<PostDetailsDto> getPostDetails(@PathVariable("postId") Long postId) {
         PostDetailsDto result = postService.findPostByPostId(postId);
+        return ResponseEntity.ok(result);
+    }
+
+    /**
+     * 게시글과 댓글 함께 조회
+     * @param postId
+     * @return PostWithCommentsResponseDto
+     */
+    @GetMapping("/{postId}/comment")
+    public ResponseEntity<PostWithCommentsResponseDto> getPostDetailsWithComments(@PathVariable("postId") Long postId) {
+        PostWithCommentsResponseDto result = postService.findPostByPostIdWithComments(postId);
         return ResponseEntity.ok(result);
     }
 

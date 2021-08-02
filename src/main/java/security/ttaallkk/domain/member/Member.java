@@ -84,7 +84,7 @@ public class Member extends CommonDateTime implements Serializable{
     private String profileUrl;
 
     @Column(name = "roles")
-    @ElementCollection(fetch = FetchType.EAGER)
+    @ElementCollection(fetch = FetchType.LAZY)
     @Enumerated(EnumType.STRING)
     @JsonIgnore
     private Set<MemberRole> roles = new HashSet<>();
@@ -95,7 +95,7 @@ public class Member extends CommonDateTime implements Serializable{
 
     //게시글
     @JsonIgnore
-    @OneToMany(mappedBy="writer", fetch = FetchType.LAZY)
+    @OneToMany(mappedBy="writer")
     private List<Post> posts = new ArrayList<>();
 
     @Builder

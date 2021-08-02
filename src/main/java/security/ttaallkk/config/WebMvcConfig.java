@@ -20,7 +20,7 @@ public class WebMvcConfig implements WebMvcConfigurer{
 	public FilterRegistrationBean<XssFilter> getFilterRegistrationBean() {
 		FilterRegistrationBean<XssFilter> registrationBean = new FilterRegistrationBean<>(new XssFilter());
 		registrationBean.setOrder(Integer.MIN_VALUE);
-		registrationBean.addUrlPatterns("/api/signUp", "/api/post/*"); // xss필터링 되어야 할 앤드포인트(나중에 필요한 앤드포인트 추가)
+		registrationBean.addUrlPatterns("/api/user/signUp", "/api/post/*"); // xss필터링 되어야 할 앤드포인트(나중에 필요한 앤드포인트 추가)
 		return registrationBean;
 	}
 

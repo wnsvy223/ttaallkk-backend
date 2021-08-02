@@ -18,6 +18,8 @@ import javax.persistence.Lob;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -62,8 +64,9 @@ public class Post extends CommonDateTime {
     @JoinColumn(name ="category_id")
     private Category category;
 
-    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private List<Comment> commentList = new ArrayList<>();
+    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL)
+    @JsonIgnore
+    private List<Comment> comments = new ArrayList<>();
 
     @Column(name = "title")
     @Field

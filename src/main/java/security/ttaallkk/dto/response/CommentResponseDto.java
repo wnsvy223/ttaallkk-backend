@@ -3,7 +3,9 @@ package security.ttaallkk.dto.response;
 import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -45,5 +47,25 @@ public class CommentResponseDto implements Serializable{
         return comment.getIsDeleted()  == true ? 
                 new CommentResponseDto(comment.getId(), "삭제된 댓글입니다.", null, null, null, comment.getCreatedAt(), comment.getModifiedAt()) :
                 new CommentResponseDto(comment.getId(), comment.getContent(), comment.getWriter().getUid(), comment.getWriter().getEmail(), comment.getWriter().getDisplayName(), comment.getCreatedAt(), comment.getModifiedAt());
+    }
+
+    /**
+     * DB에서 조회된 댓글 데이터를 계층형 댓글구조로 변환하여 반환
+     * @param comments
+     * @return List<CommentResponseDto>
+     */
+    public static List<CommentResponseDto> convertCommentStructure(List<Comment> comments) {
+        List<CommentResponseDto> result = new ArrayList<>();
+        Map<Long, CommentResponseDto> map = new HashMap<>();
+        comments.stream().forEach(c -> {
+            CommentResponseDto commentResponseDto = CommentResponseDto.convertCommentToDto(c);
+            map.put(commentResponseDto.getId(), commentResponseDto);
+            if(c.getParent() != null && map.containsKey(c.getParent().getId())){
+                map.get(c.getParent().getId()).getChildren().add(commentResponseDto);
+            }else{
+                result.add(commentResponseDto);
+            }
+        });
+        return result;
     }
 }

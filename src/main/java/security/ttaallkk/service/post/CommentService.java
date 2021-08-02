@@ -2,10 +2,7 @@ package security.ttaallkk.service.post;
 
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -67,7 +64,7 @@ public class CommentService {
      * @return List<CommentResponseDto>
      */
     public List<CommentResponseDto> findCommentByPostId(Long postId) {
-        return convertCommentStructure(commentRepositorySupport.findCommentByPostId(postId));
+        return CommentResponseDto.convertCommentStructure(commentRepositorySupport.findCommentByPostId(postId));
     }
 
     /**
@@ -97,27 +94,6 @@ public class CommentService {
         }else{
             commentRepository.delete(getDeletableParentComment(comment)); //자식댓글이 없으면 DB에서 삭제처리
         }
-    }
-
-
-    /**
-     * DB에서 조회된 댓글 데이터를 계층형 댓글구조로 변환하여 반환
-     * @param comments
-     * @return List<CommentResponseDto>
-     */
-    private List<CommentResponseDto> convertCommentStructure(List<Comment> comments) {
-        List<CommentResponseDto> result = new ArrayList<>();
-        Map<Long, CommentResponseDto> map = new HashMap<>();
-        comments.stream().forEach(c -> {
-            CommentResponseDto commentResponseDto = CommentResponseDto.convertCommentToDto(c);
-            map.put(commentResponseDto.getId(), commentResponseDto);
-            if(c.getParent() != null && map.containsKey(c.getParent().getId())){
-                map.get(c.getParent().getId()).getChildren().add(commentResponseDto);
-            }else{
-                result.add(commentResponseDto);
-            }
-        });
-        return result;
     }
 
     /**

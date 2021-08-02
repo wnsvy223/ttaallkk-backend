@@ -51,7 +51,7 @@ import java.util.Set;
     tokenizer = @TokenizerDef(factory = KoreanTokenizerFactory.class),
     filters = {@TokenFilterDef(factory = KoreanFilterFactory.class)})
 @AnalyzerDef(
-    name = "emailanAlyzer",
+    name = "emailAnalyzer",
     tokenizer = @TokenizerDef(factory = ClassicTokenizerFactory.class),
     filters = {@TokenFilterDef(factory = LowerCaseFilterFactory.class)})
 @Getter
@@ -65,7 +65,7 @@ public class Member extends CommonDateTime implements Serializable{
 
     @Column(name = "email", unique = true, nullable = false)
     @Field
-    @Analyzer(definition = "emailanAlyzer")
+    @Analyzer(definition = "emailAnalyzer")
     private String email;
 
     @Column(name = "password", nullable = false)

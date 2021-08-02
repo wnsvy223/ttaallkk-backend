@@ -64,7 +64,7 @@ public class MemberSearchService {
                 .keyword()
                 .wildcard()
                 .onField("email")
-                .matching("*" + keyword + "*")
+                .matching(keyword + "*") //emailAnalyzer의 경우 앞뒤로 와일드카드 설정 시 잘못된 검색결과가 함께나오는 경우가 있어 후위 와일드카드만 설정
                 .createQuery()
             )
             .should(queryBuilder

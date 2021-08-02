@@ -33,7 +33,9 @@ import org.hibernate.annotations.DynamicUpdate;
 import org.hibernate.search.annotations.Analyzer;
 import org.hibernate.search.annotations.AnalyzerDef;
 import org.hibernate.search.annotations.Field;
+import org.hibernate.search.annotations.Index;
 import org.hibernate.search.annotations.Indexed;
+import org.hibernate.search.annotations.SortableField;
 import org.hibernate.search.annotations.TokenFilterDef;
 import org.hibernate.search.annotations.TokenizerDef;
 
@@ -52,6 +54,8 @@ public class Post extends CommonDateTime {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name="post_id")
+    @Field(name = "id_sort", index = Index.NO) //hibernate fulltext search에서 검색결과를 가장최신글순으로 정렬하기 위해 인덱싱없이 정렬만을 위한 필드설정
+    @SortableField(forField = "id_sort") //필드설정 후 정렬에 사용될 필드 이름 지정
     private Long id;
 
     //FK로 사용될 값을 Member Entity의 PK인 id대신 uid사용을 위해 referencedColumnName설정(JPA에서 기본값으로 PK인 id를 사용하도록 되어있음)

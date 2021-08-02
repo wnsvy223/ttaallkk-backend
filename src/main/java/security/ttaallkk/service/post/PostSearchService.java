@@ -69,11 +69,16 @@ public class PostSearchService {
 
         FullTextQuery fullTextQuery = fullTextEntityManager.createFullTextQuery(query, Post.class);
 
-        fullTextQuery.setFirstResult((int) pageable.getOffset()); //Pageable로부터 넘어온 페이징 목록의 첫 요소값
-        fullTextQuery.setMaxResults(pageable.getPageSize()); //Pageable에서 설정된 페이지 사이즈(한 페이지당 요소 갯수)
-
+        int total = fullTextQuery.getResultList().size(); //검색결과 게시글 전체 갯수
+        int offset = (int)pageable.getOffset(); //시작점
+        int pageSize = pageable.getPageSize(); //페이지 사이즈(페이지당 게시글 갯수)
+        fullTextQuery.setFirstResult(offset); //검색결과값의 시작점을 pageable의 offset값으로 설정
+        if(total - offset >= pageSize){
+            fullTextQuery.setMaxResults(pageSize); //검색결과 갯수가 페이지사이즈와 같거나 클경우 설정된 페이지 사이즈만큼 반환
+        }else{
+            fullTextQuery.setMaxResults(total - offset); //작을경우 해당 남은 갯수만큼 반환
+        }
         List<Post> result = fullTextQuery.getResultList(); //검색결과 데이터셋
-        long total = fullTextQuery.getResultSize(); //검색결과 게시글 전체 갯수
 
         return new PageImpl<>(result, pageable, total);
     }

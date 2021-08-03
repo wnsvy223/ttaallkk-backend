@@ -60,7 +60,7 @@ public class PostController {
      */
     @GetMapping("/{postId}")
     public ResponseEntity<PostDetailsDto> getPostDetails(@PathVariable("postId") Long postId) {
-        PostDetailsDto result = postService.findPostByPostId(postId);
+        PostDetailsDto result = postService.findPostByPostIdAndUpdateViews(postId);
         return ResponseEntity.ok(result);
     }
 

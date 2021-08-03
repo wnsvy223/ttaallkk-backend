@@ -60,16 +60,15 @@ public class PostService {
     }
 
     /**
-     * 게시글 내용보기
+     * 게시글 내용보기 및 조회수 증가
      * @param postId
      * @return PostDetailsDto : 게시글 상세내용 정보
      */
-    public PostDetailsDto findPostByPostId(Long postId) {
+    @Transactional
+    public PostDetailsDto findPostByPostIdAndUpdateViews(Long postId) {
         Post post = postRepository.findPostByPostId(postId).orElseThrow(PostNotFoundException::new);
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        //일반유저 또는 익명유저의 경우에만 조회수 증가(관리자는 조회수 증가 X)
-        if (authentication.getAuthorities().stream().anyMatch(a -> a.getAuthority().equals("ROLE_USER") || a.getAuthority().equals("ROLE_ANONYMOUS"))){
-            post.updateViewsCount(); //조회수 증가(업데이트는 어플리케이션 레벨에서 수행하는 것을 권장)
+        if(isAuthNormalPermission() == true) {
+            post.updateViewsCount();
         }
         PostDetailsDto result = PostDetailsDto.convertResponseDto(post);
         
@@ -81,14 +80,31 @@ public class PostService {
      * @param postId
      * @return PostWithCommentsResponseDto
      */
+    @Transactional
     public PostWithCommentsResponseDto findPostByPostIdWithComments(Long postId) { 
         Post post = postRepository.findPostByPostId(postId).orElseThrow(PostNotFoundException::new); //게시글 데이터를 조회
         List<CommentResponseDto> comments = CommentResponseDto.convertCommentStructure(post.getComments()); //게시글에 연관된 댓글데이터를 가져와서 계층형 댓글구조로 변환
+        if(isAuthNormalPermission() == true) {
+            post.updateViewsCount();
+        }
         PostWithCommentsResponseDto postWithCommentsDto = PostWithCommentsResponseDto.builder() //PostWithCommentsResponseDto생성하여 데이터 세팅 후 반환
             .post(post)
             .comments(comments)
             .build();
         return postWithCommentsDto;
+    }
+
+    /**
+     * 사용자 권한 체크 : 관리자(false) , 일반or익명유저(true) 반환 -> 관리자 계정은 조회수를 증가시키지않음
+     * @return Boolean
+     */
+    private Boolean isAuthNormalPermission() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication.getAuthorities().stream().anyMatch(a -> a.getAuthority().equals("ROLE_USER") || a.getAuthority().equals("ROLE_ANONYMOUS"))){
+            return true;
+        }else{
+            return false;
+        }
     }
 
     /**

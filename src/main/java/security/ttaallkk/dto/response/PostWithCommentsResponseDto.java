@@ -1,5 +1,6 @@
 package security.ttaallkk.dto.response;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -7,7 +8,8 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import security.ttaallkk.domain.post.Post;
+import security.ttaallkk.domain.post.Category;
+import security.ttaallkk.domain.post.PostStatus;
 
 
 @Data
@@ -16,8 +18,35 @@ import security.ttaallkk.domain.post.Post;
 @Builder
 public class PostWithCommentsResponseDto {
     
-    private Post post;
+    //Post;
+    private Long id;
+    
+    private String title;
 
+    private String content;
+
+    private Integer likeCnt;
+
+    private Integer views;
+
+    private PostStatus postStatus;
+
+    private LocalDateTime createdAt;
+
+    private LocalDateTime modifiedAt;
+
+    private Category category;
+
+    //Member
+    private String email;
+
+    private String displayName;
+
+    private String uid;
+
+    private String profileUrl;
+
+    //Comments
     @Builder.Default
     private List<CommentResponseDto> comments = new ArrayList<>();
 }

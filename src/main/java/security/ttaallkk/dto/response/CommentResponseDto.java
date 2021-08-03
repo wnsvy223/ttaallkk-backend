@@ -22,6 +22,7 @@ public class CommentResponseDto implements Serializable{
     private String uid; //댓글 작성자 uid
     private String email; //댓글 작성자 email
     private String displayName; //댓글 작성자 닉네임
+    private String profileUrl; //댓글 작성자 프로필 이미지
     private LocalDateTime createdAt;
     private LocalDateTime modifiedAt;
     private List<CommentResponseDto> children = new ArrayList<>(); //대댓글목록
@@ -32,6 +33,7 @@ public class CommentResponseDto implements Serializable{
                 String uid, 
                 String email, 
                 String displayName, 
+                String profileUrl,
                 LocalDateTime createdAt, 
                 LocalDateTime modifiedAt) {
         this.id = id;
@@ -39,14 +41,15 @@ public class CommentResponseDto implements Serializable{
         this.uid = uid;
         this.email = email;
         this.displayName = displayName;
+        this.profileUrl = profileUrl;
         this.createdAt = createdAt;
         this.modifiedAt = modifiedAt;
     }
 
     public static CommentResponseDto convertCommentToDto(Comment comment) {
         return comment.getIsDeleted()  == true ? 
-                new CommentResponseDto(comment.getId(), "삭제된 댓글입니다.", null, null, null, comment.getCreatedAt(), comment.getModifiedAt()) :
-                new CommentResponseDto(comment.getId(), comment.getContent(), comment.getWriter().getUid(), comment.getWriter().getEmail(), comment.getWriter().getDisplayName(), comment.getCreatedAt(), comment.getModifiedAt());
+                new CommentResponseDto(comment.getId(), "삭제된 댓글입니다.", null, null, null, null, comment.getCreatedAt(), comment.getModifiedAt()) :
+                new CommentResponseDto(comment.getId(), comment.getContent(), comment.getWriter().getUid(), comment.getWriter().getEmail(), comment.getWriter().getDisplayName(), comment.getWriter().getProfileUrl(), comment.getCreatedAt(), comment.getModifiedAt());
     }
 
     /**

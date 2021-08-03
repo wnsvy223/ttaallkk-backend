@@ -88,7 +88,19 @@ public class PostService {
             post.updateViewsCount();
         }
         PostWithCommentsResponseDto postWithCommentsDto = PostWithCommentsResponseDto.builder() //PostWithCommentsResponseDto생성하여 데이터 세팅 후 반환
-            .post(post)
+            .id(post.getId())
+            .title(post.getTitle())
+            .content(post.getContent())
+            .likeCnt(post.getLikeCnt())
+            .views(post.getViews())
+            .postStatus(post.getPostStatus())
+            .createdAt(post.getCreatedAt())
+            .modifiedAt(post.getModifiedAt())
+            .category(post.getCategory())
+            .email(post.getWriter().getEmail())
+            .displayName(post.getWriter().getDisplayName())
+            .uid(post.getWriter().getUid())
+            .profileUrl(post.getWriter().getProfileUrl())
             .comments(comments)
             .build();
         return postWithCommentsDto;

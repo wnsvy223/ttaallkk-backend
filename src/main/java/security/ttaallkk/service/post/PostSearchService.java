@@ -73,7 +73,7 @@ public class PostSearchService {
         Sort sort = queryBuilder.sort().byField("id_sort").desc().createSort(); //SortableField로 설정된 엔티티의 id필드를 기준으로 내림차순으로 정렬하도록 설정
         fullTextQuery.setSort(sort);
 
-        int total = fullTextQuery.getResultList().size(); //검색결과 게시글 전체 갯수
+        int total = fullTextQuery.getResultSize(); //검색결과 게시글 전체 갯수
         int offset = (int)pageable.getOffset(); //시작점
         int pageSize = pageable.getPageSize(); //페이지 사이즈(페이지당 게시글 갯수)
         fullTextQuery.setFirstResult(offset); //검색결과값의 시작점을 pageable의 offset값으로 설정

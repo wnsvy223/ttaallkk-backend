@@ -13,7 +13,7 @@ import org.springframework.context.annotation.Configuration;
  * QueryDSL 설정 및 Bean 등록
  */
 @Configuration
-public class QueryDslConfiguration {
+public class QueryDslConfig {
     
     @PersistenceContext
     private EntityManager entityManager;

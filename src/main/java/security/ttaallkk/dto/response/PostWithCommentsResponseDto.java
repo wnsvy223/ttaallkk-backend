@@ -49,4 +49,7 @@ public class PostWithCommentsResponseDto {
     //Comments
     @Builder.Default
     private List<CommentResponseDto> comments = new ArrayList<>();
+
+    //Like
+    private Boolean isAlreadyLike;
 }

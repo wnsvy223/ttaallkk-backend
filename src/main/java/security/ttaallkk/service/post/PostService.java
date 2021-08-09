@@ -1,29 +1,34 @@
 package security.ttaallkk.service.post;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import security.ttaallkk.domain.member.Member;
+import security.ttaallkk.domain.post.Like;
 import security.ttaallkk.domain.post.Post;
 import security.ttaallkk.domain.post.PostStatus;
 import security.ttaallkk.dto.querydsl.PostWithMemberDto;
+import security.ttaallkk.dto.request.LikeCreateDto;
 import security.ttaallkk.dto.request.PostCreateDto;
 import security.ttaallkk.dto.request.PostUpdateDto;
 import security.ttaallkk.dto.response.CommentResponseDto;
-import security.ttaallkk.dto.response.PostDetailsDto;
 import security.ttaallkk.dto.response.PostWithCommentsResponseDto;
 import security.ttaallkk.dto.response.Response;
 import security.ttaallkk.exception.PostNotFoundException;
 import security.ttaallkk.exception.UidNotFoundException;
 import security.ttaallkk.repository.member.MemberRepository;
+import security.ttaallkk.repository.post.LikeRepository;
 import security.ttaallkk.repository.post.PostRepository;
 import security.ttaallkk.repository.post.PostRepositorySupport;
 
@@ -36,6 +41,7 @@ public class PostService {
     private final PostRepository postRepository; //JPA Repository
     private final PostRepositorySupport postRepositorySupport; //Query DSL Repository
     private final MemberRepository memberRepository;
+    private final LikeRepository likeRepository;
 
     /**
      * 게시글 생성
@@ -60,23 +66,7 @@ public class PostService {
     }
 
     /**
-     * 게시글 내용보기 및 조회수 증가
-     * @param postId
-     * @return PostDetailsDto : 게시글 상세내용 정보
-     */
-    @Transactional
-    public PostDetailsDto findPostByPostIdAndUpdateViews(Long postId) {
-        Post post = postRepository.findPostByPostId(postId).orElseThrow(PostNotFoundException::new);
-        if(isAuthNormalPermission() == true) {
-            post.updateViewsCount();
-        }
-        PostDetailsDto result = PostDetailsDto.convertResponseDto(post);
-        
-        return result;
-    }
-
-    /**
-     * 게시글과 게시글에 연관된 계층댓글 함께 조회
+     * 게시글내용 + 댓글(계층형 구조로 반환) + 좋아요(인증된 사용자 정보를 기반으로 좋아요 등록 유무값으로 반환) 조회하여 반환 
      * @param postId
      * @return PostWithCommentsResponseDto
      */
@@ -84,6 +74,7 @@ public class PostService {
     public PostWithCommentsResponseDto findPostByPostIdWithComments(Long postId) { 
         Post post = postRepository.findPostByPostId(postId).orElseThrow(PostNotFoundException::new); //게시글 데이터를 조회
         List<CommentResponseDto> comments = CommentResponseDto.convertCommentStructure(post.getComments()); //게시글에 연관된 댓글데이터를 가져와서 계층형 댓글구조로 변환
+        Boolean isLike = isAlreadyLikeWithAuthUser(post); //인증된 사용자의 좋아요 유무 체크
         if(isAuthNormalPermission() == true) {
             post.updateViewsCount();
         }
@@ -102,8 +93,28 @@ public class PostService {
             .uid(post.getWriter().getUid())
             .profileUrl(post.getWriter().getProfileUrl())
             .comments(comments)
+            .isAlreadyLike(isLike)
             .build();
         return postWithCommentsDto;
+    }
+
+    /**
+     * 인증된 사용자의 좋아요 유무 체크
+     * 인증O 좋아요 데이터 존재O -> true
+     * 인증O 좋아요 데이터 존재X -> false
+     * 인증X 사용자 -> false
+     * @param post
+     * @return Boolean
+     */
+    private Boolean isAlreadyLikeWithAuthUser(Post post) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (!(authentication instanceof AnonymousAuthenticationToken)) {
+            Member member = memberRepository.findMemberByEmail(authentication.getName()).orElseThrow(() -> new UsernameNotFoundException("이메일이 일치하지 않습니다."));
+            Optional<Like> like = likeRepository.findByPostAndMember(post, member);
+            return like.isPresent();
+        }else{
+            return false;
+        }
     }
 
     /**
@@ -212,5 +223,30 @@ public class PostService {
     @Transactional
     public void deleteAllPost() {
         postRepository.deleteAll();
+    }
+
+    /**
+     * 좋아요 등록 : 인증된 사용자가 게시글에 좋아요 등록. 이미 좋아요 등록한 게시글일 경우 좋아요 취소.
+     * @param likeCreateDto
+     * @return Optional<Like>
+     */
+    @Transactional
+    public Optional<Like> createLike(LikeCreateDto likeCreateDto) {
+        Post post = postRepository.findPostByPostId(likeCreateDto.getPostId()).orElseThrow(PostNotFoundException::new);
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+        Member member = memberRepository.findMemberByEmail(email).orElseThrow(() -> new UsernameNotFoundException("이메일이 일치하지 않습니다."));
+        Optional<Like> like = likeRepository.findByPostAndMember(post, member);
+        like.ifPresentOrElse(
+            postLike -> { //좋아요가 있을 경우
+                likeRepository.delete(postLike); //좋아요 데이터 삭제
+                post.decreaseLikeCount(); //좋아요 카운트값 감소
+            },
+            () -> { //좋아요가 없을 경우
+                likeRepository.save(new Like(member, post)); //좋아요 데이터 추가
+                post.increaseLikeCount(); //좋아요 카운트값 증가
+            } 
+        );
+
+        return like;
     }
 }

@@ -1,6 +1,7 @@
 package security.ttaallkk.controller.post;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -19,11 +20,12 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
+import security.ttaallkk.domain.post.Like;
 import security.ttaallkk.domain.post.Post;
 import security.ttaallkk.dto.querydsl.PostWithMemberDto;
+import security.ttaallkk.dto.request.LikeCreateDto;
 import security.ttaallkk.dto.request.PostCreateDto;
 import security.ttaallkk.dto.request.PostUpdateDto;
-import security.ttaallkk.dto.response.PostDetailsDto;
 import security.ttaallkk.dto.response.PostWithCommentsResponseDto;
 import security.ttaallkk.dto.response.Response;
 import security.ttaallkk.service.post.PostSearchService;
@@ -54,22 +56,11 @@ public class PostController {
     }
 
     /**
-     * 게시글 내용 조회
-     * @param postId
-     * @return PostDetailsDto
-     */
-    @GetMapping("/{postId}")
-    public ResponseEntity<PostDetailsDto> getPostDetails(@PathVariable("postId") Long postId) {
-        PostDetailsDto result = postService.findPostByPostIdAndUpdateViews(postId);
-        return ResponseEntity.ok(result);
-    }
-
-    /**
-     * 게시글과 댓글 함께 조회
+     * 게시글 데이터 조회
      * @param postId
      * @return PostWithCommentsResponseDto
      */
-    @GetMapping("/{postId}/comment")
+    @GetMapping("/{postId}")
     public ResponseEntity<PostWithCommentsResponseDto> getPostDetailsWithComments(@PathVariable("postId") Long postId) {
         PostWithCommentsResponseDto result = postService.findPostByPostIdWithComments(postId);
         return ResponseEntity.ok(result);
@@ -172,4 +163,27 @@ public class PostController {
             .message("게시글 전체 삭제 성공").build();
         return ResponseEntity.ok(response);
     }
+
+    /**
+     * 좋아요 등록
+     * @param likeCreateDto //게시글 아이디 + 좋아요 요청사용자 Uid
+     * @return Response
+     */
+    @PostMapping("/like")
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<Response> createLike(@RequestBody LikeCreateDto likeCreateDto) {
+        Optional<Like> like = postService.createLike(likeCreateDto);
+        if(like.isPresent()){
+            Response response = Response.builder()
+                .status(200)
+                .message("좋아요 취소").build();
+            return ResponseEntity.ok(response);
+        }else{
+            Response response = Response.builder()
+                .status(200)
+                .message("좋아요 등록").build();
+            return ResponseEntity.ok(response);
+        }
+    }
+
 }

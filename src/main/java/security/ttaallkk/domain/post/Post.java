@@ -2,7 +2,9 @@ package security.ttaallkk.domain.post;
 
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -68,9 +70,15 @@ public class Post extends CommonDateTime {
     @JoinColumn(name ="category_id")
     private Category category;
 
+    //댓글
     @OneToMany(mappedBy = "post", cascade = CascadeType.ALL)
     @JsonIgnore
     private List<Comment> comments = new ArrayList<>();
+
+    //좋아요
+    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL)
+    @JsonIgnore
+    private Set<Like> likes = new HashSet<>();
 
     @Column(name = "title")
     @Field
@@ -112,5 +120,15 @@ public class Post extends CommonDateTime {
     public void updatePost(String title, String content) {
         this.title = title;
         this.content = content;
+    }
+
+    //좋아요 카운트 증가
+    public void increaseLikeCount() {
+        this.likeCnt++;
+    }
+
+    //좋아요 카운트 감소
+    public void decreaseLikeCount() {
+        this.likeCnt--;
     }
 }

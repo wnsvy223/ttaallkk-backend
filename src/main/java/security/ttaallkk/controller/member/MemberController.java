@@ -126,8 +126,8 @@ public class MemberController {
      * @param keyword
      * @return SearchMemberResponse
      */
-    @GetMapping("/search/{keyword}")
-    public ResponseEntity<List<Member>> search(@PathVariable("keyword") String keyword) {
+    @GetMapping("/search")
+    public ResponseEntity<List<Member>> search(@RequestParam(value = "keyword") String keyword) {
         List<Member> searchMemebers = memberSearchService.searchMemberByEmailOrDisplayName(keyword);
         return ResponseEntity.ok(searchMemebers);
     }

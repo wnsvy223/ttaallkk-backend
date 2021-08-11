@@ -5,6 +5,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import security.ttaallkk.domain.CommonDateTime;
+import security.ttaallkk.domain.post.Like;
 import security.ttaallkk.domain.post.Post;
 
 import javax.persistence.Column;
@@ -95,8 +96,13 @@ public class Member extends CommonDateTime implements Serializable{
 
     //게시글
     @JsonIgnore
-    @OneToMany(mappedBy="writer")
+    @OneToMany(mappedBy = "writer") //Post엔티티에서 Member필드명을 writer로 지정해놓았기 때문에 메핑을 해당 필드명으로 지정.
     private List<Post> posts = new ArrayList<>();
+
+    //좋아요
+    @JsonIgnore
+    @OneToMany(mappedBy = "member")
+    private Set<Like> likes = new HashSet<>();
 
     @Builder
     public Member(String email, String password, String displayName, String uid, String profileUrl,Set<MemberRole> roles) {

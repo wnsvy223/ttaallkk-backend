@@ -12,6 +12,7 @@ spring:
     password: 2
     driver-class-name: org.mariadb.jdbc.Driver
   jpa:
+    open-in-view: false
     hibernate:
       ddl-auto: update
     properties:
@@ -22,6 +23,7 @@ spring:
         format_sql: true #콘솔에 출력되는 JPA 실행 쿼리를 가독성있게 표현.
         #use_sql_comments: true #디버깅이 용이하도록 SQL문 이외에 추가적인 정보를 출력.
         search:
+          lucene_version: LATEST
           default:
             diretory_provider: filessystem
             #indexBase: D:/hibernateSearchIndex #하이버네이트 서치 인덱스 데이터 저장될 위치. 지정하지 않으면 내장 기본값으로 적용

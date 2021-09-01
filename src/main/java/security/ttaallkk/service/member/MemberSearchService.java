@@ -5,7 +5,6 @@ import java.util.List;
 import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
 import javax.persistence.PersistenceContext;
-import javax.persistence.PersistenceContextType;
 
 import org.apache.lucene.search.Query;
 import org.hibernate.search.jpa.FullTextEntityManager;
@@ -14,6 +13,7 @@ import org.hibernate.search.jpa.Search;
 import org.hibernate.search.query.dsl.QueryBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import lombok.extern.log4j.Log4j2;
 import security.ttaallkk.domain.member.Member;
@@ -23,11 +23,12 @@ import security.ttaallkk.domain.member.Member;
  * HibernateSearch를 활용한 FullTextSearch 서비스 클래스
  */
 @Service
+@Transactional(readOnly = true)
 @Log4j2
 public class MemberSearchService {
     
-    @PersistenceContext(type = PersistenceContextType.EXTENDED)
-    private final EntityManager entityManager;
+    @PersistenceContext
+    private EntityManager entityManager;
 
     @Autowired
     public MemberSearchService(EntityManager entityManager){
@@ -49,6 +50,7 @@ public class MemberSearchService {
      * @param keyword 검색키워드
      * @return List<Member>
      */
+    @Transactional
     @SuppressWarnings("unchecked")
     public List<Member> searchMemberByEmailOrDisplayName(String keyword){
         FullTextEntityManager fullTextEntityManager = Search.getFullTextEntityManager(entityManager);

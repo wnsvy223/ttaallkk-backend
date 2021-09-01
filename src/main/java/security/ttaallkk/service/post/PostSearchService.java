@@ -3,9 +3,7 @@ package security.ttaallkk.service.post;
 import java.util.List;
 
 import javax.persistence.EntityManager;
-import javax.persistence.NoResultException;
 import javax.persistence.PersistenceContext;
-import javax.persistence.PersistenceContextType;
 
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.Sort;
@@ -18,17 +16,18 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-
+import org.springframework.transaction.annotation.Transactional;
 
 import lombok.extern.log4j.Log4j2;
 import security.ttaallkk.domain.post.Post;
 
 @Service
+@Transactional(readOnly = true)
 @Log4j2
 public class PostSearchService {
     
-    @PersistenceContext(type = PersistenceContextType.EXTENDED)
-    private final EntityManager entityManager;
+    @PersistenceContext
+    private EntityManager entityManager;
 
     @Autowired
     public PostSearchService(EntityManager entityManager){
@@ -41,6 +40,7 @@ public class PostSearchService {
      * @param keyword
      * @return
      */
+    @Transactional
     @SuppressWarnings("unchecked")
     public Page<Post> searchPostByTitleOrContent(String keyword, Pageable pageable){
         FullTextEntityManager fullTextEntityManager = Search.getFullTextEntityManager(entityManager);

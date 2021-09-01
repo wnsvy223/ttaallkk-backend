@@ -4,6 +4,9 @@ jwt:
   secretKey-refreshToken : ThisIsSecretKeyRefreshEIJSLBJiJRIJGTIESKMCNEIY #RefreshToken SecretKey
   accessToken-valid-seconds : 1800 #30분
   refreshToken-valid-seconds : 86400 #24시간
+origin:
+  signal-url: https://ttaallkk.herokuapp.com
+  front-url: https://ttaallkk.vercel.app
 
 spring:
   datasource:

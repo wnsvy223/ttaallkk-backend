@@ -1,5 +1,7 @@
 package security.ttaallkk.config;
 
+import java.util.Arrays;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import security.ttaallkk.security.JwtAccessDeniedHandler;
@@ -8,6 +10,7 @@ import security.ttaallkk.security.JwtFilter;
 import security.ttaallkk.security.JwtProvider;
 import security.ttaallkk.service.member.MemberService;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -31,6 +34,12 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 @EnableGlobalMethodSecurity(prePostEnabled = true, securedEnabled = true)
 @RequiredArgsConstructor
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
+
+    @Value("${origin.signal-url}")
+    private String signalUrl;
+
+    @Value("${origin.front-url}")
+    private String frontUrl;
 
     private final MemberService memberService;
     private final JwtProvider jwtProvider;
@@ -102,10 +111,9 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         final UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         CorsConfiguration corsConfiguration = new CorsConfiguration();
         corsConfiguration.applyPermitDefaultValues();
-        //corsConfiguration.addAllowedOrigin("http://localhost:3000"); //허용 오리진(setAllowCredentials옵션 사용 시 패턴방식으로 사용)
-        corsConfiguration.addAllowedOriginPattern("*"); //패턴방식의 CORS 오리진 허용
+        corsConfiguration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE"));
+        corsConfiguration.setAllowedOriginPatterns(Arrays.asList(signalUrl, frontUrl)); //패턴방식의 CORS 오리진 허용(setAllowCredentials옵션 사용 시 setAllowedOriginPatterns 메소드로 설정해야함)
         corsConfiguration.setAllowCredentials(true);
-        corsConfiguration.addAllowedMethod("*");
         corsConfiguration.addExposedHeader("Authorization"); //Bearer토큰 사용을 위해 Authorization헤더 허용
         source.registerCorsConfiguration("/**", corsConfiguration);
         return source;

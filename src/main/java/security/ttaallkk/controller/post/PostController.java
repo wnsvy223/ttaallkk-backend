@@ -21,7 +21,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import security.ttaallkk.domain.post.Like;
-import security.ttaallkk.domain.post.Post;
 import security.ttaallkk.dto.querydsl.PostWithMemberDto;
 import security.ttaallkk.dto.request.LikeCreateDto;
 import security.ttaallkk.dto.request.PostCreateDto;
@@ -130,11 +129,12 @@ public class PostController {
      * @return Page<Post>
      */
     @GetMapping("/search")
-    public ResponseEntity<Page<Post>> searchPost(
+    public ResponseEntity<Page<PostWithMemberDto>> searchPost(
                 @RequestParam(value = "keyword") String keyword,
                 @RequestParam(value = "page", defaultValue = "0") int page,
                 @PageableDefault(size = 20) Pageable pageable) {
-        Page<Post> result = postSearchService.searchPostByTitleOrContent(keyword, pageable);
+
+        Page<PostWithMemberDto> result = postSearchService.searchPostByTitleOrContent(keyword, pageable);
         return ResponseEntity.ok(result);
     }
 

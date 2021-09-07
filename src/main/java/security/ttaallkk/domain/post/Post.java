@@ -32,11 +32,13 @@ import security.ttaallkk.domain.member.Member;
 import org.apache.lucene.analysis.ko.KoreanFilterFactory;
 import org.apache.lucene.analysis.ko.KoreanTokenizerFactory;
 import org.hibernate.annotations.DynamicUpdate;
+import org.hibernate.annotations.Formula;
 import org.hibernate.search.annotations.Analyzer;
 import org.hibernate.search.annotations.AnalyzerDef;
 import org.hibernate.search.annotations.Field;
 import org.hibernate.search.annotations.Index;
 import org.hibernate.search.annotations.Indexed;
+import org.hibernate.search.annotations.IndexedEmbedded;
 import org.hibernate.search.annotations.SortableField;
 import org.hibernate.search.annotations.TokenFilterDef;
 import org.hibernate.search.annotations.TokenizerDef;
@@ -63,6 +65,7 @@ public class Post extends CommonDateTime {
     //FK로 사용될 값을 Member Entity의 PK인 id대신 uid사용을 위해 referencedColumnName설정(JPA에서 기본값으로 PK인 id를 사용하도록 되어있음)
     @ManyToOne(targetEntity = Member.class, fetch = FetchType.LAZY)
     @JoinColumn(name = "writer", referencedColumnName = "uid", nullable = false)
+    @IndexedEmbedded //연관된 필드중 ManyToOne쪽에 @IndexEmbedded, OneToMany쪽에 @Field 설정시 Full Text Search쿼리에서 해당 내부 필드값을 조건으로 검색가능(ex. writer.displayName)
     private Member writer;
 
     //게시글 분류 카테고리
@@ -74,6 +77,10 @@ public class Post extends CommonDateTime {
     @OneToMany(mappedBy = "post", cascade = CascadeType.ALL)
     @JsonIgnore
     private List<Comment> comments = new ArrayList<>();
+
+    //댓글 카운트
+    @Formula("(select count(*) from comment c where c.post_id = post_id)")
+    private Integer commentCnt;
 
     //좋아요
     @OneToMany(mappedBy = "post", cascade = CascadeType.ALL)

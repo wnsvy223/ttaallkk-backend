@@ -82,7 +82,7 @@ public class PostWithMemberDto{
                 post.getId(), 
                 post.getTitle(), 
                 post.getContent(), 
-                post.getComments().size(), 
+                post.getCommentCnt(), 
                 post.getLikeCnt(), 
                 post.getViews(), 
                 post.getPostStatus(), 

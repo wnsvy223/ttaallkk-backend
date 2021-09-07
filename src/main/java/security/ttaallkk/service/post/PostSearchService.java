@@ -7,6 +7,10 @@ import javax.persistence.PersistenceContext;
 
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.Sort;
+import org.hibernate.Criteria;
+import org.hibernate.FetchMode;
+import org.hibernate.Session;
+import org.hibernate.search.FullTextSession;
 import org.hibernate.search.jpa.FullTextEntityManager;
 import org.hibernate.search.jpa.FullTextQuery;
 import org.hibernate.search.jpa.Search;
@@ -44,6 +48,10 @@ public class PostSearchService {
     @Transactional
     @SuppressWarnings("unchecked")
     public Page<PostWithMemberDto> searchPostByTitleOrContent(String keyword, Pageable pageable){
+        Session session = entityManager.unwrap(Session.class);
+        
+        FullTextSession fullTextSession = org.hibernate.search.Search.getFullTextSession(session);
+        
         FullTextEntityManager fullTextEntityManager = Search.getFullTextEntityManager(entityManager);
 
         QueryBuilder queryBuilder = fullTextEntityManager
@@ -69,7 +77,9 @@ public class PostSearchService {
             )
             .createQuery();
 
-        FullTextQuery fullTextQuery = fullTextEntityManager.createFullTextQuery(query, Post.class);
+        Criteria criteria = fullTextSession.createCriteria(Post.class).setFetchMode("writer", FetchMode.JOIN); //Criteria 쿼리로 fetch설정하여 full text query를 생성해야 연관관계 엔티티들을 조인할수있음(5.11.9버전에서 현재사용된 방법은 deprecated됨. 추후 hibernate search 6 으로 migration 필요)
+        
+        FullTextQuery fullTextQuery = fullTextEntityManager.createFullTextQuery(query, Post.class).setCriteriaQuery(criteria);
 
         Sort sort = queryBuilder.sort().byField("id_sort").desc().createSort(); //SortableField로 설정된 엔티티의 id필드를 기준으로 내림차순으로 정렬하도록 설정
         fullTextQuery.setSort(sort);

@@ -16,7 +16,7 @@ import security.ttaallkk.domain.post.PostStatus;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class PostWithCommentsResponseDto {
+public class PostDetailResponseDto {
     
     //Post;
     private Long id;

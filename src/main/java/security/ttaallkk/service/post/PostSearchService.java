@@ -24,7 +24,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import lombok.extern.log4j.Log4j2;
 import security.ttaallkk.domain.post.Post;
-import security.ttaallkk.dto.querydsl.PostWithMemberDto;
+import security.ttaallkk.dto.querydsl.PostCommonDto;
 
 @Service
 @Transactional(readOnly = true)
@@ -47,7 +47,7 @@ public class PostSearchService {
      */
     @Transactional
     @SuppressWarnings("unchecked")
-    public Page<PostWithMemberDto> searchPostByTitleOrContent(String keyword, Pageable pageable){
+    public Page<PostCommonDto> searchPostByTitleOrContent(String keyword, Pageable pageable){
         Session session = entityManager.unwrap(Session.class);
         
         FullTextSession fullTextSession = org.hibernate.search.Search.getFullTextSession(session);
@@ -95,7 +95,7 @@ public class PostSearchService {
         }
         List<Post> result = fullTextQuery.getResultList(); //검색결과 데이터셋
 
-        List<PostWithMemberDto> convertResult = PostWithMemberDto.convertPostWithMemberDto(result); //댓글 카운트 데이터가 포함된 커스텀 Dto로 변환
+        List<PostCommonDto> convertResult = PostCommonDto.convertPostWithMemberDto(result); //댓글 카운트 데이터가 포함된 커스텀 Dto로 변환
 
         return new PageImpl<>(convertResult, pageable, total);
     }

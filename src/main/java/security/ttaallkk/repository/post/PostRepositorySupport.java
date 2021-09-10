@@ -13,7 +13,7 @@ import org.springframework.data.support.PageableExecutionUtils;
 import org.springframework.stereotype.Repository;
 
 import security.ttaallkk.domain.post.Post;
-import security.ttaallkk.dto.querydsl.PostWithMemberDto;
+import security.ttaallkk.dto.querydsl.PostCommonDto;
 
 import static security.ttaallkk.domain.post.QPost.post;
 import static security.ttaallkk.domain.member.QMember.member;
@@ -36,17 +36,16 @@ public class PostRepositorySupport extends QuerydslRepositorySupport {
      * @param num
      * @return List<PostWithMemberDto>
      */
-    public List<PostWithMemberDto> findPostByRecent(int limit) {
+    public List<PostCommonDto> findPostByRecent(int limit) {
         return jpaQueryFactory
             .select(
                 Projections.constructor(
-                    PostWithMemberDto.class, 
+                    PostCommonDto.class, 
                     member.email, 
                     member.displayName,
                     member.profileUrl,
                     post.id,
                     post.title,
-                    post.content,
                     post.commentCnt,
                     post.likeCnt,
                     post.views,
@@ -67,19 +66,18 @@ public class PostRepositorySupport extends QuerydslRepositorySupport {
      * @param pageable
      * @return Page<PostWithMemberDto>
      */
-    public Page<PostWithMemberDto> paging(Pageable pageable) {
-        JPQLQuery<PostWithMemberDto> query = from(post)
+    public Page<PostCommonDto> paging(Pageable pageable) {
+        JPQLQuery<PostCommonDto> query = from(post)
             .innerJoin(post.writer, member)
             .orderBy(post.id.desc())
             .select(
                 Projections.constructor(
-                    PostWithMemberDto.class, 
+                    PostCommonDto.class, 
                     member.email, 
                     member.displayName,
                     member.profileUrl,
                     post.id,
                     post.title,
-                    post.content,
                     post.commentCnt,
                     post.likeCnt,
                     post.views,
@@ -89,7 +87,7 @@ public class PostRepositorySupport extends QuerydslRepositorySupport {
                 )
             )
             .fetchAll();            
-        List<PostWithMemberDto> list = getQuerydsl().applyPagination(pageable, query).fetch();
+        List<PostCommonDto> list = getQuerydsl().applyPagination(pageable, query).fetch();
         return PageableExecutionUtils.getPage(list, pageable, query::fetchCount);
     }
 
@@ -99,17 +97,16 @@ public class PostRepositorySupport extends QuerydslRepositorySupport {
      * @param uid
      * @return List<PostByMemberDto>
      */
-    public List<PostWithMemberDto> findPostByUid(final String uid) {
+    public List<PostCommonDto> findPostByUid(final String uid) {
         return jpaQueryFactory
             .select(
                 Projections.constructor(
-                    PostWithMemberDto.class, 
+                    PostCommonDto.class, 
                     member.email, 
                     member.displayName,
                     member.profileUrl,
                     post.id,
                     post.title,
-                    post.content,
                     post.commentCnt,
                     post.likeCnt,
                     post.views,

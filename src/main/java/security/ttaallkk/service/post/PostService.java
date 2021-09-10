@@ -18,12 +18,12 @@ import security.ttaallkk.domain.member.Member;
 import security.ttaallkk.domain.post.Like;
 import security.ttaallkk.domain.post.Post;
 import security.ttaallkk.domain.post.PostStatus;
-import security.ttaallkk.dto.querydsl.PostWithMemberDto;
+import security.ttaallkk.dto.querydsl.PostCommonDto;
 import security.ttaallkk.dto.request.LikeCreateDto;
 import security.ttaallkk.dto.request.PostCreateDto;
 import security.ttaallkk.dto.request.PostUpdateDto;
 import security.ttaallkk.dto.response.CommentResponseDto;
-import security.ttaallkk.dto.response.PostWithCommentsResponseDto;
+import security.ttaallkk.dto.response.PostDetailResponseDto;
 import security.ttaallkk.dto.response.Response;
 import security.ttaallkk.exception.PostNotFoundException;
 import security.ttaallkk.exception.UidNotFoundException;
@@ -71,14 +71,14 @@ public class PostService {
      * @return PostWithCommentsResponseDto
      */
     @Transactional
-    public PostWithCommentsResponseDto findPostByPostIdWithComments(Long postId) { 
+    public PostDetailResponseDto findPostByPostIdWithComments(Long postId) { 
         Post post = postRepository.findPostByPostId(postId).orElseThrow(PostNotFoundException::new); //게시글 데이터를 조회
         List<CommentResponseDto> comments = CommentResponseDto.convertCommentStructure(post.getComments()); //게시글에 연관된 댓글데이터를 가져와서 계층형 댓글구조로 변환
         Boolean isLike = isAlreadyLikeWithAuthUser(post); //인증된 사용자의 좋아요 유무 체크
         if(isAuthNormalPermission() == true) {
             post.updateViewsCount();
         }
-        PostWithCommentsResponseDto postWithCommentsDto = PostWithCommentsResponseDto.builder() //PostWithCommentsResponseDto생성하여 데이터 세팅 후 반환
+        PostDetailResponseDto postWithCommentsDto = PostDetailResponseDto.builder() //PostWithCommentsResponseDto생성하여 데이터 세팅 후 반환
             .id(post.getId())
             .title(post.getTitle())
             .content(post.getContent())
@@ -189,8 +189,8 @@ public class PostService {
      * @param limit
      * @return List<PostWithMemberDto> : 조회된 게시글의 작성자 정보를 포함한 목록
      */
-    public List<PostWithMemberDto> findPostByRecent(int limit) {
-        List<PostWithMemberDto> result = postRepositorySupport.findPostByRecent(limit);
+    public List<PostCommonDto> findPostByRecent(int limit) {
+        List<PostCommonDto> result = postRepositorySupport.findPostByRecent(limit);
 
         return result;
     }
@@ -200,8 +200,8 @@ public class PostService {
      * @param pageable
      * @return Page<PostWithMemberDto> : 페이징정보 + 조회된 게시글의 작성자 정보를 포함한 목록
      */
-    public Page<PostWithMemberDto> paging(Pageable pageable) {
-        Page<PostWithMemberDto> result = postRepositorySupport.paging(pageable);
+    public Page<PostCommonDto> paging(Pageable pageable) {
+        Page<PostCommonDto> result = postRepositorySupport.paging(pageable);
 
         return result;
     }
@@ -211,8 +211,8 @@ public class PostService {
      * @param uid
      * @return List<PostByMemberDto> : 조회된 게시글의 작성자 정보를 포함한 목록
      */
-    public List<PostWithMemberDto> findPostByUid(String uid) {
-        List<PostWithMemberDto> result = postRepositorySupport.findPostByUid(uid);
+    public List<PostCommonDto> findPostByUid(String uid) {
+        List<PostCommonDto> result = postRepositorySupport.findPostByUid(uid);
 
         return result;
     }

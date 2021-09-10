@@ -12,7 +12,7 @@ import security.ttaallkk.domain.post.PostStatus;
 
 
 @Getter
-public class PostWithMemberDto{
+public class PostCommonDto{
     
     private String email;
 
@@ -23,8 +23,6 @@ public class PostWithMemberDto{
     private Long id;
     
     private String title;
-
-    private String content;
 
     private Integer commentCnt;
 
@@ -39,13 +37,12 @@ public class PostWithMemberDto{
     private LocalDateTime modifiedAt;
 
     @QueryProjection
-    public PostWithMemberDto(
+    public PostCommonDto(
                 String email, 
                 String displayName, 
                 String profileUrl, 
                 Long id,
                 String title, 
-                String content,
                 Integer commentCnt,
                 Integer likeCnt,
                 Integer views,
@@ -58,7 +55,6 @@ public class PostWithMemberDto{
         this.profileUrl = profileUrl;
         this.id = id;
         this.title = title;
-        this.content = content;
         this.commentCnt = commentCnt;
         this.likeCnt = likeCnt;
         this.views = views;
@@ -72,16 +68,15 @@ public class PostWithMemberDto{
      * @param List<Post>
      * @return List<PostWithMemberDto>
      */
-    public static List<PostWithMemberDto> convertPostWithMemberDto(List<Post> posts) {
-        List<PostWithMemberDto> result = new ArrayList<>();
+    public static List<PostCommonDto> convertPostWithMemberDto(List<Post> posts) {
+        List<PostCommonDto> result = new ArrayList<>();
         posts.stream().forEach(post -> {
-            PostWithMemberDto postWithMemberDto = new PostWithMemberDto(
+            PostCommonDto postWithMemberDto = new PostCommonDto(
                 post.getWriter().getEmail(), 
                 post.getWriter().getDisplayName(), 
                 post.getWriter().getProfileUrl(), 
                 post.getId(), 
                 post.getTitle(), 
-                post.getContent(), 
                 post.getCommentCnt(), 
                 post.getLikeCnt(), 
                 post.getViews(), 

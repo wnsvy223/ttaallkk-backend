@@ -68,7 +68,7 @@ public class PostService {
     /**
      * 게시글내용 + 댓글(계층형 구조로 반환) + 좋아요(인증된 사용자 정보를 기반으로 좋아요 등록 유무값으로 반환) 조회하여 반환 
      * @param postId
-     * @return PostWithCommentsResponseDto
+     * @return PostDetailResponseDto
      */
     @Transactional
     public PostDetailResponseDto findPostByPostIdWithComments(Long postId) { 
@@ -187,7 +187,7 @@ public class PostService {
     /**
      * 최신 게시글 조회
      * @param limit
-     * @return List<PostWithMemberDto> : 조회된 게시글의 작성자 정보를 포함한 목록
+     * @return List<PostCommonDto> : 조회된 게시글의 작성자 정보를 포함한 목록
      */
     public List<PostCommonDto> findPostByRecent(int limit) {
         List<PostCommonDto> result = postRepositorySupport.findPostByRecent(limit);
@@ -198,7 +198,7 @@ public class PostService {
     /**
      * 페이징
      * @param pageable
-     * @return Page<PostWithMemberDto> : 페이징정보 + 조회된 게시글의 작성자 정보를 포함한 목록
+     * @return Page<PostCommonDto> : 페이징정보 + 조회된 게시글의 작성자 정보를 포함한 목록
      */
     public Page<PostCommonDto> paging(Pageable pageable) {
         Page<PostCommonDto> result = postRepositorySupport.paging(pageable);
@@ -209,7 +209,7 @@ public class PostService {
     /**
      * 해당 uid의 사용자가 작성한 게시글 조회
      * @param uid
-     * @return List<PostByMemberDto> : 조회된 게시글의 작성자 정보를 포함한 목록
+     * @return List<PostCommonDto> : 조회된 게시글의 작성자 정보를 포함한 목록
      */
     public List<PostCommonDto> findPostByUid(String uid) {
         List<PostCommonDto> result = postRepositorySupport.findPostByUid(uid);

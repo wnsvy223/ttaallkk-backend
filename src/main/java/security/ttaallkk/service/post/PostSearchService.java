@@ -43,7 +43,7 @@ public class PostSearchService {
     /**
      * title과 content Full Text Search
      * @param keyword
-     * @return
+     * @return Page<PostCommonDto>
      */
     @Transactional
     @SuppressWarnings("unchecked")

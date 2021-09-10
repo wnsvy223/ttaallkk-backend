@@ -34,7 +34,7 @@ public class PostRepositorySupport extends QuerydslRepositorySupport {
     /**
      * id 기준으로 최근 게시글 limit 갯수만큼 조회
      * @param num
-     * @return List<PostWithMemberDto>
+     * @return List<PostCommonDto>
      */
     public List<PostCommonDto> findPostByRecent(int limit) {
         return jpaQueryFactory
@@ -64,7 +64,7 @@ public class PostRepositorySupport extends QuerydslRepositorySupport {
     /**
      * 페이징
      * @param pageable
-     * @return Page<PostWithMemberDto>
+     * @return Page<PostCommonDto>
      */
     public Page<PostCommonDto> paging(Pageable pageable) {
         JPQLQuery<PostCommonDto> query = from(post)
@@ -95,7 +95,7 @@ public class PostRepositorySupport extends QuerydslRepositorySupport {
     /**
      * Uid사용자의 작성 게시글 검색 by QueryDSL
      * @param uid
-     * @return List<PostByMemberDto>
+     * @return List<PostCommonDto>
      */
     public List<PostCommonDto> findPostByUid(final String uid) {
         return jpaQueryFactory

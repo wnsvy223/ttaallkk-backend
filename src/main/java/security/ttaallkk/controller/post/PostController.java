@@ -57,7 +57,7 @@ public class PostController {
     /**
      * 게시글 데이터 조회
      * @param postId
-     * @return PostWithCommentsResponseDto
+     * @return PostDetailResponseDto
      */
     @GetMapping("/{postId}")
     public ResponseEntity<PostDetailResponseDto> getPostDetailsWithComments(@PathVariable("postId") Long postId) {
@@ -98,7 +98,7 @@ public class PostController {
 
     /**
      * 메인 페이지 게시글 페이징 최신 게시글 15개 조회
-     * @return List<PostWithMemberDto>
+     * @return List<PostCommonDto>
      */
     @GetMapping("/")
     public ResponseEntity<List<PostCommonDto>> getPostsForPreView() {
@@ -110,7 +110,7 @@ public class PostController {
      * 페이징
      * @param page
      * @param pageable
-     * @return Page<PostWithMemberDto>
+     * @return Page<PostCommonDto>
      */
     @GetMapping
     public ResponseEntity<Page<PostCommonDto>> getPostsByPageNumber(
@@ -126,7 +126,7 @@ public class PostController {
      * @param keyword
      * @param page
      * @param pageable
-     * @return Page<Post>
+     * @return Page<PostCommonDto>
      */
     @GetMapping("/search")
     public ResponseEntity<Page<PostCommonDto>> searchPost(
@@ -141,7 +141,7 @@ public class PostController {
     /**
      * 작성자 uid로 게시글 조회
      * @param uid
-     * @return List<PostByMemberDto>
+     * @return List<PostCommonDto>
      */
     @GetMapping("/user/{uid}")
     public ResponseEntity<List<PostCommonDto>> getPostsByWriterUid(@PathVariable("uid") String uid) {

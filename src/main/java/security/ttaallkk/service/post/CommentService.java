@@ -13,6 +13,7 @@ import lombok.extern.log4j.Log4j2;
 import security.ttaallkk.domain.member.Member;
 import security.ttaallkk.domain.post.Comment;
 import security.ttaallkk.domain.post.Post;
+import security.ttaallkk.dto.querydsl.CommentCommonDto;
 import security.ttaallkk.dto.request.CommentCreateDto;
 import security.ttaallkk.dto.request.CommentUpdateDto;
 import security.ttaallkk.dto.response.CommentResponseDto;
@@ -59,7 +60,7 @@ public class CommentService {
     }
 
     /**
-     * 게시글 댓글조회
+     * 게시글 id로 댓글 조회
      * @param postId
      * @return List<CommentResponseDto>
      */
@@ -67,6 +68,15 @@ public class CommentService {
         return CommentResponseDto.convertCommentStructure(commentRepositorySupport.findCommentByPostId(postId));
     }
 
+    /**
+     * 작성자 uid로 댓글 조회
+     * @param uid
+     * @return List<CommentResponseDto>
+     */
+    public List<CommentCommonDto> findCommentByWriterUid(String uid) {
+        return commentRepositorySupport.findCommentByWriterUid(uid);
+    }
+    
     /**
      * 댓글 내용 업데이트
      * @param commentUpdateDto

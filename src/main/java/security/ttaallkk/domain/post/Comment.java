@@ -41,7 +41,7 @@ public class Comment extends CommonDateTime{
     private Post post;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "comment_writer_id")
+    @JoinColumn(name = "comment_writer_id",  referencedColumnName = "uid")
     private Member writer;
 
     @ManyToOne(fetch = FetchType.LAZY)

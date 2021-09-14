@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
+import security.ttaallkk.dto.querydsl.CommentCommonDto;
 import security.ttaallkk.dto.request.CommentCreateDto;
 import security.ttaallkk.dto.request.CommentUpdateDto;
 import security.ttaallkk.dto.response.CommentResponseDto;
@@ -51,9 +52,22 @@ public class CommentController {
      * @return List<CommentResponseDto>
      */
     @GetMapping("/{postId}")
-    public ResponseEntity<List<CommentResponseDto>> getCommentByPostId(@PathVariable("postId") Long postId){
+    public ResponseEntity<List<CommentResponseDto>> getCommentByPostId(@PathVariable("postId") Long postId) {
         
         List<CommentResponseDto> result = commentService.findCommentByPostId(postId);
+
+        return ResponseEntity.ok(result);
+    }
+
+     /**
+     * 댓글 조회(작성자 uid에 연관된 댓글을 계층형 댓글로 조회)
+     * @param uid
+     * @return List<CommentResponseDto>
+     */
+    @GetMapping("/user/{uid}")
+    public ResponseEntity<List<CommentCommonDto>> getCommentByWriterUid(@PathVariable("uid") String uid) {
+        
+        List<CommentCommonDto> result = commentService.findCommentByWriterUid(uid);
 
         return ResponseEntity.ok(result);
     }

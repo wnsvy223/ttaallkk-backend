@@ -32,7 +32,7 @@ public class Like extends CommonDateTime{
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "like_member_id")
+    @JoinColumn(name = "like_member_id", referencedColumnName = "uid")
     private Member member;
 
     @ManyToOne(fetch = FetchType.LAZY)

@@ -35,7 +35,7 @@ public class CommentController {
      * @param commentCreateDto
      * @return Response
      */
-    @PostMapping("/")
+    @PostMapping
     public ResponseEntity<Response> createComment(@RequestBody CommentCreateDto commentCreateDto) {
         
         commentService.createComment(commentCreateDto);
@@ -60,7 +60,7 @@ public class CommentController {
     }
 
      /**
-     * 댓글 조회(작성자 uid에 연관된 댓글을 계층형 댓글로 조회)
+     * 댓글 조회(작성자 uid에 연관된 댓글 목록 조회)
      * @param uid
      * @return List<CommentResponseDto>
      */

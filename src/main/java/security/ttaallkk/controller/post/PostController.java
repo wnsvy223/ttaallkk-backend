@@ -1,7 +1,6 @@
 package security.ttaallkk.controller.post;
 
 import java.util.List;
-import java.util.Optional;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -20,9 +19,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
-import security.ttaallkk.domain.post.Like;
 import security.ttaallkk.dto.querydsl.PostCommonDto;
-import security.ttaallkk.dto.request.LikeCreateDto;
 import security.ttaallkk.dto.request.PostCreateDto;
 import security.ttaallkk.dto.request.PostUpdateDto;
 import security.ttaallkk.dto.response.PostDetailResponseDto;
@@ -44,7 +41,7 @@ public class PostController {
      * @param postCreateDto
      * @return Response
      */
-    @PostMapping("/")
+    @PostMapping
     public ResponseEntity<Response> createPost(@RequestBody PostCreateDto postCreateDto) {
         postService.createPost(postCreateDto);
 
@@ -163,27 +160,4 @@ public class PostController {
             .message("게시글 전체 삭제 성공").build();
         return ResponseEntity.ok(response);
     }
-
-    /**
-     * 좋아요 등록
-     * @param likeCreateDto //게시글 아이디 + 좋아요 요청사용자 Uid
-     * @return Response
-     */
-    @PostMapping("/like")
-    @PreAuthorize("isAuthenticated()")
-    public ResponseEntity<Response> createLike(@RequestBody LikeCreateDto likeCreateDto) {
-        Optional<Like> like = postService.createLike(likeCreateDto);
-        if(like.isPresent()){
-            Response response = Response.builder()
-                .status(200)
-                .message("좋아요 취소").build();
-            return ResponseEntity.ok(response);
-        }else{
-            Response response = Response.builder()
-                .status(200)
-                .message("좋아요 등록").build();
-            return ResponseEntity.ok(response);
-        }
-    }
-
 }

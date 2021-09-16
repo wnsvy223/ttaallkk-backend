@@ -1,5 +1,7 @@
 package security.ttaallkk.dto.querydsl;
 
+import java.time.LocalDateTime;
+
 import com.querydsl.core.annotations.QueryProjection;
 
 import lombok.Getter;
@@ -7,26 +9,29 @@ import lombok.Getter;
 @Getter
 public class LikeCommonDto {
     
-    Long id;
+    private Long id;
 
-    Long postId;
+    private Long postId;
 
-    Integer likeCnt;
+    private LocalDateTime createdAt;
 
-    String title;
+    private Integer likeCnt;
 
-    String uid;
+    private String title;
 
-    String email;
+    private String uid;
 
-    String displayName;
+    private String email;
 
-    String profileUrl;
+    private String displayName;
+
+    private String profileUrl;
 
     @QueryProjection
     public LikeCommonDto(
                 Long id,
                 Long postId,
+                LocalDateTime createdAt,
                 Integer likeCnt,
                 String title,
                 String uid,
@@ -36,6 +41,7 @@ public class LikeCommonDto {
 
         this.id = id;
         this.postId = postId;
+        this.createdAt = createdAt;
         this.likeCnt = likeCnt;
         this.title = title;
         this.uid = uid;

@@ -55,7 +55,7 @@ public class LikeController {
      * @param uid
      * @return
      */
-    @GetMapping("/{uid}")
+    @GetMapping("/user/{uid}")
     public ResponseEntity<List<LikeCommonDto>> getLikePostByUid(@PathVariable("uid") String uid) {
         List<LikeCommonDto> likes = likeService.getMyLikePost(uid);
         return ResponseEntity.ok(likes);

@@ -38,6 +38,7 @@ public class LikeRepositorySupport extends QuerydslRepositorySupport{
                     LikeCommonDto.class, 
                       like.id,
                       post.id,
+                      post.createdAt,
                       post.likeCnt,
                       post.title,
                       post.writer.uid,

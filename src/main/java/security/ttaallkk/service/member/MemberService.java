@@ -7,7 +7,7 @@ import security.ttaallkk.dto.request.MemeberUpdateDto;
 import security.ttaallkk.dto.request.RefreshTokenDto;
 import security.ttaallkk.dto.request.SignUpDto;
 import security.ttaallkk.dto.response.LoginResponse;
-import security.ttaallkk.dto.response.Response;
+import security.ttaallkk.dto.response.MemberUpdateResponseDto;
 import security.ttaallkk.exception.DisplayNameAlreadyExistException;
 import security.ttaallkk.exception.EmailAlreadyExistException;
 import security.ttaallkk.exception.InvalidRefreshTokenException;
@@ -219,7 +219,7 @@ public class MemberService implements UserDetailsService {
      * @param uid //사용자 고유 uid
      */
     @Transactional
-    public Response updateProfile(MemeberUpdateDto memeberUpdateDto, String uid) {
+    public MemberUpdateResponseDto updateProfile(MemeberUpdateDto memeberUpdateDto, String uid) {
         validateDuplicateUserByDisplayName(memeberUpdateDto.getDisplayName()); //닉네임 중복체크
 
         Member member = memberRepository.findMemberByUid(uid)
@@ -227,12 +227,16 @@ public class MemberService implements UserDetailsService {
 
         member.updateProfile(memeberUpdateDto.getDisplayName(), memeberUpdateDto.getProfileUrl());
 
-        Response response = Response.builder()
+        MemberUpdateResponseDto memberUpdateResponseDto = MemberUpdateResponseDto.builder()
                 .status(200)
                 .message("프로필 업데이트 성공")
+                .uid(member.getUid())
+                .email(member.getEmail())
+                .displayName(member.getDisplayName())
+                .profileUrl(member.getProfileUrl())
                 .build();
 
-        return response;
+        return memberUpdateResponseDto;
     }
 
     /**

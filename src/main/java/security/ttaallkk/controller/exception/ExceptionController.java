@@ -3,9 +3,12 @@ package security.ttaallkk.controller.exception;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import security.ttaallkk.dto.response.Response;
+import security.ttaallkk.exception.DisplayNameAlreadyExistException;
+import security.ttaallkk.exception.EmailAlreadyExistException;
 import security.ttaallkk.exception.ExpiredJwtException;
 import security.ttaallkk.exception.InvalidRefreshTokenException;
 import security.ttaallkk.exception.PasswordNotMatchException;
+import security.ttaallkk.exception.UidNotFoundException;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -61,6 +64,33 @@ public class ExceptionController {
         Response response = Response.builder()
                 .status(HttpStatus.FORBIDDEN.value())
                 .message("비밀번호가 틀렸습니다. 비밀번호를 다시 확인하세요")
+                .build();
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
+    }
+
+    @ExceptionHandler(EmailAlreadyExistException.class)
+    public ResponseEntity EmailAlreadyExistException(Exception e) {
+        Response response = Response.builder()
+                .status(HttpStatus.FORBIDDEN.value())
+                .message("이미 존재하는 이메일 입니다. 새로운 이메일로 시도해 보세요")
+                .build();
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
+    }
+
+    @ExceptionHandler(DisplayNameAlreadyExistException.class)
+    public ResponseEntity DisplayNameAlreadyExistException(Exception e) {
+        Response response = Response.builder()
+                .status(HttpStatus.FORBIDDEN.value())
+                .message("이미 존재하는 닉네임 입니다. 새로운 닉네임으로 시도해 보세요")
+                .build();
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
+    }
+
+    @ExceptionHandler(UidNotFoundException.class)
+    public ResponseEntity UidNotFoundException(Exception e) {
+        Response response = Response.builder()
+                .status(HttpStatus.FORBIDDEN.value())
+                .message("존재하지 않는 사용자의 UID 입니다.")
                 .build();
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
     }

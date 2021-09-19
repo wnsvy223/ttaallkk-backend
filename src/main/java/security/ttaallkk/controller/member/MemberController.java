@@ -7,6 +7,7 @@ import security.ttaallkk.dto.request.MemeberUpdateDto;
 import security.ttaallkk.dto.request.RefreshTokenDto;
 import security.ttaallkk.dto.request.SignUpDto;
 import security.ttaallkk.dto.response.LoginResponse;
+import security.ttaallkk.dto.response.MemberUpdateResponseDto;
 import security.ttaallkk.dto.response.Response;
 import security.ttaallkk.service.member.MemberSearchService;
 import security.ttaallkk.service.member.MemberService;
@@ -114,11 +115,11 @@ public class MemberController {
      * @return Response
      */
     @PutMapping("/{uid}")
-    public ResponseEntity<Response> updateProfile(@RequestBody MemeberUpdateDto memeberUpdateDto, @PathVariable("uid") String uid) {
+    public ResponseEntity<MemberUpdateResponseDto> updateProfile(@RequestBody MemeberUpdateDto memeberUpdateDto, @PathVariable("uid") String uid) {
         
-        Response response = memberService.updateProfile(memeberUpdateDto, uid);
+        MemberUpdateResponseDto memberUpdateResponseDto= memberService.updateProfile(memeberUpdateDto, uid);
         
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(memberUpdateResponseDto);
     } 
 
     /**

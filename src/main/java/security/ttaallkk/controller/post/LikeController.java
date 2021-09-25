@@ -16,8 +16,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import security.ttaallkk.domain.post.Like;
 import security.ttaallkk.dto.querydsl.LikeCommonDto;
+import security.ttaallkk.dto.querydsl.LikeWeeklyDto;
 import security.ttaallkk.dto.request.LikeCreateDto;
-import security.ttaallkk.dto.response.LikeWeeklyDto;
 import security.ttaallkk.dto.response.Response;
 import security.ttaallkk.service.post.LikeService;
 
@@ -54,7 +54,7 @@ public class LikeController {
     /**
      * 로그인한 유저가 좋아요 누른 게시글 uid 기반으로 조회
      * @param uid
-     * @return
+     * @return List<LikeCommonDto>
      */
     @GetMapping("/user/{uid}")
     public ResponseEntity<List<LikeCommonDto>> getLikePostByUid(@PathVariable("uid") String uid) {

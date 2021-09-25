@@ -18,8 +18,8 @@ import security.ttaallkk.domain.member.Member;
 import security.ttaallkk.domain.post.Like;
 import security.ttaallkk.domain.post.Post;
 import security.ttaallkk.dto.querydsl.LikeCommonDto;
+import security.ttaallkk.dto.querydsl.LikeWeeklyDto;
 import security.ttaallkk.dto.request.LikeCreateDto;
-import security.ttaallkk.dto.response.LikeWeeklyDto;
 import security.ttaallkk.exception.PostNotFoundException;
 import security.ttaallkk.exception.UidNotMatchedException;
 import security.ttaallkk.repository.member.MemberRepository;
@@ -77,7 +77,7 @@ public class LikeService {
 
     /**
      * 주간 좋아요를 받은 숫자가 높은 순서대로 조회하여 반환
-     * @return List<Like>
+     * @return List<LikeWeeklyDto>
      */
     @Transactional
     public List<LikeWeeklyDto> getWeeklyHotLike() {

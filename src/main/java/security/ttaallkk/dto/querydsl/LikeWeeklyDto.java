@@ -1,19 +1,14 @@
-package security.ttaallkk.dto.response;
+package security.ttaallkk.dto.querydsl;
 
 import java.time.LocalDateTime;
-import java.util.List;
-import java.util.stream.Collectors;
 
 import com.querydsl.core.annotations.QueryProjection;
 
-import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import security.ttaallkk.domain.post.Like;
 
 @Getter
 @NoArgsConstructor
-//@AllArgsConstructor
 public class LikeWeeklyDto {
     private Long id;
 

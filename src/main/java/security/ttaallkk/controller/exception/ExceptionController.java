@@ -13,6 +13,7 @@ import security.ttaallkk.exception.PostNotFoundException;
 import security.ttaallkk.exception.RefreshTokenGrantTypeException;
 import security.ttaallkk.exception.TokenNotFoundException;
 import security.ttaallkk.exception.UidNotFoundException;
+import security.ttaallkk.exception.UidNotMatchedException;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -135,5 +136,14 @@ public class ExceptionController {
                 .message("존재하지 않는 사용자의 UID 입니다.")
                 .build();
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+    }
+
+    @ExceptionHandler(UidNotMatchedException.class)
+    public ResponseEntity UidNotMatchedException(Exception e) {
+        Response response = Response.builder()
+                .status(HttpStatus.FORBIDDEN.value())
+                .message("요청 UID와 인증 UID가 일치하지 않습니다.")
+                .build();
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(response);
     }
 }

@@ -4,6 +4,8 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import com.querydsl.core.annotations.QueryProjection;
+
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -11,7 +13,7 @@ import security.ttaallkk.domain.post.Like;
 
 @Getter
 @NoArgsConstructor
-@AllArgsConstructor
+//@AllArgsConstructor
 public class LikeWeeklyDto {
     private Long id;
 
@@ -31,20 +33,26 @@ public class LikeWeeklyDto {
 
     private String profileUrl;
 
-    // LikeEntity -> LikeWeeklyDto 변환함수(feat. Map)
-    public static List<LikeWeeklyDto> convertLikeEntityToLikeWeeklyDto(List<Like> likes) {
-        List<LikeWeeklyDto> result = likes.stream()
-                .map(like -> new LikeWeeklyDto(
-                    like.getId(),
-                    like.getPost().getId(),
-                    like.getPost().getTitle(),
-                    like.getPost().getLikeCnt(),
-                    like.getPost().getCreatedAt(),
-                    like.getMember().getEmail(),
-                    like.getMember().getUid(),
-                    like.getMember().getDisplayName(),
-                    like.getMember().getProfileUrl())
-                ).collect(Collectors.toList());
-        return result;
+    @QueryProjection
+    public LikeWeeklyDto(
+                Long id,
+                Long postId,
+                String title,
+                Integer likeCnt,
+                LocalDateTime createdAt,
+                String email,
+                String uid, 
+                String displayName,
+                String profileUrl) {
+
+        this.id = id;
+        this.postId = postId;
+        this.title = title;
+        this.likeCnt = likeCnt;
+        this.createdAt = createdAt;
+        this.uid = uid;
+        this.email = email;
+        this.displayName = displayName;
+        this.profileUrl = profileUrl;
     }
 }

@@ -68,7 +68,7 @@ public class LikeController {
      */
     @GetMapping("/weekly")
     public ResponseEntity<List<LikeWeeklyDto>> getLikePostByWeeklyHot() {
-        List<LikeWeeklyDto> weeklyLikes = LikeWeeklyDto.convertLikeEntityToLikeWeeklyDto(likeService.getWeeklyHotLike());
+        List<LikeWeeklyDto> weeklyLikes = likeService.getWeeklyHotLike();
         return ResponseEntity.ok(weeklyLikes);
     }
 }

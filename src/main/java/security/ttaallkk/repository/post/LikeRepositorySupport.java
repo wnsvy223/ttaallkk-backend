@@ -8,6 +8,7 @@ import org.springframework.stereotype.Repository;
 
 import security.ttaallkk.domain.post.Like;
 import security.ttaallkk.dto.querydsl.LikeCommonDto;
+import security.ttaallkk.dto.response.LikeWeeklyDto;
 
 import static security.ttaallkk.domain.member.QMember.member;
 import static security.ttaallkk.domain.post.QPost.post;
@@ -58,17 +59,33 @@ public class LikeRepositorySupport extends QuerydslRepositorySupport{
 
     /**
      * 주간 좋아요를 받은 숫자가 높은 순으로 좋아요가 속한 게시글 연관데이터 조회
+     * @param LocalDateTime from(주간 범위의 시작점 = 월)
+     * @param LocalDateTime to(주간 범위의 끝점 = 일)
      * @return List<Like>
      */
-    public List<Like> findLikeOrderByLikeCnt(LocalDateTime from, LocalDateTime to) {
-        return jpaQueryFactory.selectFrom(like)
+    public List<LikeWeeklyDto> findLikeOrderByLikeCnt(LocalDateTime from, LocalDateTime to) {
+        return jpaQueryFactory
+            .select(
+                Projections.constructor(
+                    LikeWeeklyDto.class, 
+                    like.id,
+                    post.id,
+                    post.title,
+                    post.likeCnt,
+                    post.createdAt,
+                    post.writer.email,
+                    post.writer.uid,
+                    post.writer.displayName,
+                    post.writer.profileUrl
+                    )
+                )
+            .from(like)
             .innerJoin(like.post, post)
-            .fetchJoin()
             .innerJoin(post.writer, member)
-            .fetchJoin()
             .orderBy(post.likeCnt.desc())
             .limit(WEEKLY_POST_LIMIT)
             .where(post.createdAt.between(from, to))
+            .groupBy(post.id)
             .fetch();
     }   
 }

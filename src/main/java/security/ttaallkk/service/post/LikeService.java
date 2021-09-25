@@ -19,7 +19,9 @@ import security.ttaallkk.domain.post.Like;
 import security.ttaallkk.domain.post.Post;
 import security.ttaallkk.dto.querydsl.LikeCommonDto;
 import security.ttaallkk.dto.request.LikeCreateDto;
+import security.ttaallkk.dto.response.LikeWeeklyDto;
 import security.ttaallkk.exception.PostNotFoundException;
+import security.ttaallkk.exception.UidNotMatchedException;
 import security.ttaallkk.repository.member.MemberRepository;
 import security.ttaallkk.repository.post.LikeRepository;
 import security.ttaallkk.repository.post.LikeRepositorySupport;
@@ -46,6 +48,7 @@ public class LikeService {
         Post post = postRepository.findPostByPostId(likeCreateDto.getPostId()).orElseThrow(PostNotFoundException::new);
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
         Member member = memberRepository.findMemberByEmail(email).orElseThrow(() -> new UsernameNotFoundException("이메일이 일치하지 않습니다."));
+        if(!isUidAuthenticated(member, likeCreateDto.getLikeMemberUid())) throw new UidNotMatchedException("요청 UID와 인증 UID가 일치하지 않습니다.");
         Optional<Like> like = likeRepository.findByPostAndMember(post, member);
         like.ifPresentOrElse(
             postLike -> { //좋아요가 있을 경우
@@ -77,13 +80,23 @@ public class LikeService {
      * @return List<Like>
      */
     @Transactional
-    public List<Like> getWeeklyHotLike() {
+    public List<LikeWeeklyDto> getWeeklyHotLike() {
         // 저번주 일요일 + 1 = 이번주 월요일
         LocalDateTime from = LocalDateTime.now().with(TemporalAdjusters.previousOrSame(DayOfWeek.SUNDAY.plus(1)));
         // 다음주 월요일 -1 = 이번주 일요일
         LocalDateTime to = LocalDateTime.now().with(TemporalAdjusters.nextOrSame(DayOfWeek.MONDAY.minus(1)));
         // 이번주 월요일 ~ 일요일까지의 주간 범위값 전달
-        List<Like> weeklyLike = likeRepositorySupport.findLikeOrderByLikeCnt(from, to);
+        List<LikeWeeklyDto> weeklyLike = likeRepositorySupport.findLikeOrderByLikeCnt(from, to);
         return weeklyLike;
+    }
+
+    /**
+     * RequestDto의 uid와 인증객체의 uid가 동일한지 체크
+     * @param member
+     * @param uid
+     * @return Boolean
+     */
+    private Boolean isUidAuthenticated(Member member, String uid) {
+        return member.getUid().equals(uid) ? true : false;
     }
 }

@@ -187,6 +187,7 @@ public class MemberService implements UserDetailsService {
             throw new RefreshTokenGrantTypeException("올바른 grantType 을 입력해주세요");
         Authentication authentication = jwtProvider.getAuthenticationFromRefreshToken(refreshTokenFromCookie);
 
+        //요청정보에서 추출한 리프래시토큰과 사용자 이메일로 DB에서 정보조회. 값이 다를경우 유효하지 않은 리프래시 토큰이므로 예외처리 발생
         Member member = memberRepository.findMemberByEmailAndRefreshToken(authentication.getName(), refreshTokenFromCookie)
                 .orElseThrow(() -> new InvalidRefreshTokenException("유효하지 않은 리프래시 토큰입니다")); //InvalidRefreshTokenException 예외 Handler
 
@@ -194,7 +195,7 @@ public class MemberService implements UserDetailsService {
         String accessToken = jwtProvider.generateAccessToken(authentication);
         String refreshToken = jwtProvider.generateRefreshToken(authentication);
 
-        //refreshToken 저장 (refreshToken 은 한번 사용후 폐기)
+        //refreshToken 업데이트 (기존 refreshToken은 한번 사용후 폐기)
         member.updateRefreshToken(refreshToken);
 
         LoginResponse response = LoginResponse.builder()
@@ -245,7 +246,7 @@ public class MemberService implements UserDetailsService {
      * @throws EmailAlreadyExistException
      */
     private void validateDuplicateUserByEmail(String email) {
-        if(memberRepository.findMemberByEmail(email).isPresent()) throw new EmailAlreadyExistException("이미 가입된 사용자 이메일 입니다. 새로운 이메일로 가입을 진행하세요.");
+        if(memberRepository.findMemberByEmail(email).isPresent()) throw new EmailAlreadyExistException("이미 존재하는 이메일 입니다. 새로운 이메일로 시도해 보세요.");
     }
 
     /**
@@ -254,7 +255,7 @@ public class MemberService implements UserDetailsService {
      * @throws DisplayNameAlreadyExistException
      */
     private void validateDuplicateUserByDisplayName(String displayName) {
-        if(memberRepository.findMemberByDisplayName(displayName).isPresent()) throw new DisplayNameAlreadyExistException("이미 가입된 사용자 닉네임 입니다. 새로운 닉네임으로 가입을 진행하세요.");
+        if(memberRepository.findMemberByDisplayName(displayName).isPresent()) throw new DisplayNameAlreadyExistException("이미 존재하는 닉네임 입니다. 새로운 닉네임으로 시도해 보세요.");
     }
 
     /**

@@ -13,11 +13,13 @@ import static security.ttaallkk.domain.member.QMember.member;
 import static security.ttaallkk.domain.post.QPost.post;
 import static security.ttaallkk.domain.post.QLike.like;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Repository
 public class LikeRepositorySupport extends QuerydslRepositorySupport{
     
+    private final long WEEKLY_POST_LIMIT = 7;
     private JPAQueryFactory jpaQueryFactory;
 
     public LikeRepositorySupport(JPAQueryFactory jpaQueryFactory) {
@@ -53,4 +55,20 @@ public class LikeRepositorySupport extends QuerydslRepositorySupport{
             .where(like.member.uid.eq(uid))
             .fetch();
     }
+
+    /**
+     * 주간 좋아요를 받은 숫자가 높은 순으로 좋아요가 속한 게시글 연관데이터 조회
+     * @return List<Like>
+     */
+    public List<Like> findLikeOrderByLikeCnt(LocalDateTime from, LocalDateTime to) {
+        return jpaQueryFactory.selectFrom(like)
+            .innerJoin(like.post, post)
+            .fetchJoin()
+            .innerJoin(post.writer, member)
+            .fetchJoin()
+            .orderBy(post.likeCnt.desc())
+            .limit(WEEKLY_POST_LIMIT)
+            .where(post.createdAt.between(from, to))
+            .fetch();
+    }   
 }

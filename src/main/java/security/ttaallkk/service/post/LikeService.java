@@ -2,6 +2,9 @@ package security.ttaallkk.service.post;
 
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.DayOfWeek;
+import java.time.LocalDateTime;
+import java.time.temporal.TemporalAdjusters;
 import java.util.List;
 import java.util.Optional;
 
@@ -67,5 +70,20 @@ public class LikeService {
     public List<LikeCommonDto> getMyLikePost(String uid) {
         List<LikeCommonDto> likes = likeRepositorySupport.findLikeByWriterUid(uid);
         return likes;
+    }
+
+    /**
+     * 주간 좋아요를 받은 숫자가 높은 순서대로 조회하여 반환
+     * @return List<Like>
+     */
+    @Transactional
+    public List<Like> getWeeklyHotLike() {
+        // 저번주 일요일 + 1 = 이번주 월요일
+        LocalDateTime from = LocalDateTime.now().with(TemporalAdjusters.previousOrSame(DayOfWeek.SUNDAY.plus(1)));
+        // 다음주 월요일 -1 = 이번주 일요일
+        LocalDateTime to = LocalDateTime.now().with(TemporalAdjusters.nextOrSame(DayOfWeek.MONDAY.minus(1)));
+        // 이번주 월요일 ~ 일요일까지의 주간 범위값 전달
+        List<Like> weeklyLike = likeRepositorySupport.findLikeOrderByLikeCnt(from, to);
+        return weeklyLike;
     }
 }

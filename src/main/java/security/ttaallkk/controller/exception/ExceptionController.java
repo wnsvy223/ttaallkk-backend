@@ -3,11 +3,15 @@ package security.ttaallkk.controller.exception;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import security.ttaallkk.dto.response.Response;
+import security.ttaallkk.exception.CommentNotFoundException;
 import security.ttaallkk.exception.DisplayNameAlreadyExistException;
 import security.ttaallkk.exception.EmailAlreadyExistException;
 import security.ttaallkk.exception.ExpiredJwtException;
 import security.ttaallkk.exception.InvalidRefreshTokenException;
 import security.ttaallkk.exception.PasswordNotMatchException;
+import security.ttaallkk.exception.PostNotFoundException;
+import security.ttaallkk.exception.RefreshTokenGrantTypeException;
+import security.ttaallkk.exception.TokenNotFoundException;
 import security.ttaallkk.exception.UidNotFoundException;
 
 import org.springframework.http.HttpStatus;
@@ -27,34 +31,63 @@ public class ExceptionController {
     public ResponseEntity badCredentials(Exception e) {
         Response response = Response.builder()
                 .status(HttpStatus.BAD_REQUEST.value())
-                .message("로그인 실패")
+                .message("로그인 실패.")
                 .build();
         return ResponseEntity.badRequest().body(response);
     }
-
-    @ExceptionHandler(InvalidRefreshTokenException.class)
-    public ResponseEntity invalidRefreshToken(Exception e) {
+   
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity MethodArgumentNotValidException(Exception e) {
         Response response = Response.builder()
-                .status(HttpStatus.UNAUTHORIZED.value())
-                .message(e.getMessage())
+                .status(HttpStatus.BAD_REQUEST.value())
+                .message("이메일 또는 비밀번호의 규격이 잘못된 요청입니다.")
                 .build();
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+    }
+
+    // ---------------------------------Custom Exception--------------------------------- //
+    
+    @ExceptionHandler(CommentNotFoundException.class)
+    public ResponseEntity CommentNotFoundException(Exception e) {
+        Response response = Response.builder()
+                .status(HttpStatus.BAD_REQUEST.value())
+                .message("존재하지 않는 댓글 정보 입니다.")
+                .build();
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+    }
+
+    @ExceptionHandler(DisplayNameAlreadyExistException.class)
+    public ResponseEntity DisplayNameAlreadyExistException(Exception e) {
+        Response response = Response.builder()
+                .status(HttpStatus.FORBIDDEN.value())
+                .message("이미 존재하는 닉네임 입니다. 새로운 닉네임으로 시도해 보세요.")
+                .build();
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(response);
+    }
+
+    @ExceptionHandler(EmailAlreadyExistException.class)
+    public ResponseEntity EmailAlreadyExistException(Exception e) {
+        Response response = Response.builder()
+                .status(HttpStatus.FORBIDDEN.value())
+                .message("이미 존재하는 이메일 입니다. 새로운 이메일로 시도해 보세요.")
+                .build();
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(response);
     }
 
     @ExceptionHandler(ExpiredJwtException.class)
     public ResponseEntity ExpiredJwtException(Exception e) {
         Response response = Response.builder()
                 .status(HttpStatus.UNAUTHORIZED.value())
-                .message("만료된 토큰입니다. 토큰을 갱신하세요")
+                .message("만료된 토큰입니다. 토큰을 갱신하세요.")
                 .build();
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
     }
 
-    @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity MethodArgumentNotValidException(Exception e) {
+    @ExceptionHandler(InvalidRefreshTokenException.class)
+    public ResponseEntity invalidRefreshToken(Exception e) {
         Response response = Response.builder()
-                .status(HttpStatus.BAD_REQUEST.value())
-                .message("이메일 또는 비밀번호의 규격이 잘못된 요청입니다")
+                .status(HttpStatus.UNAUTHORIZED.value())
+                .message("유효하지 않은 리프래시 토큰입니다. 로그인을 통해 재인증 해주세요.")
                 .build();
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
     }
@@ -63,25 +96,34 @@ public class ExceptionController {
     public ResponseEntity PasswordNotMatchException(Exception e) {
         Response response = Response.builder()
                 .status(HttpStatus.FORBIDDEN.value())
-                .message("비밀번호가 틀렸습니다. 비밀번호를 다시 확인하세요")
+                .message("비밀번호가 틀렸습니다. 비밀번호를 다시 확인하세요.")
+                .build();
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(response);
+    }
+
+    @ExceptionHandler(PostNotFoundException.class)
+    public ResponseEntity PostNotFoundException(Exception e) {
+        Response response = Response.builder()
+                .status(HttpStatus.BAD_REQUEST.value())
+                .message("존재하지 않는 게시글 정보 입니다.")
+                .build();
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+    }
+
+    @ExceptionHandler(RefreshTokenGrantTypeException.class)
+    public ResponseEntity RefreshTokenGrantTypeException(Exception e) {
+        Response response = Response.builder()
+                .status(HttpStatus.UNAUTHORIZED.value())
+                .message("잘못된 GrantType의 리프래시 토큰 입니다.")
                 .build();
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
     }
 
-    @ExceptionHandler(EmailAlreadyExistException.class)
-    public ResponseEntity EmailAlreadyExistException(Exception e) {
+    @ExceptionHandler(TokenNotFoundException.class)
+    public ResponseEntity TokenNotFoundException(Exception e) {
         Response response = Response.builder()
-                .status(HttpStatus.FORBIDDEN.value())
-                .message("이미 존재하는 이메일 입니다. 새로운 이메일로 시도해 보세요")
-                .build();
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
-    }
-
-    @ExceptionHandler(DisplayNameAlreadyExistException.class)
-    public ResponseEntity DisplayNameAlreadyExistException(Exception e) {
-        Response response = Response.builder()
-                .status(HttpStatus.FORBIDDEN.value())
-                .message("이미 존재하는 닉네임 입니다. 새로운 닉네임으로 시도해 보세요")
+                .status(HttpStatus.UNAUTHORIZED.value())
+                .message("존재하지 않는 토큰입니다.")
                 .build();
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
     }
@@ -89,9 +131,9 @@ public class ExceptionController {
     @ExceptionHandler(UidNotFoundException.class)
     public ResponseEntity UidNotFoundException(Exception e) {
         Response response = Response.builder()
-                .status(HttpStatus.FORBIDDEN.value())
+                .status(HttpStatus.BAD_REQUEST.value())
                 .message("존재하지 않는 사용자의 UID 입니다.")
                 .build();
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
     }
 }

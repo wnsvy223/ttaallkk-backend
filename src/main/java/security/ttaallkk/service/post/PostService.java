@@ -191,8 +191,8 @@ public class PostService {
      * @param limit
      * @return List<PostCommonDto> : 조회된 게시글의 작성자 정보를 포함한 목록
      */
-    public List<PostCommonDto> findPostByRecent(int limit) {
-        List<PostCommonDto> result = postRepositorySupport.findPostByRecent(limit);
+    public List<PostCommonDto> findPostByRecent() {
+        List<PostCommonDto> result = postRepositorySupport.findPostByRecent();
 
         return result;
     }

@@ -13,6 +13,7 @@ import org.springframework.data.jpa.repository.support.QuerydslRepositorySupport
 import org.springframework.data.support.PageableExecutionUtils;
 import org.springframework.stereotype.Repository;
 
+import security.ttaallkk.common.Constnat;
 import security.ttaallkk.domain.post.Post;
 import security.ttaallkk.dto.querydsl.PostCommonDto;
 
@@ -37,7 +38,7 @@ public class PostRepositorySupport extends QuerydslRepositorySupport {
      * @param num
      * @return List<PostCommonDto>
      */
-    public List<PostCommonDto> findPostByRecent(int limit) {
+    public List<PostCommonDto> findPostByRecent() {
         return jpaQueryFactory
             .select(
                 Projections.constructor(
@@ -58,7 +59,7 @@ public class PostRepositorySupport extends QuerydslRepositorySupport {
             .from(post)
             .innerJoin(post.writer, member)
             .orderBy(post.id.desc())
-            .limit(limit)
+            .limit(Constnat.POST_ROW_LIMIT)
             .fetch();
     }
 
@@ -136,7 +137,7 @@ public class PostRepositorySupport extends QuerydslRepositorySupport {
             .fetchJoin()
             .where(post.createdAt.between(from, to), post.likeCnt.gt(0)) //주간 데이터 + 좋아요 수가 0보다 큰경우
             .orderBy(post.likeCnt.desc())
-            .limit(7)
+            .limit(Constnat.POST_ROW_LIMIT)
             .fetch();
     }
 }

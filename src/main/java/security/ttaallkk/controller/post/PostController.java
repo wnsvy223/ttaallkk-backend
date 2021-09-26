@@ -95,12 +95,12 @@ public class PostController {
     }
 
     /**
-     * 메인 페이지 게시글 페이징 최신 게시글 15개 조회
+     * 메인 페이지 게시글 페이징 최신 게시글 조회
      * @return List<PostCommonDto>
      */
-    @GetMapping("/")
+    @GetMapping("/recent")
     public ResponseEntity<List<PostCommonDto>> getPostsForPreView() {
-        List<PostCommonDto> result = postService.findPostByRecent(15);
+        List<PostCommonDto> result = postService.findPostByRecent();
         return ResponseEntity.ok(result);
     }
 

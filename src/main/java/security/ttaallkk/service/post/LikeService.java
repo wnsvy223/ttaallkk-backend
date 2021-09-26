@@ -2,9 +2,6 @@ package security.ttaallkk.service.post;
 
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.DayOfWeek;
-import java.time.LocalDateTime;
-import java.time.temporal.TemporalAdjusters;
 import java.util.List;
 import java.util.Optional;
 
@@ -18,7 +15,6 @@ import security.ttaallkk.domain.member.Member;
 import security.ttaallkk.domain.post.Like;
 import security.ttaallkk.domain.post.Post;
 import security.ttaallkk.dto.querydsl.LikeCommonDto;
-import security.ttaallkk.dto.querydsl.LikeWeeklyDto;
 import security.ttaallkk.dto.request.LikeCreateDto;
 import security.ttaallkk.exception.PostNotFoundException;
 import security.ttaallkk.exception.UidNotMatchedException;
@@ -73,21 +69,6 @@ public class LikeService {
     public List<LikeCommonDto> getMyLikePost(String uid) {
         List<LikeCommonDto> likes = likeRepositorySupport.findLikeByWriterUid(uid);
         return likes;
-    }
-
-    /**
-     * 주간 좋아요를 받은 숫자가 높은 순서대로 조회하여 반환
-     * @return List<LikeWeeklyDto>
-     */
-    @Transactional
-    public List<LikeWeeklyDto> getWeeklyHotLike() {
-        // 저번주 일요일 + 1 = 이번주 월요일
-        LocalDateTime from = LocalDateTime.now().with(TemporalAdjusters.previousOrSame(DayOfWeek.SUNDAY.plus(1)));
-        // 다음주 월요일 -1 = 이번주 일요일
-        LocalDateTime to = LocalDateTime.now().with(TemporalAdjusters.nextOrSame(DayOfWeek.MONDAY.minus(1)));
-        // 이번주 월요일 ~ 일요일까지의 주간 범위값 전달
-        List<LikeWeeklyDto> weeklyLike = likeRepositorySupport.findLikeOrderByLikeCnt(from, to);
-        return weeklyLike;
     }
 
     /**

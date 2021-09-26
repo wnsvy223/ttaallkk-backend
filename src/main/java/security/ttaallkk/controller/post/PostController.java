@@ -22,6 +22,7 @@ import lombok.extern.log4j.Log4j2;
 import security.ttaallkk.dto.querydsl.PostCommonDto;
 import security.ttaallkk.dto.request.PostCreateDto;
 import security.ttaallkk.dto.request.PostUpdateDto;
+import security.ttaallkk.dto.response.PostWeeklyLikeDto;
 import security.ttaallkk.dto.response.PostDetailResponseDto;
 import security.ttaallkk.dto.response.Response;
 import security.ttaallkk.service.post.PostSearchService;
@@ -143,6 +144,17 @@ public class PostController {
     @GetMapping("/user/{uid}")
     public ResponseEntity<List<PostCommonDto>> getPostsByWriterUid(@PathVariable("uid") String uid) {
         List<PostCommonDto> result = postService.findPostByUid(uid);
+        return ResponseEntity.ok(result);
+    }
+
+     /**
+     * 주간 단위로 좋아요를 받은 숫자가 높은 순으로 조회된 게시글목록을 PostWeeklyLikeDto 변환하여 반환
+     * @return List<PostWeeklyLikeDto>
+     */
+    @GetMapping("/weekly")
+    public ResponseEntity<List<PostWeeklyLikeDto>> getPostsByWeekly() {
+        List<PostWeeklyLikeDto> result = PostWeeklyLikeDto.convertPostWeeklyLikeDto(postService.findPostWeeklyLike());
+        
         return ResponseEntity.ok(result);
     }
 

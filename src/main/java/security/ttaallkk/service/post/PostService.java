@@ -1,5 +1,8 @@
 package security.ttaallkk.service.post;
 
+import java.time.DayOfWeek;
+import java.time.LocalDateTime;
+import java.time.temporal.TemporalAdjusters;
 import java.util.List;
 import java.util.Optional;
 
@@ -215,6 +218,23 @@ public class PostService {
 
         return result;
     }
+
+    /**
+     * 주간 좋아요를 받은 숫자가 높은 순서대로 조회하여 반환
+     * @return List<PostWeeklyLikeDto>
+     */
+    @Transactional
+    public List<Post> findPostWeeklyLike() {
+        // 저번주 일요일 + 1 = 이번주 월요일
+        LocalDateTime from = LocalDateTime.now().with(TemporalAdjusters.previousOrSame(DayOfWeek.SUNDAY.plus(1)));
+        // 다음주 월요일 -1 = 이번주 일요일
+        LocalDateTime to = LocalDateTime.now().with(TemporalAdjusters.nextOrSame(DayOfWeek.MONDAY.minus(1)));
+        // 이번주 월요일 ~ 일요일까지의 주간 범위값 전달
+        List<Post> result = postRepositorySupport.findPostByWeeklyLike(from, to);
+
+        return result;
+    }
+
 
     /**
      * 게시글 전체 삭제

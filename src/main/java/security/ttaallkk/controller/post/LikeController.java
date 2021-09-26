@@ -16,7 +16,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import security.ttaallkk.domain.post.Like;
 import security.ttaallkk.dto.querydsl.LikeCommonDto;
-import security.ttaallkk.dto.querydsl.LikeWeeklyDto;
 import security.ttaallkk.dto.request.LikeCreateDto;
 import security.ttaallkk.dto.response.Response;
 import security.ttaallkk.service.post.LikeService;
@@ -62,13 +61,4 @@ public class LikeController {
         return ResponseEntity.ok(likes);
     }
 
-    /**
-     * 주간 단위로 좋아요를 받은 숫자가 높은 순으로 조회된 게시글목록을 LikeWeeklyDto로 변환하여 반환
-     * @return List<LikeWeeklyDto>
-     */
-    @GetMapping("/weekly")
-    public ResponseEntity<List<LikeWeeklyDto>> getLikePostByWeeklyHot() {
-        List<LikeWeeklyDto> weeklyLikes = likeService.getWeeklyHotLike();
-        return ResponseEntity.ok(weeklyLikes);
-    }
 }

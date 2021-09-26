@@ -1,5 +1,6 @@
 package security.ttaallkk.repository.post;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 import com.querydsl.core.types.Projections;
@@ -121,4 +122,21 @@ public class PostRepositorySupport extends QuerydslRepositorySupport {
             .fetch();
     }
     
+    /**
+     * 주간 좋아요를 받은 숫자가 높은 순으로 좋아요가 속한 게시글 연관데이터 조회
+     * @param LocalDateTime from(주간 범위의 시작점 = 월)
+     * @param LocalDateTime to(주간 범위의 끝점 = 일)
+     * @return List<PostWeeklyLikeDto>
+     */
+    public List<Post> findPostByWeeklyLike(LocalDateTime from, LocalDateTime to) {
+        return jpaQueryFactory
+            .select(post)
+            .from(post)
+            .innerJoin(post.writer, member)
+            .fetchJoin()
+            .where(post.createdAt.between(from, to), post.likeCnt.gt(0)) //주간 데이터 + 좋아요 수가 0보다 큰경우
+            .orderBy(post.likeCnt.desc())
+            .limit(7)
+            .fetch();
+    }
 }

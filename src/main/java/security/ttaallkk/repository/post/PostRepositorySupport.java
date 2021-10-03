@@ -19,7 +19,7 @@ import security.ttaallkk.dto.querydsl.PostCommonDto;
 
 import static security.ttaallkk.domain.post.QPost.post;
 import static security.ttaallkk.domain.member.QMember.member;
-
+import static security.ttaallkk.domain.post.QCategory.category;
 /**
  * Post Entity QueryDSL Repository
  */
@@ -35,7 +35,6 @@ public class PostRepositorySupport extends QuerydslRepositorySupport {
 
     /**
      * id 기준으로 최근 게시글 limit 갯수만큼 조회
-     * @param num
      * @return List<PostCommonDto>
      */
     public List<PostCommonDto> findPostByRecent() {
@@ -53,24 +52,28 @@ public class PostRepositorySupport extends QuerydslRepositorySupport {
                     post.views,
                     post.postStatus,
                     post.createdAt,
-                    post.modifiedAt
+                    post.modifiedAt,
+                    category.ctgName
                 )
             )
             .from(post)
             .innerJoin(post.writer, member)
-            .orderBy(post.id.desc())
+            .innerJoin(post.category, category)
+            .orderBy(post.id.desc(), post.createdAt.desc())
             .limit(Constnat.POST_ROW_LIMIT)
             .fetch();
     }
 
     /**
-     * 페이징
+     * 페이징(게시판 카테고리 분류)
      * @param pageable
      * @return Page<PostCommonDto>
      */
-    public Page<PostCommonDto> paging(Pageable pageable) {
+    public Page<PostCommonDto> paging(Pageable pageable, Long categoryId) {
         JPQLQuery<PostCommonDto> query = from(post)
             .innerJoin(post.writer, member)
+            .innerJoin(post.category, category)
+            .where(post.category.id.eq(categoryId))
             .orderBy(post.id.desc())
             .select(
                 Projections.constructor(
@@ -85,7 +88,8 @@ public class PostRepositorySupport extends QuerydslRepositorySupport {
                     post.views,
                     post.postStatus,
                     post.createdAt,
-                    post.modifiedAt
+                    post.modifiedAt,
+                    category.ctgName
                 )
             )
             .fetchAll();            
@@ -114,11 +118,14 @@ public class PostRepositorySupport extends QuerydslRepositorySupport {
                     post.views,
                     post.postStatus,
                     post.createdAt,
-                    post.modifiedAt
+                    post.modifiedAt,
+                    category.ctgName
                 )
             )
             .from(post)
             .innerJoin(post.writer, member)
+            .innerJoin(post.category, category)
+            .orderBy(post.id.desc(), post.createdAt.desc())
             .where(member.uid.eq(uid))
             .fetch();
     }
@@ -134,6 +141,8 @@ public class PostRepositorySupport extends QuerydslRepositorySupport {
             .select(post)
             .from(post)
             .innerJoin(post.writer, member)
+            .fetchJoin()
+            .innerJoin(post.category, category)
             .fetchJoin()
             .where(post.createdAt.between(from, to), post.likeCnt.gt(0)) //주간 데이터 + 좋아요 수가 0보다 큰경우
             .orderBy(post.likeCnt.desc())

@@ -113,9 +113,10 @@ public class PostController {
     @GetMapping
     public ResponseEntity<Page<PostCommonDto>> getPostsByPageNumber(
                 @RequestParam(value = "page", defaultValue = "0") int page, 
-                @PageableDefault(size = 20) Pageable pageable) {
+                @PageableDefault(size = 20) Pageable pageable,
+                @RequestParam(value = "category") Long categoryId) {
 
-        Page<PostCommonDto> result = postService.paging(pageable);
+        Page<PostCommonDto> result = postService.paging(pageable, categoryId);
         return ResponseEntity.ok(result);
     }
 

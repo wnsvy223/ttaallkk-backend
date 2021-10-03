@@ -30,6 +30,8 @@ public class PostWeeklyLikeDto {
 
     private String profileUrl;
 
+    private String categoryName;
+
     // Dto변환
     public static List<PostWeeklyLikeDto> convertPostWeeklyLikeDto(List<Post> posts) {
         List<PostWeeklyLikeDto> result = posts
@@ -42,7 +44,8 @@ public class PostWeeklyLikeDto {
                 post.getWriter().getUid(),
                 post.getWriter().getEmail(),
                 post.getWriter().getDisplayName(),
-                post.getWriter().getProfileUrl())
+                post.getWriter().getProfileUrl(),
+                post.getCategory().getCtgName())
             ).collect(Collectors.toList());
         return result;
     }

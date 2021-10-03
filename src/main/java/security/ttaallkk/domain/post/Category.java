@@ -11,6 +11,9 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.OneToMany;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import org.hibernate.annotations.Formula;
+
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -28,17 +31,18 @@ public class Category {
 
     private String ctgName;
 
+    @Formula("(select count(*) from post p where p.category_id = category_id)")
     private Integer postCount;
 
     private String description;
 
     @OneToMany(mappedBy = "category", cascade = CascadeType.ALL)
+    @JsonIgnore
     private List<Post> posts = new ArrayList<>();
 
     @Builder
-    public Category(String ctgName, Integer postCount, String description){
+    public Category(String ctgName, String description){
         this.ctgName = ctgName;
-        this.postCount = postCount;
         this.description = description;
     }
 }

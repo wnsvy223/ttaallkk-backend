@@ -109,13 +109,14 @@ public class Post extends CommonDateTime {
     private PostStatus postStatus;
     
     @Builder
-    public Post(Member writer, String title, String content, PostStatus postStatus, Integer views, Integer likeCnt) {
+    public Post(Member writer, String title, String content, PostStatus postStatus, Integer views, Integer likeCnt, Category category) {
         this.writer = writer;
         this.title = title;
         this.content = content;
         this.postStatus = postStatus;
         this.views = views;
         this.likeCnt = likeCnt;
+        this.category = category;
     }
 
     //조회수 증가

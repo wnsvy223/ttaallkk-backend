@@ -50,6 +50,7 @@ public class LikeRepositorySupport extends QuerydslRepositorySupport{
             .from(like)
             .innerJoin(like.post, post)
             .innerJoin(post.writer, member)
+            .orderBy(post.id.desc(), post.createdAt.desc())
             .where(like.member.uid.eq(uid))
             .fetch();
     }

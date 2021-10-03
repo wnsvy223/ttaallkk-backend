@@ -62,6 +62,7 @@ public class CommentRepositorySupport extends QuerydslRepositorySupport{
             .from(comment)
             .innerJoin(comment.post, post)
             .innerJoin(post.writer, member)
+            .orderBy(post.id.desc(), post.createdAt.desc())
             .where(comment.writer.uid.eq(uid))
             .fetch();
     }

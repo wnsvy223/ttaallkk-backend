@@ -7,12 +7,11 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class PostCreateDto {
-    private String writeUid;
-
-    private String title;
-
-    private String content;
-
+public class CategoryCreateDto {
+    
     private Long categoryId;
+
+    private String categoryName;
+
+    private String description;
 }

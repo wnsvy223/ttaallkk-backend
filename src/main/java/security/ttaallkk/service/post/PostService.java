@@ -18,6 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import security.ttaallkk.domain.member.Member;
+import security.ttaallkk.domain.post.Category;
 import security.ttaallkk.domain.post.Like;
 import security.ttaallkk.domain.post.Post;
 import security.ttaallkk.domain.post.PostStatus;
@@ -27,9 +28,11 @@ import security.ttaallkk.dto.request.PostUpdateDto;
 import security.ttaallkk.dto.response.CommentResponseDto;
 import security.ttaallkk.dto.response.PostDetailResponseDto;
 import security.ttaallkk.dto.response.Response;
+import security.ttaallkk.exception.CategoryNotFoundException;
 import security.ttaallkk.exception.PostNotFoundException;
 import security.ttaallkk.exception.UidNotFoundException;
 import security.ttaallkk.repository.member.MemberRepository;
+import security.ttaallkk.repository.post.CategoryRepository;
 import security.ttaallkk.repository.post.LikeRepository;
 import security.ttaallkk.repository.post.PostRepository;
 import security.ttaallkk.repository.post.PostRepositorySupport;
@@ -44,6 +47,7 @@ public class PostService {
     private final PostRepositorySupport postRepositorySupport; //Query DSL Repository
     private final MemberRepository memberRepository;
     private final LikeRepository likeRepository;
+    private final CategoryRepository categoryRepository;
 
     /**
      * 게시글 생성
@@ -54,12 +58,16 @@ public class PostService {
     public Post createPost(PostCreateDto postCreateDto) {        
         Member member = memberRepository.findMemberByUid(postCreateDto.getWriteUid())
             .orElseThrow(() -> new UidNotFoundException("존재하지 않는 Uid입니다."));
+
+        Category category = categoryRepository.findById(postCreateDto.getCategoryId())
+            .orElseThrow(() -> new CategoryNotFoundException("존재하지 않는 카테고리 입니다."));
         
         Post post = Post.builder()
             .writer(member)
             .title(postCreateDto.getTitle())
             .content(postCreateDto.getContent())
             .postStatus(PostStatus.NORMAL)
+            .category(category)
             .views(0)
             .likeCnt(0)
             .build();
@@ -202,8 +210,8 @@ public class PostService {
      * @param pageable
      * @return Page<PostCommonDto> : 페이징정보 + 조회된 게시글의 작성자 정보를 포함한 목록
      */
-    public Page<PostCommonDto> paging(Pageable pageable) {
-        Page<PostCommonDto> result = postRepositorySupport.paging(pageable);
+    public Page<PostCommonDto> paging(Pageable pageable, Long categoryId) {
+        Page<PostCommonDto> result = postRepositorySupport.paging(pageable, categoryId);
 
         return result;
     }

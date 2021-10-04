@@ -8,6 +8,7 @@ import security.ttaallkk.dto.request.RefreshTokenDto;
 import security.ttaallkk.dto.request.SignUpDto;
 import security.ttaallkk.dto.response.LoginResponse;
 import security.ttaallkk.dto.response.MemberUpdateResponseDto;
+import security.ttaallkk.exception.AuthenticatedFailureException;
 import security.ttaallkk.exception.DisplayNameAlreadyExistException;
 import security.ttaallkk.exception.EmailAlreadyExistException;
 import security.ttaallkk.exception.InvalidRefreshTokenException;
@@ -158,22 +159,8 @@ public class MemberService implements UserDetailsService {
                          
             return response;
         }else{
-            return null;
+            throw new AuthenticatedFailureException();
         }
-    }
-
-
-    /**
-     * 회원DB에 refreshToken 저장
-     * @param email 요청 이메일
-     * @param refreshToken refreshToken 값
-     * @exception UsernameNotFoundException
-     */
-    @Transactional
-    public void findMemberAndSaveRefreshToken(String email, String refreshToken) {
-        Member member = memberRepository.findMemberByEmail(email)
-                .orElseThrow(() -> new UsernameNotFoundException(email + " 이메일이 일치하지 않습니다"));
-        member.updateRefreshToken(refreshToken);
     }
 
     /**

@@ -10,6 +10,7 @@ import security.ttaallkk.exception.DisplayNameAlreadyExistException;
 import security.ttaallkk.exception.EmailAlreadyExistException;
 import security.ttaallkk.exception.ExpiredJwtException;
 import security.ttaallkk.exception.InvalidRefreshTokenException;
+import security.ttaallkk.exception.AuthenticatedFailureException;
 import security.ttaallkk.exception.PasswordNotMatchException;
 import security.ttaallkk.exception.PostNotFoundException;
 import security.ttaallkk.exception.RefreshTokenGrantTypeException;
@@ -93,6 +94,15 @@ public class ExceptionController {
                 .message("유효하지 않은 리프래시 토큰입니다. 로그인을 통해 재인증 해주세요.")
                 .build();
         return ResponseEntity.status(Status.TOKEN_INVLIED_REFRESHTOKEN).body(response);
+    }
+
+    @ExceptionHandler(AuthenticatedFailureException.class)
+    public ResponseEntity AuthenticatedFailureException(Exception e) {
+        Response response = Response.builder()
+                .status(Status.AUTHENTICATED_FAILURE)
+                .message("로그인 인증에 실패했습니다.")
+                .build();
+        return ResponseEntity.status(Status.AUTHENTICATED_FAILURE).body(response);
     }
 
     @ExceptionHandler(PasswordNotMatchException.class)

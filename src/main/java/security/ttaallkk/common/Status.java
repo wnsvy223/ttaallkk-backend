@@ -13,4 +13,5 @@ public class Status {
     public static final Integer UID_NOT_FOUND = 2009; //UID 없음
     public static final Integer UID_NOT_MATCHED = 2010; //UID가 일치하지 않음
     public static final Integer CATEGORY_NOT_FOUND = 2011; //카테고리가 존재하지 않음
+    public static final Integer AUTHENTICATED_FAILURE = 2012; //로그인 인증 실패
 }

@@ -47,7 +47,8 @@ public class PostSearchService {
      */
     @Transactional
     @SuppressWarnings("unchecked")
-    public Page<PostCommonDto> searchPostByTitleOrContent(String keyword, Pageable pageable){
+    public Page<PostCommonDto> searchPostByCategoryAndTitleOrContent(String keyword,  Long categoryId, Pageable pageable){
+
         Session session = entityManager.unwrap(Session.class);
         
         FullTextSession fullTextSession = org.hibernate.search.Search.getFullTextSession(session);
@@ -60,7 +61,14 @@ public class PostSearchService {
             .forEntity(Post.class)
             .get();     
         
+        //카테고리 검색 조건은 AND조건, 제목과 본문은 OR조건으로 생성하여 검색(지정된 카테고리 게시판글에서 제목과 본문 전문검색) 
         Query query = queryBuilder.bool()
+            .must(queryBuilder
+                .keyword()
+                .onField("category.category_id")
+                .matching(categoryId)
+                .createQuery()
+            )
             .should(queryBuilder
                 .keyword()
                 .wildcard()
@@ -77,7 +85,10 @@ public class PostSearchService {
             )
             .createQuery();
 
-        Criteria criteria = fullTextSession.createCriteria(Post.class).setFetchMode("writer", FetchMode.JOIN); //Criteria 쿼리로 fetch설정하여 full text query를 생성해야 연관관계 엔티티들을 조인할수있음(5.11.9버전에서 현재사용된 방법은 deprecated됨. 추후 hibernate search 6 으로 migration 필요)
+        //Criteria 쿼리로 fetch설정하여 full text query를 생성해야 연관관계 엔티티들을 조인할수있음(5.11.9버전에서 현재사용된 방법은 deprecated됨. 추후 hibernate search 6 으로 migration 필요)
+        Criteria criteria = fullTextSession.createCriteria(Post.class)
+                .setFetchMode("writer", FetchMode.JOIN)
+                .setFetchMode("category", FetchMode.JOIN);
         
         FullTextQuery fullTextQuery = fullTextEntityManager.createFullTextQuery(query, Post.class).setCriteriaQuery(criteria);
 

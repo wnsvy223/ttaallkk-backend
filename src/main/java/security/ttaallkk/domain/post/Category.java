@@ -13,6 +13,7 @@ import javax.persistence.OneToMany;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.hibernate.annotations.Formula;
+import org.hibernate.search.annotations.Field;
 
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -25,6 +26,7 @@ import lombok.NoArgsConstructor;
 public class Category {
     
     @Id
+    @Field(name = "category_id") //hibernate search orm에서 검색조건에 사용하기 위해 인덱스 필드로 지정(id 이름은 예약어 이므로 category_id로 지정)
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "category_id")
     private Long id;

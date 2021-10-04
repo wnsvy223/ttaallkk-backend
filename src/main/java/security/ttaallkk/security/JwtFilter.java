@@ -1,13 +1,10 @@
 package security.ttaallkk.security;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
-import security.ttaallkk.dto.response.LoginResponse;
 import security.ttaallkk.dto.response.Response;
-import security.ttaallkk.exception.TokenNotFoundException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.Authentication;
@@ -22,7 +19,6 @@ import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.time.LocalDateTime;
 
 @RequiredArgsConstructor
 public class JwtFilter extends OncePerRequestFilter {

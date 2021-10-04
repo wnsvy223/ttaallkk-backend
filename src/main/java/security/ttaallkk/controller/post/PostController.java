@@ -130,10 +130,11 @@ public class PostController {
     @GetMapping("/search")
     public ResponseEntity<Page<PostCommonDto>> searchPost(
                 @RequestParam(value = "keyword") String keyword,
+                @RequestParam(value = "category") Long categoryId,
                 @RequestParam(value = "page", defaultValue = "0") int page,
                 @PageableDefault(size = 20) Pageable pageable) {
 
-        Page<PostCommonDto> result = postSearchService.searchPostByTitleOrContent(keyword, pageable);
+        Page<PostCommonDto> result = postSearchService.searchPostByCategoryAndTitleOrContent(keyword, categoryId, pageable);
         return ResponseEntity.ok(result);
     }
 

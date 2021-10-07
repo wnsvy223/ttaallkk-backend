@@ -33,7 +33,7 @@ public class Category {
 
     private String ctgName;
 
-    @Formula("(select count(*) from post p where p.category_id = category_id)")
+    @Formula("(select count(*) from post p where p.category = category_id)")
     private Integer postCount;
 
     private String description;

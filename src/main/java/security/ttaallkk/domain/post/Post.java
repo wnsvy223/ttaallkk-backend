@@ -70,7 +70,7 @@ public class Post extends CommonDateTime {
 
     //게시글 분류 카테고리
     @ManyToOne(targetEntity = Category.class, fetch = FetchType.LAZY)
-    @JoinColumn(name ="category_id")
+    @JoinColumn(name ="category")
     @IndexedEmbedded
     private Category category;
 

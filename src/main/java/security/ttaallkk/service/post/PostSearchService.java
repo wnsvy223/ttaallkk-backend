@@ -61,28 +61,32 @@ public class PostSearchService {
             .forEntity(Post.class)
             .get();     
         
-        //카테고리 검색 조건은 AND조건, 제목과 본문은 OR조건으로 생성하여 검색(지정된 카테고리 게시판글에서 제목과 본문 전문검색) 
+        //내부 인덱싱된 category_id를 must로 먼저 추출한 뒤 title과 content 검색쿼리를 should로 추출
+        //(= 해당 카테고리로 된 게시글 중 title 또는 content에 검색어가 포함될 경우 추출)      
+        Query titleQuery = queryBuilder
+            .keyword()
+            .wildcard()
+            .onField("title")
+            .matching("*" + keyword + "*")
+            .createQuery();
+        Query contentQuery = queryBuilder
+            .keyword()
+            .wildcard()
+            .onField("content")
+            .matching("*" + keyword + "*")
+            .createQuery();
+        Query categoryQuery = queryBuilder
+            .keyword()
+            .onField("category.category_id")
+            .matching(categoryId)
+            .createQuery();
+        
         Query query = queryBuilder.bool()
-            .must(queryBuilder
-                .keyword()
-                .onField("category.category_id")
-                .matching(categoryId)
-                .createQuery()
-            )
-            .should(queryBuilder
-                .keyword()
-                .wildcard()
-                .onField("title")
-                .matching("*" + keyword + "*")
-                .createQuery()
-            )
-            .should(queryBuilder
-                .keyword()
-                .wildcard()
-                .onField("content")
-                .matching("*" + keyword + "*")
-                .createQuery()
-            )
+            .must(categoryQuery)
+            .must(queryBuilder.bool()
+                .should(titleQuery)
+                .should(contentQuery)
+                .createQuery())
             .createQuery();
 
         //Criteria 쿼리로 fetch설정하여 full text query를 생성해야 연관관계 엔티티들을 조인할수있음(5.11.9버전에서 현재사용된 방법은 deprecated됨. 추후 hibernate search 6 으로 migration 필요)

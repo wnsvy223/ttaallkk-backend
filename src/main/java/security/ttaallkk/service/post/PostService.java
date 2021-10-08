@@ -88,7 +88,7 @@ public class PostService {
         if(isAuthNormalPermission() == true) {
             post.updateViewsCount();
         }
-        PostDetailResponseDto postWithCommentsDto = PostDetailResponseDto.builder() //PostWithCommentsResponseDto생성하여 데이터 세팅 후 반환
+        PostDetailResponseDto postDetailResponseDto = PostDetailResponseDto.builder() //PostDetailResponseDto생성하여 데이터 세팅 후 반환
             .id(post.getId())
             .title(post.getTitle())
             .content(post.getContent())
@@ -105,7 +105,7 @@ public class PostService {
             .comments(comments)
             .isAlreadyLike(isLike)
             .build();
-        return postWithCommentsDto;
+        return postDetailResponseDto;
     }
 
     /**

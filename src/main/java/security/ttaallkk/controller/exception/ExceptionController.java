@@ -57,7 +57,7 @@ public class ExceptionController {
                 .status(Status.COMMENT_NOT_FOUND)
                 .message("존재하지 않는 댓글 정보 입니다.")
                 .build();
-        return ResponseEntity.status(Status.COMMENT_NOT_FOUND).body(response);
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
     }
 
     @ExceptionHandler(DisplayNameAlreadyExistException.class)
@@ -66,7 +66,7 @@ public class ExceptionController {
                 .status(Status.DISPLAYNAME_ALREADY_EXIST)
                 .message("이미 존재하는 닉네임 입니다. 새로운 닉네임으로 시도해 보세요.")
                 .build();
-        return ResponseEntity.status(Status.DISPLAYNAME_ALREADY_EXIST).body(response);
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
     }
 
     @ExceptionHandler(EmailAlreadyExistException.class)
@@ -75,7 +75,7 @@ public class ExceptionController {
                 .status(Status.EMAIL_ALREADY_EXIST)
                 .message("이미 존재하는 이메일 입니다. 새로운 이메일로 시도해 보세요.")
                 .build();
-        return ResponseEntity.status(Status.EMAIL_ALREADY_EXIST).body(response);
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
     }
 
     @ExceptionHandler(ExpiredJwtException.class)
@@ -84,7 +84,7 @@ public class ExceptionController {
                 .status(Status.TOKEN_EXPIRED)
                 .message("만료된 토큰입니다. 토큰을 갱신하세요.")
                 .build();
-        return ResponseEntity.status(Status.TOKEN_EXPIRED).body(response);
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
     }
 
     @ExceptionHandler(InvalidRefreshTokenException.class)
@@ -93,7 +93,7 @@ public class ExceptionController {
                 .status(Status.TOKEN_INVLIED_REFRESHTOKEN)
                 .message("유효하지 않은 리프래시 토큰입니다. 로그인을 통해 재인증 해주세요.")
                 .build();
-        return ResponseEntity.status(Status.TOKEN_INVLIED_REFRESHTOKEN).body(response);
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
     }
 
     @ExceptionHandler(AuthenticatedFailureException.class)
@@ -102,7 +102,7 @@ public class ExceptionController {
                 .status(Status.AUTHENTICATED_FAILURE)
                 .message("로그인 인증에 실패했습니다.")
                 .build();
-        return ResponseEntity.status(Status.AUTHENTICATED_FAILURE).body(response);
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
     }
 
     @ExceptionHandler(PasswordNotMatchException.class)
@@ -111,7 +111,7 @@ public class ExceptionController {
                 .status(Status.PASSWORD_NOT_MATCHED)
                 .message("비밀번호가 틀렸습니다. 비밀번호를 다시 확인하세요.")
                 .build();
-        return ResponseEntity.status(Status.PASSWORD_NOT_MATCHED).body(response);
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
     }
 
     @ExceptionHandler(PostNotFoundException.class)
@@ -120,7 +120,7 @@ public class ExceptionController {
                 .status(Status.POST_NOT_FOUND)
                 .message("존재하지 않는 게시글 정보 입니다.")
                 .build();
-        return ResponseEntity.status(Status.POST_NOT_FOUND).body(response);
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
     }
 
     @ExceptionHandler(RefreshTokenGrantTypeException.class)
@@ -129,7 +129,7 @@ public class ExceptionController {
                 .status(Status.TOKEN_GRANTTPYE_INVLIED)
                 .message("잘못된 GrantType의 리프래시 토큰 입니다.")
                 .build();
-        return ResponseEntity.status(Status.TOKEN_GRANTTPYE_INVLIED).body(response);
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
     }
 
     @ExceptionHandler(TokenNotFoundException.class)
@@ -138,7 +138,7 @@ public class ExceptionController {
                 .status(Status.TOKEN_NOT_FOUND)
                 .message("존재하지 않는 토큰입니다.")
                 .build();
-        return ResponseEntity.status(Status.TOKEN_NOT_FOUND).body(response);
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
     }
 
     @ExceptionHandler(UidNotFoundException.class)
@@ -147,7 +147,7 @@ public class ExceptionController {
                 .status(Status.UID_NOT_FOUND)
                 .message("존재하지 않는 사용자의 UID 입니다.")
                 .build();
-        return ResponseEntity.status(Status.UID_NOT_FOUND).body(response);
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
     }
 
     @ExceptionHandler(UidNotMatchedException.class)
@@ -156,7 +156,7 @@ public class ExceptionController {
                 .status(Status.UID_NOT_MATCHED)
                 .message("요청 UID와 인증 UID가 일치하지 않습니다.")
                 .build();
-        return ResponseEntity.status(Status.UID_NOT_MATCHED).body(response);
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
     }
 
     @ExceptionHandler(CategoryNotFoundException.class)
@@ -165,6 +165,6 @@ public class ExceptionController {
                 .status(Status.CATEGORY_NOT_FOUND)
                 .message("존재하지 않는 카테고리 입니다.")
                 .build();
-        return ResponseEntity.status(Status.CATEGORY_NOT_FOUND).body(response);
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
     }
 }

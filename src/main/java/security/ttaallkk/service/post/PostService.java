@@ -81,7 +81,7 @@ public class PostService {
      * @return PostDetailResponseDto
      */
     @Transactional
-    public PostDetailResponseDto findPostByPostIdWithComments(Long postId) { 
+    public PostDetailResponseDto findPostForDetail(Long postId) { 
         Post post = postRepository.findPostByPostId(postId).orElseThrow(PostNotFoundException::new); //게시글 데이터를 조회
         List<CommentResponseDto> comments = CommentResponseDto.convertCommentStructure(post.getComments()); //게시글에 연관된 댓글데이터를 가져와서 계층형 댓글구조로 변환
         Boolean isLike = isAlreadyLikeWithAuthUser(post); //인증된 사용자의 좋아요 유무 체크

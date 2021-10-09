@@ -58,8 +58,8 @@ public class PostController {
      * @return PostDetailResponseDto
      */
     @GetMapping("/{postId}")
-    public ResponseEntity<PostDetailResponseDto> getPostDetailsWithComments(@PathVariable("postId") Long postId) {
-        PostDetailResponseDto result = postService.findPostByPostIdWithComments(postId);
+    public ResponseEntity<PostDetailResponseDto> getPostDetail(@PathVariable("postId") Long postId) {
+        PostDetailResponseDto result = postService.findPostForDetail(postId);
         return ResponseEntity.ok(result);
     }
 

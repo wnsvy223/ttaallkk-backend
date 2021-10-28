@@ -53,7 +53,8 @@ public class PostRepositorySupport extends QuerydslRepositorySupport {
                     post.postStatus,
                     post.createdAt,
                     post.modifiedAt,
-                    category.ctgName
+                    category.ctgName,
+                    category.ctgTag
                 )
             )
             .from(post)
@@ -89,7 +90,8 @@ public class PostRepositorySupport extends QuerydslRepositorySupport {
                     post.postStatus,
                     post.createdAt,
                     post.modifiedAt,
-                    category.ctgName
+                    category.ctgName,
+                    category.ctgTag
                 )
             )
             .fetchAll();            
@@ -119,7 +121,8 @@ public class PostRepositorySupport extends QuerydslRepositorySupport {
                     post.postStatus,
                     post.createdAt,
                     post.modifiedAt,
-                    category.ctgName
+                    category.ctgName,
+                    category.ctgTag
                 )
             )
             .from(post)

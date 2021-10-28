@@ -38,6 +38,8 @@ public class PostCommonDto{
 
     private String categoryName;
 
+    private String categoryTag;
+
     @QueryProjection
     public PostCommonDto(
                 String email, 
@@ -51,7 +53,8 @@ public class PostCommonDto{
                 PostStatus postStatus,
                 LocalDateTime createdAt,
                 LocalDateTime modifiedAt,
-                String categoryName) {
+                String categoryName,
+                String categoryTag) {
 
         this.email = email;
         this.displayName = displayName;
@@ -65,6 +68,7 @@ public class PostCommonDto{
         this.createdAt = createdAt;
         this.modifiedAt = modifiedAt;
         this.categoryName = categoryName;
+        this.categoryTag = categoryTag;
     }
 
     /**
@@ -87,7 +91,8 @@ public class PostCommonDto{
                 post.getPostStatus(), 
                 post.getCreatedAt(), 
                 post.getModifiedAt(),
-                post.getCategory().getCtgName());
+                post.getCategory().getCtgName(),
+                post.getCategory().getCtgTag());
             result.add(postWithMemberDto);
         });
         return result;

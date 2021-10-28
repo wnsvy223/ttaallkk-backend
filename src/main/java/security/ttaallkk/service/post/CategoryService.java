@@ -28,6 +28,7 @@ public class CategoryService {
     public Category createCategory(CategoryCreateDto categoryCreateDto) {        
        Category category = Category.builder()
                 .ctgName(categoryCreateDto.getCategoryName())
+                .ctgTag(categoryCreateDto.getCategoryTag())
                 .description(categoryCreateDto.getDescription())
                 .build();
         
@@ -44,4 +45,11 @@ public class CategoryService {
         return reusult;
     }
     
+    /**
+     * 모든 카테고리 삭제
+     */
+    @Transactional
+    public void deleteAllCategory() {
+        categoryRepository.deleteAll();
+    }
 }

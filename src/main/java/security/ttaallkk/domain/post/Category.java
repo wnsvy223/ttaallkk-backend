@@ -33,6 +33,8 @@ public class Category {
 
     private String ctgName;
 
+    private String ctgTag;
+
     @Formula("(select count(*) from post p where p.category = category_id)")
     private Integer postCount;
 
@@ -43,8 +45,9 @@ public class Category {
     private List<Post> posts = new ArrayList<>();
 
     @Builder
-    public Category(String ctgName, String description){
+    public Category(String ctgName, String ctgTag, String description){
         this.ctgName = ctgName;
+        this.ctgTag = ctgTag;
         this.description = description;
     }
 }

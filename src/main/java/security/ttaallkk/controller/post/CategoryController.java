@@ -5,6 +5,7 @@ import java.util.List;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -55,4 +56,17 @@ public class CategoryController {
                 .body(result);
     }
 
+    /**
+     * 모든 카테고리 삭제
+     * @return Response
+     */
+    @DeleteMapping("/all")
+    public ResponseEntity<Response> deleteAllCategory() {
+        categoryService.deleteAllCategory();
+        
+        Response response = Response.builder()
+            .status(200)
+            .message("카테고리 전체 삭제 성공").build();
+        return ResponseEntity.ok(response);
+    }
 }

@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class CategoryCreateDto {
     
-    private Long categoryId;
+    private String categoryTag;
 
     private String categoryName;
 

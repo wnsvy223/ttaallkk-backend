@@ -14,7 +14,7 @@ import security.ttaallkk.domain.post.Post;
 @AllArgsConstructor
 public class PostWeeklyLikeDto {
 
-    private Long postId;
+    private Long id;
 
     private String title;
 

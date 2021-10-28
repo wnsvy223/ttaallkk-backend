@@ -85,7 +85,7 @@ public class PostService {
         Post post = postRepository.findPostByPostId(postId).orElseThrow(PostNotFoundException::new); //게시글 데이터를 조회
         List<CommentResponseDto> comments = CommentResponseDto.convertCommentStructure(post.getComments()); //게시글에 연관된 댓글데이터를 가져와서 계층형 댓글구조로 변환
         Boolean isLike = isAlreadyLikeWithAuthUser(post); //인증된 사용자의 좋아요 유무 체크
-        if(isAuthNormalPermission() == true) {
+        if(isNormalPermissionAuthUser() == true) {
             post.updateViewsCount();
         }
         PostDetailResponseDto postDetailResponseDto = PostDetailResponseDto.builder() //PostDetailResponseDto생성하여 데이터 세팅 후 반환
@@ -106,6 +106,20 @@ public class PostService {
             .isAlreadyLike(isLike)
             .build();
         return postDetailResponseDto;
+    }
+
+    /**
+     * 인증정보에 담긴 이메일과 요청값으로 넘어오는 이메일값을 비교하여 본인 권한 체크
+     * @param email
+     * @return Boolean
+     */
+    private Boolean isOwnerPermissionAuthUser(String email) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if(authentication.getName().equals(email)) {
+            return true;
+        }else{
+            return false;
+        }
     }
 
     /**
@@ -131,7 +145,7 @@ public class PostService {
      * 사용자 권한 체크 : 관리자(false) , 일반or익명유저(true) 반환 -> 관리자 계정은 조회수를 증가시키지않음
      * @return Boolean
      */
-    private Boolean isAuthNormalPermission() {
+    private Boolean isNormalPermissionAuthUser() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication.getAuthorities().stream().anyMatch(a -> a.getAuthority().equals("ROLE_USER") || a.getAuthority().equals("ROLE_ANONYMOUS"))){
             return true;
@@ -149,10 +163,9 @@ public class PostService {
     @Transactional
     public Response updatePost(PostUpdateDto postUpdateDto, Long postId) {
         Post post = postRepository.findPostByPostId(postId).orElseThrow(PostNotFoundException::new);
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
         //현재 인증된 사용자의 이메일이 게시글 작성자 이메일과 같을 경우에만 수정 가능
-        if(post.getWriter().getEmail().equals(authentication.getName())){
+        if(isOwnerPermissionAuthUser(post.getWriter().getEmail())){
             post.updatePost(
                 postUpdateDto.getTitle(), 
                 postUpdateDto.getContent()
@@ -177,10 +190,9 @@ public class PostService {
     @Transactional
     public Response deletePost(Long postId) {
         Post post = postRepository.findPostByPostId(postId).orElseThrow(PostNotFoundException::new);
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
         //현재 인증된 사용자의 이메일이 게시글 작성자 이메일과 같을 경우에만 삭제 가능
-        if(post.getWriter().getEmail().equals(authentication.getName())){
+        if(isOwnerPermissionAuthUser(post.getWriter().getEmail())){
             postRepository.deleteById(postId);
             return Response.builder()
                 .status(200)

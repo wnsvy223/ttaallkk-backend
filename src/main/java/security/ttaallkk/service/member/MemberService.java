@@ -21,6 +21,7 @@ import security.ttaallkk.security.JwtProvider;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -51,6 +52,8 @@ public class MemberService implements UserDetailsService {
     private final PasswordEncoder passwordEncoder;
     private final JwtProvider jwtProvider;
 
+    @Value("${admin.email}")
+    private String adminEmail;
     
     /**
      * Security에서 제공되는 로그인 요청 회원 조회 메소드(Security인증매니저의 인증로직 수행 시 호출)
@@ -83,8 +86,11 @@ public class MemberService implements UserDetailsService {
         validateDuplicateUserByEmail(signUpDto.getEmail()); //이메일 중복가입 체크
         validateDuplicateUserByDisplayName(signUpDto.getDisplayName()); //닉네임 중복가입 체크
         Set<MemberRole> roles = new HashSet<>();
-        //roles.add(MemberRole.ADMIN);
-        roles.add(MemberRole.USER);
+        if(signUpDto.getEmail().equals(adminEmail)){
+            roles.add(MemberRole.ADMIN);
+        }else{
+            roles.add(MemberRole.USER);
+        }
         Member member = Member.builder()
                 .email(signUpDto.getEmail())
                 .password(passwordEncoder.encode(signUpDto.getPassword()))

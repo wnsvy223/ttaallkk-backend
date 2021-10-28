@@ -31,7 +31,7 @@ public class CategoryController {
      * @param categoryCreateDto
      * @return Response
      */
-    @PreAuthorize("hasRole('ROLE_ADMIN')") // 카테고리 생성은 관리자만 가능
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     @PostMapping
     public ResponseEntity<Response> createComment(@RequestBody CategoryCreateDto categoryCreateDto) {
        
@@ -61,6 +61,7 @@ public class CategoryController {
      * @return Response
      */
     @DeleteMapping("/all")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     public ResponseEntity<Response> deleteAllCategory() {
         categoryService.deleteAllCategory();
         

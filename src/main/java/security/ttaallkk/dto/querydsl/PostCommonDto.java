@@ -28,6 +28,8 @@ public class PostCommonDto{
 
     private Integer likeCnt;
 
+    private Integer unLikeCnt;
+
     private Integer views;
 
     private PostStatus postStatus;
@@ -49,6 +51,7 @@ public class PostCommonDto{
                 String title, 
                 Integer commentCnt,
                 Integer likeCnt,
+                Integer unLikeCnt,
                 Integer views,
                 PostStatus postStatus,
                 LocalDateTime createdAt,
@@ -63,6 +66,7 @@ public class PostCommonDto{
         this.title = title;
         this.commentCnt = commentCnt;
         this.likeCnt = likeCnt;
+        this.unLikeCnt = unLikeCnt;
         this.views = views;
         this.postStatus = postStatus;
         this.createdAt = createdAt;
@@ -79,21 +83,22 @@ public class PostCommonDto{
     public static List<PostCommonDto> convertPostWithMemberDto(List<Post> posts) {
         List<PostCommonDto> result = new ArrayList<>();
         posts.stream().forEach(post -> {
-            PostCommonDto postWithMemberDto = new PostCommonDto(
+            PostCommonDto postCommonDto = new PostCommonDto(
                 post.getWriter().getEmail(), 
                 post.getWriter().getDisplayName(), 
                 post.getWriter().getProfileUrl(), 
                 post.getId(), 
                 post.getTitle(), 
                 post.getCommentCnt(), 
-                post.getLikeCnt(), 
+                post.getLikeCnt(),
+                post.getUnlikeCnt(),
                 post.getViews(), 
                 post.getPostStatus(), 
                 post.getCreatedAt(), 
                 post.getModifiedAt(),
                 post.getCategory().getCtgName(),
                 post.getCategory().getCtgTag());
-            result.add(postWithMemberDto);
+            result.add(postCommonDto);
         });
         return result;
     }

@@ -81,10 +81,10 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .authorities("ROLE_ANONYMOUS") //익명 유저에게 ROLE_ANONYMOUS권한 부여
                 .and()
             .authorizeRequests()
-                .antMatchers(HttpMethod.POST, "/api/user/signUp", "/api/user/login", "/api/user/refreshToken", "/api/post/**", "/api/comment/**", "/api/like/**", "/api/category/**").permitAll()//회원가입, 로그인, 리프래시토큰발급 앤드포인트는 인증없이 허용.
-                .antMatchers(HttpMethod.GET, "/api/user/search/**", "/api/post/**", "/api/comment/**", "/api/like/**", "/api/category/**").permitAll() //유저 검색 앤드포인트 허용
-                .antMatchers(HttpMethod.DELETE, "/api/post/**", "/api/comment/**", "/api/like/**", "/api/category/**").permitAll()
-                .antMatchers(HttpMethod.PUT, "/api/post/**", "/api/comment/**", "/api/like/**", "/api/category/**").permitAll()
+                .antMatchers(HttpMethod.POST, "/api/user/signUp", "/api/user/login", "/api/user/refreshToken", "/api/post/**", "/api/comment/**", "/api/like/**", "/api/unlike/**","/api/category/**").permitAll()//회원가입, 로그인, 리프래시토큰발급 앤드포인트는 인증없이 허용.
+                .antMatchers(HttpMethod.GET, "/api/user/search/**", "/api/post/**", "/api/comment/**", "/api/like/**", "/api/unlike/**", "/api/category/**").permitAll() //유저 검색 앤드포인트 허용
+                .antMatchers(HttpMethod.DELETE, "/api/post/**", "/api/comment/**", "/api/like/**", "/api/unlike/**", "/api/category/**").permitAll()
+                .antMatchers(HttpMethod.PUT, "/api/post/**", "/api/comment/**", "/api/like/**", "/api/unlike/**", "/api/category/**").permitAll()
                 .anyRequest().authenticated() //그 이외의 앤드포인트는 인증필요.
                 .and()    
             .exceptionHandling()

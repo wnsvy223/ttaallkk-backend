@@ -51,7 +51,7 @@ public class LikeController {
     }
 
     /**
-     * 로그인한 유저가 좋아요 누른 게시글 uid 기반으로 조회
+     * 로그인한 유저가 좋아요 누른 게시글 목록 uid 기반으로 조회
      * @param uid
      * @return List<LikeCommonDto>
      */

@@ -14,6 +14,7 @@ import security.ttaallkk.service.member.MemberService;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -31,6 +32,12 @@ import javax.validation.Valid;
 @RequiredArgsConstructor
 public class MemberController {
 
+    @Value("${jwt.accessToken-valid-seconds}")
+    private int accessTokenCookieExpiredTime;
+
+    @Value("${jwt.refreshToken-valid-seconds}")
+    private int refreshTokenCookieExpiredTime;
+    
     private final Logger log = LoggerFactory.getLogger(MemberController.class);
     private final MemberService memberService;
     private final AuthenticationManager authenticationManager;
@@ -80,8 +87,8 @@ public class MemberController {
         LoginResponse loginResponse = memberService.login(loginDto, authenticationManager);
 
         //엑세스토큰 + 리프래시토큰 쿠키 생성
-        httpServletResponse.addCookie(createTokenCookie("accessToken", loginResponse.getAccessToken(), 1800));
-        httpServletResponse.addCookie(createTokenCookie("refreshToken", loginResponse.getRefreshToken(), 64000));
+        httpServletResponse.addCookie(createTokenCookie("accessToken", loginResponse.getAccessToken(), accessTokenCookieExpiredTime));
+        httpServletResponse.addCookie(createTokenCookie("refreshToken", loginResponse.getRefreshToken(), refreshTokenCookieExpiredTime));
     
         return ResponseEntity.ok(loginResponse);
     }
@@ -102,8 +109,8 @@ public class MemberController {
         LoginResponse loginResponse = memberService.refreshToken(refreshTokenDto, refreshTokenFromCookie);
 
         //엑세스토큰 + 리프래시토큰 쿠키 생성
-        httpServletResponse.addCookie(createTokenCookie("accessToken", loginResponse.getAccessToken(), 1800));
-        httpServletResponse.addCookie(createTokenCookie("refreshToken", loginResponse.getRefreshToken(), 64000));
+        httpServletResponse.addCookie(createTokenCookie("accessToken", loginResponse.getAccessToken(), accessTokenCookieExpiredTime));
+        httpServletResponse.addCookie(createTokenCookie("refreshToken", loginResponse.getRefreshToken(), refreshTokenCookieExpiredTime));
 
         return ResponseEntity.ok(loginResponse);
     }

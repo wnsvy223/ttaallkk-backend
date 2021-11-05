@@ -7,9 +7,10 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class LikeCreateDto {
+public class UnLikeCreateDto {
     
     Long postId;
 
     String uid;
+
 }

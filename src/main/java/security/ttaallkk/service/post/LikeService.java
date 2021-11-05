@@ -14,6 +14,7 @@ import lombok.extern.log4j.Log4j2;
 import security.ttaallkk.domain.member.Member;
 import security.ttaallkk.domain.post.Like;
 import security.ttaallkk.domain.post.Post;
+import security.ttaallkk.domain.post.UnLike;
 import security.ttaallkk.dto.querydsl.LikeCommonDto;
 import security.ttaallkk.dto.request.LikeCreateDto;
 import security.ttaallkk.exception.PostNotFoundException;
@@ -22,6 +23,7 @@ import security.ttaallkk.repository.member.MemberRepository;
 import security.ttaallkk.repository.post.LikeRepository;
 import security.ttaallkk.repository.post.LikeRepositorySupport;
 import security.ttaallkk.repository.post.PostRepository;
+import security.ttaallkk.repository.post.UnLikeRepository;
 
 @Service
 @RequiredArgsConstructor
@@ -33,9 +35,13 @@ public class LikeService {
     private final MemberRepository memberRepository;
     private final LikeRepository likeRepository;
     private final LikeRepositorySupport likeRepositorySupport;
+    private final UnLikeRepository unLikeRepository;
  
      /**
-     * 좋아요 등록 : 인증된 사용자가 게시글에 좋아요 등록. 이미 좋아요 등록한 게시글일 경우 좋아요 취소.
+     * 좋아요 등록 : 인증된 사용자가 게시글에 좋아요 등록.
+     * case 1: 좋아요 O / 싫어요 X -> 좋아요 해제
+     * case 2: 좋아요 X / 싫어요 O -> 좋아요 등록 + 싫어요 해제 
+     * case 3: 좋아요 X / 싫어요 X -> 좋아요 등록
      * @param likeCreateDto
      * @return Optional<Like>
      */
@@ -44,16 +50,27 @@ public class LikeService {
         Post post = postRepository.findPostByPostId(likeCreateDto.getPostId()).orElseThrow(PostNotFoundException::new);
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
         Member member = memberRepository.findMemberByEmail(email).orElseThrow(() -> new UsernameNotFoundException("이메일이 일치하지 않습니다."));
-        if(!isUidAuthenticated(member, likeCreateDto.getLikeMemberUid())) throw new UidNotMatchedException("요청 UID와 인증 UID가 일치하지 않습니다.");
+        if(!isUidAuthenticated(member, likeCreateDto.getUid())) throw new UidNotMatchedException("요청 UID와 인증 UID가 일치하지 않습니다.");
         Optional<Like> like = likeRepository.findByPostAndMember(post, member);
+        Optional<UnLike> unlike = unLikeRepository.findByPostAndMember(post, member);
         like.ifPresentOrElse(
             postLike -> { //좋아요가 있을 경우
                 likeRepository.delete(postLike); //좋아요 데이터 삭제
                 post.decreaseLikeCount(); //좋아요 카운트값 감소
             },
             () -> { //좋아요가 없을 경우
-                likeRepository.save(new Like(member, post)); //좋아요 데이터 추가
-                post.increaseLikeCount(); //좋아요 카운트값 증가
+                unlike.ifPresentOrElse(
+                    postUnLike -> { //싫어요 있을 경우
+                        post.decreaseUnLikeCount(); // 싫어요 카운트값 감소
+                        unLikeRepository.delete(postUnLike); //싫어요 데이터 삭제
+                        post.increaseLikeCount(); //좋아요 카운트값
+                        likeRepository.save(new Like(member, post)); //좋아요 데이터 추가
+                    },
+                    () -> { //싫어요가 없을 경우
+                        post.increaseLikeCount(); //좋아요 카운트값 증가
+                        likeRepository.save(new Like(member, post)); //좋아요 데이터 추가
+                    } 
+                );
             } 
         );
 

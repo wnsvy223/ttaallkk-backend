@@ -2,8 +2,8 @@ jwt:
   header: Authorization
   secretKey-accessToken : ThisIsSecretKeyAccessLFEKMMVDAPGMVCXEPGIYQSKZE #AccessToken SecretKey
   secretKey-refreshToken : ThisIsSecretKeyRefreshEIJSLBJiJRIJGTIESKMCNEIY #RefreshToken SecretKey
-  accessToken-valid-seconds : 1800 #30분
-  refreshToken-valid-seconds : 86400 #24시간
+  accessToken-valid-seconds : 7200 #2시간
+  refreshToken-valid-seconds : 604800 #1주
 origin:
   signal-url: https://ttaallkk.herokuapp.com
   front-url: https://ttaallkk.vercel.app

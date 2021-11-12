@@ -97,6 +97,7 @@ public class PostService {
             .id(post.getId())
             .title(post.getTitle())
             .content(post.getContent())
+            .commentCnt(post.getCommentCnt())
             .likeCnt(post.getLikeCnt())
             .unLikeCnt(post.getUnlikeCnt())
             .views(post.getViews())

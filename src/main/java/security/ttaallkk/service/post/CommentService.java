@@ -4,6 +4,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -16,6 +18,7 @@ import security.ttaallkk.domain.post.Post;
 import security.ttaallkk.dto.querydsl.CommentCommonDto;
 import security.ttaallkk.dto.request.CommentCreateDto;
 import security.ttaallkk.dto.request.CommentUpdateDto;
+import security.ttaallkk.dto.response.CommentPagingResponseDto;
 import security.ttaallkk.dto.response.CommentResponseDto;
 import security.ttaallkk.exception.UidNotFoundException;
 import security.ttaallkk.repository.member.MemberRepository;
@@ -66,6 +69,30 @@ public class CommentService {
      */
     public List<CommentResponseDto> findCommentByPostId(Long postId) {
         return CommentResponseDto.convertCommentStructure(commentRepositorySupport.findCommentByPostId(postId));
+    }
+
+    
+    /**
+     * 게시글의 최상위 부모 댓글 조회
+     * @param postId 게시글 아이디
+     * @param pageable
+     * @return Page<CommentPagingResponseDto>
+     */
+    public Page<CommentPagingResponseDto> findCommentByPostIdForPaging(Long postId, Pageable pageable) {
+        Page<CommentPagingResponseDto> page = commentRepositorySupport.findCommentByPostIdForPaging(postId, pageable);
+        return page;
+    }
+
+    /**
+     * 게시글의 부모 댓글 아이디와 연관된 자식 댓글 조회
+     * @param postId 게시글 아이디
+     * @param parentId 부모 댓글 아이디
+     * @param pageable
+     * @return
+     */
+    public Page<CommentPagingResponseDto> findCommentChildrenByParentIdForPaging(Long parentId, Long postId, Pageable pageable) {
+        Page<CommentPagingResponseDto> page = commentRepositorySupport.findCommentChildrenByParentIdForPaging(parentId, postId, pageable);
+        return page;
     }
 
     /**

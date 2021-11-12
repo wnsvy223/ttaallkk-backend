@@ -2,6 +2,9 @@ package security.ttaallkk.controller.post;
 
 import java.util.List;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -17,6 +20,7 @@ import lombok.extern.log4j.Log4j2;
 import security.ttaallkk.dto.querydsl.CommentCommonDto;
 import security.ttaallkk.dto.request.CommentCreateDto;
 import security.ttaallkk.dto.request.CommentUpdateDto;
+import security.ttaallkk.dto.response.CommentPagingResponseDto;
 import security.ttaallkk.dto.response.CommentResponseDto;
 import security.ttaallkk.dto.response.Response;
 import security.ttaallkk.service.post.CommentService;
@@ -55,6 +59,40 @@ public class CommentController {
     public ResponseEntity<List<CommentResponseDto>> getCommentByPostId(@PathVariable("postId") Long postId) {
         
         List<CommentResponseDto> result = commentService.findCommentByPostId(postId);
+
+        return ResponseEntity.ok(result);
+    }
+
+    /**
+     * 최상위 부모 댓글 10개 페이징 조회
+     * @param postId 게시글 아이디
+     * @param pageable
+     * @return ResponseEntity<Page<CommentPagingResponseDto>>
+     */
+    @GetMapping("/post/{postId}")
+    public ResponseEntity<Page<CommentPagingResponseDto>> getCommentByPostIdForPaging(
+                @PathVariable("postId") Long postId,
+                @PageableDefault(size = 10) Pageable pageable) {
+        
+        Page<CommentPagingResponseDto> result = commentService.findCommentByPostIdForPaging(postId, pageable);
+
+        return ResponseEntity.ok(result);
+    }
+
+    /**
+     * 부모 댓글과 연관된 자식 댓글 10개 조회
+     * @param parentId 부모 댓글 아이디
+     * @param postId 게시글 아이디
+     * @param pageable
+     * @return ResponseEntity<Page<CommentPagingResponseDto>>
+     */
+    @GetMapping("/parent/{parentId}/post/{postId}")
+    public ResponseEntity<Page<CommentPagingResponseDto>> getCommentChildrenByParentIdForPaging(
+                @PathVariable("parentId") Long parentId,
+                @PathVariable("postId") Long postId,
+                @PageableDefault(size = 10) Pageable pageable) {
+        
+        Page<CommentPagingResponseDto> result = commentService.findCommentChildrenByParentIdForPaging(parentId, postId, pageable);
 
         return ResponseEntity.ok(result);
     }

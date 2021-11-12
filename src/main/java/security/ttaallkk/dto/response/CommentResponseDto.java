@@ -25,7 +25,7 @@ public class CommentResponseDto implements Serializable{
     private String profileUrl; //댓글 작성자 프로필 이미지
     private LocalDateTime createdAt;
     private LocalDateTime modifiedAt;
-    private List<CommentResponseDto> children = new ArrayList<>(); //대댓글목록
+    private List<CommentResponseDto> children = new ArrayList<>(); //대댓글목록(자식댓글 필드는 생성자에서 받지않고 convertCommentStructure메소드에서 계층형 구조로 변환 후 추가하여 반환)
 
     public CommentResponseDto(
                 Long id, 
@@ -46,10 +46,28 @@ public class CommentResponseDto implements Serializable{
         this.modifiedAt = modifiedAt;
     }
 
+    // Comment Entity -> CommentResponseDto 변환
     public static CommentResponseDto convertCommentToDto(Comment comment) {
         return comment.getIsDeleted()  == true ? 
-                new CommentResponseDto(comment.getId(), "삭제된 댓글입니다.", null, null, null, null, comment.getCreatedAt(), comment.getModifiedAt()) :
-                new CommentResponseDto(comment.getId(), comment.getContent(), comment.getWriter().getUid(), comment.getWriter().getEmail(), comment.getWriter().getDisplayName(), comment.getWriter().getProfileUrl(), comment.getCreatedAt(), comment.getModifiedAt());
+                new CommentResponseDto(
+                    comment.getId(),
+                    "삭제된 댓글입니다.",
+                    null,
+                    null,
+                    null,
+                    null,
+                    comment.getCreatedAt(),
+                    comment.getModifiedAt())
+                    :
+                new CommentResponseDto(
+                    comment.getId(),
+                    comment.getContent(),
+                    comment.getWriter().getUid(),
+                    comment.getWriter().getEmail(),
+                    comment.getWriter().getDisplayName(),
+                    comment.getWriter().getProfileUrl(),
+                    comment.getCreatedAt(),
+                    comment.getModifiedAt());
     }
 
     /**

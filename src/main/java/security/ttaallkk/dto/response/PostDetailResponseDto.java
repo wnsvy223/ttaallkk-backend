@@ -24,6 +24,8 @@ public class PostDetailResponseDto {
     private String title;
 
     private String content;
+    
+    private Integer commentCnt;
 
     private Integer likeCnt;
 

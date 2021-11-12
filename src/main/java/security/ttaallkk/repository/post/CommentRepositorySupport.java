@@ -1,13 +1,21 @@
 package security.ttaallkk.repository.post;
 
 import com.querydsl.core.types.Projections;
+import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
+
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.support.QuerydslRepositorySupport;
+import org.springframework.data.support.PageableExecutionUtils;
 import org.springframework.stereotype.Repository;
 import java.util.List;
 
 import security.ttaallkk.domain.post.Comment;
 import security.ttaallkk.dto.querydsl.CommentCommonDto;
+import security.ttaallkk.dto.response.CommentPagingResponseDto;
+import security.ttaallkk.dto.response.CommentResponseDto;
 
 import static security.ttaallkk.domain.post.QComment.comment;
 import static security.ttaallkk.domain.member.QMember.member;
@@ -24,12 +32,13 @@ public class CommentRepositorySupport extends QuerydslRepositorySupport{
     }
 
     /**
-     * 게시글 번호로 댓글조회
+     * 게시글 아이디로 댓글조회
      * @param postId
      * @return List<Comment>
      */
     public List<Comment> findCommentByPostId(Long postId) {
-        return jpaQueryFactory.selectFrom(comment)
+        return jpaQueryFactory
+                .selectFrom(comment)
                 .leftJoin(comment.parent)
                 .fetchJoin()
                 .where(comment.post.id.eq(postId))
@@ -37,6 +46,69 @@ public class CommentRepositorySupport extends QuerydslRepositorySupport{
                     comment.parent.id.asc().nullsFirst(),
                     comment.createdAt.asc()
                 ).fetch();
+    }
+
+    /**
+     * 게시글 아이디로 댓글조회 : 최상위 부모 댓글만 페이징 조회
+     * @param postId 게시글 아이디
+     * @param pageable
+     * @return Page<CommentCommonPagingDto>
+     */
+    public Page<CommentPagingResponseDto> findCommentByPostIdForPaging(Long postId, Pageable pageable) {
+
+        JPAQuery<Comment> query = jpaQueryFactory
+            .selectFrom(comment)
+            .leftJoin(comment.parent)
+            .fetchJoin()
+            .innerJoin(comment.writer, member)
+            .fetchJoin()
+            .where(
+                comment.post.id.eq(postId),
+                comment.parent.id.isNull())
+            .orderBy(
+                comment.parent.id.asc(),
+                comment.createdAt.asc());
+
+        // 댓글 조회 쿼리 페이징 적용하여 조회
+        List<Comment> comments = getQuerydsl().applyPagination(pageable, query).fetch();
+
+        // 조회된 엔티티 페이징 데이터를 계층형 형태의 dto로 변경
+        List<CommentPagingResponseDto> convertList = CommentPagingResponseDto.convertCommentPagingResponseDto(comments);
+
+        // Pageable 인터페이스로 변경 후 반환
+        return PageableExecutionUtils.getPage(convertList, pageable, query::fetchCount);
+    }
+
+    /**
+     * 게시글 아이디 + 부모 댓글 번호로 자식댓글 조회
+     * @param postId 게시글 아이디
+     * @param parentId 부모 댓글 아이디
+     * @param pageable
+     * @return Page<CommentPagingResponseDto>
+     */
+    public Page<CommentPagingResponseDto> findCommentChildrenByParentIdForPaging(Long parentId, Long postId, Pageable pageable) {
+
+        JPAQuery<Comment> query = jpaQueryFactory
+            .selectFrom(comment)
+            .leftJoin(comment.parent)
+            .fetchJoin()
+            .innerJoin(comment.writer, member)
+            .fetchJoin()
+            .where(
+                comment.post.id.eq(postId),
+                comment.parent.id.eq(parentId))
+            .orderBy(
+                comment.parent.id.asc(),
+                comment.createdAt.asc());
+
+        // 댓글 조회 쿼리 페이징 적용하여 조회
+        List<Comment> comments = getQuerydsl().applyPagination(pageable, query).fetch();
+
+        // 조회된 엔티티 페이징 데이터를 계층형 형태의 dto로 변경
+        List<CommentPagingResponseDto> convertList = CommentPagingResponseDto.convertCommentPagingResponseDto(comments);
+
+        // Pageable 인터페이스로 변경 후 반환
+        return PageableExecutionUtils.getPage(convertList, pageable, query::fetchCount);
     }
 
     /**

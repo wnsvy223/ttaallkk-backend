@@ -110,7 +110,7 @@ public class PostSearchService {
         }
         List<Post> result = fullTextQuery.getResultList(); //검색결과 데이터셋
 
-        List<PostCommonDto> convertResult = PostCommonDto.convertPostWithMemberDto(result); //댓글 카운트 데이터가 포함된 커스텀 Dto로 변환
+        List<PostCommonDto> convertResult = PostCommonDto.convertPostCommonDto(result); //댓글 카운트 데이터가 포함된 커스텀 Dto로 변환
 
         return new PageImpl<>(convertResult, pageable, total);
     }

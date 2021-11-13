@@ -36,7 +36,7 @@ public class CommentPagingResponseDto implements Serializable{
             .stream()
             .map(comment -> new CommentPagingResponseDto(
                 comment.getId(),
-                comment.getContent(),
+                comment.getIsDeleted() ? "삭제된 댓글입니다." : comment.getContent(),
                 comment.getWriter().getUid(),
                 comment.getWriter().getEmail(),
                 comment.getWriter().getDisplayName(),

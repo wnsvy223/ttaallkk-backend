@@ -5,6 +5,7 @@ import lombok.extern.log4j.Log4j2;
 import security.ttaallkk.common.Status;
 import security.ttaallkk.dto.response.Response;
 import security.ttaallkk.exception.CategoryNotFoundException;
+import security.ttaallkk.exception.CommentIsAlreadyRemovedException;
 import security.ttaallkk.exception.CommentNotFoundException;
 import security.ttaallkk.exception.DisplayNameAlreadyExistException;
 import security.ttaallkk.exception.EmailAlreadyExistException;
@@ -12,6 +13,7 @@ import security.ttaallkk.exception.ExpiredJwtException;
 import security.ttaallkk.exception.InvalidRefreshTokenException;
 import security.ttaallkk.exception.AuthenticatedFailureException;
 import security.ttaallkk.exception.PasswordNotMatchException;
+import security.ttaallkk.exception.PermissionDeniedException;
 import security.ttaallkk.exception.PostNotFoundException;
 import security.ttaallkk.exception.RefreshTokenGrantTypeException;
 import security.ttaallkk.exception.TokenNotFoundException;
@@ -164,6 +166,24 @@ public class ExceptionController {
         Response response = Response.builder()
                 .status(Status.CATEGORY_NOT_FOUND)
                 .message("존재하지 않는 카테고리 입니다.")
+                .build();
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+    }
+
+    @ExceptionHandler(CommentIsAlreadyRemovedException.class)
+    public ResponseEntity CommentIsAlreadyRemovedException(Exception e) {
+        Response response = Response.builder()
+                .status(Status.COMMENT_ALREADY_REMOVED)
+                .message("이미 삭제된 댓글은 수정할 수 없습니다.")
+                .build();
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+    }
+
+    @ExceptionHandler(PermissionDeniedException.class)
+    public ResponseEntity PermissionDeniedException(Exception e) {
+        Response response = Response.builder()
+                .status(Status.PERMISSION_DENIED)
+                .message("권한이 없습니다.")
                 .build();
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
     }

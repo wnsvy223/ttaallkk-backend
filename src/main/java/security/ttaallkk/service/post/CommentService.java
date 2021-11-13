@@ -25,7 +25,9 @@ import security.ttaallkk.repository.member.MemberRepository;
 import security.ttaallkk.repository.post.CommentRepository;
 import security.ttaallkk.repository.post.CommentRepositorySupport;
 import security.ttaallkk.repository.post.PostRepository;
+import security.ttaallkk.exception.CommentIsAlreadyRemovedException;
 import security.ttaallkk.exception.CommentNotFoundException;
+import security.ttaallkk.exception.PermissionDeniedException;
 import security.ttaallkk.exception.PostNotFoundException;
 
 @Service
@@ -101,19 +103,25 @@ public class CommentService {
      * @return List<CommentResponseDto>
      */
     public List<CommentCommonDto> findCommentByWriterUid(String uid) {
-        return commentRepositorySupport.findCommentByWriterUid(uid);
+        return CommentCommonDto.convertCommentCommonDto(commentRepositorySupport.findCommentByWriterUid(uid));
     }
     
     /**
-     * 댓글 내용 업데이트
+     * 댓글 내용 업데이트 (댓글 권한이 있는 사용자만 수정 가능 + 삭제상태가 아닌 댓글만 수정 가능)
      * @param commentUpdateDto
      */
     @Transactional
     public void updateCommentContent(CommentUpdateDto commentUpdateDto, Long commentId) {
         Comment comment = commentRepository.findById(commentId).orElseThrow(CommentNotFoundException::new);
         Boolean isOwner = validationIsOwner(comment);
-        if(isOwner){
-            comment.updateCommentContent(commentUpdateDto.getContent());
+        if(!comment.getIsDeleted()) {
+            if(isOwner) {
+                comment.updateCommentContent(commentUpdateDto.getContent());
+            }else{
+                throw new PermissionDeniedException();
+            }
+        }else{
+            throw new CommentIsAlreadyRemovedException();
         }
     }
 
@@ -125,12 +133,15 @@ public class CommentService {
     public void deleteComment(Long commentId) {
         Comment comment = commentRepository.findCommentByIdWithParent(commentId).orElseThrow(CommentNotFoundException::new);
         Boolean isOwner = validationIsOwner(comment);
-        if(!isOwner) throw new RuntimeException("Permission Denied"); //댓글 주인이 아니면 권한오류
+        if(!isOwner) throw new PermissionDeniedException(); //댓글 주인이 아니면 권한오류
+        comment.updateCommentIsDeleted(true); //추후 데이터 확인을 위해 삭제 상태로 업데이트, content 값은 데이터베이스에 유지
+        /*
         if(comment.getChildren().size() > 0){
             comment.updateCommentIsDeleted(true); //자식댓글이 있으면 삭제상태로 업데이트
         }else{
             commentRepository.delete(getDeletableParentComment(comment)); //자식댓글이 없으면 DB에서 삭제처리
         }
+        */
     }
 
     /**

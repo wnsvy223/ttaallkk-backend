@@ -14,4 +14,6 @@ public class Status {
     public static final Integer UID_NOT_MATCHED = 2010; //UID가 일치하지 않음
     public static final Integer CATEGORY_NOT_FOUND = 2011; //카테고리가 존재하지 않음
     public static final Integer AUTHENTICATED_FAILURE = 2012; //로그인 인증 실패
+    public static final Integer COMMENT_ALREADY_REMOVED = 2013; //댓글 이미 삭제됨
+    public static final Integer PERMISSION_DENIED = 2014; //권한 없음
 }

@@ -80,7 +80,7 @@ public class PostCommonDto{
      * @param List<Post>
      * @return List<PostWithMemberDto>
      */
-    public static List<PostCommonDto> convertPostWithMemberDto(List<Post> posts) {
+    public static List<PostCommonDto> convertPostCommonDto(List<Post> posts) {
         List<PostCommonDto> result = new ArrayList<>();
         posts.stream().forEach(post -> {
             PostCommonDto postCommonDto = new PostCommonDto(

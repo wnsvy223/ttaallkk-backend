@@ -69,7 +69,6 @@ public class Comment extends CommonDateTime{
 
     public void updateCommentIsDeleted(Boolean isDeleted) {
         this.isDeleted = isDeleted;
-        this.content = "삭제된 댓글입니다.";
     }
 
     public void updateCommentContent(String content) {

@@ -5,7 +5,6 @@ import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.support.QuerydslRepositorySupport;
 import org.springframework.data.support.PageableExecutionUtils;
@@ -15,7 +14,6 @@ import java.util.List;
 import security.ttaallkk.domain.post.Comment;
 import security.ttaallkk.dto.querydsl.CommentCommonDto;
 import security.ttaallkk.dto.response.CommentPagingResponseDto;
-import security.ttaallkk.dto.response.CommentResponseDto;
 
 import static security.ttaallkk.domain.post.QComment.comment;
 import static security.ttaallkk.domain.member.QMember.member;
@@ -124,6 +122,7 @@ public class CommentRepositorySupport extends QuerydslRepositorySupport{
                         comment.id,
                         comment.content,
                         comment.createdAt,
+                        comment.isDeleted,
                         post.id,
                         post.writer.uid,
                         post.writer.email,

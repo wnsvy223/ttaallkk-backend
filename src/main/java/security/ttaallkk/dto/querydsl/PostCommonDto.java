@@ -28,7 +28,7 @@ public class PostCommonDto{
 
     private Integer likeCnt;
 
-    private Integer unLikeCnt;
+    private Integer disLikeCnt;
 
     private Integer views;
 
@@ -51,7 +51,7 @@ public class PostCommonDto{
                 String title, 
                 Integer commentCnt,
                 Integer likeCnt,
-                Integer unLikeCnt,
+                Integer disLikeCnt,
                 Integer views,
                 PostStatus postStatus,
                 LocalDateTime createdAt,
@@ -66,7 +66,7 @@ public class PostCommonDto{
         this.title = title;
         this.commentCnt = commentCnt;
         this.likeCnt = likeCnt;
-        this.unLikeCnt = unLikeCnt;
+        this.disLikeCnt = disLikeCnt;
         this.views = views;
         this.postStatus = postStatus;
         this.createdAt = createdAt;
@@ -91,7 +91,7 @@ public class PostCommonDto{
                 post.getTitle(), 
                 post.getCommentCnt(), 
                 post.getLikeCnt(),
-                post.getUnlikeCnt(),
+                post.getDislikeCnt(),
                 post.getViews(), 
                 post.getPostStatus(), 
                 post.getCreatedAt(), 

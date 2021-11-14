@@ -10,28 +10,28 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import lombok.RequiredArgsConstructor;
-import security.ttaallkk.domain.post.UnLike;
-import security.ttaallkk.dto.request.UnLikeCreateDto;
+import security.ttaallkk.domain.post.DisLike;
+import security.ttaallkk.dto.request.DisLikeCreateDto;
 import security.ttaallkk.dto.response.Response;
-import security.ttaallkk.service.post.UnLikeService;
+import security.ttaallkk.service.post.DisLikeService;
 
 @Controller
-@RequestMapping("/api/unlike")
+@RequestMapping("/api/dislike")
 @RequiredArgsConstructor
-public class UnLikeController {
+public class DisLikeController {
     
-    private final UnLikeService unLikeService;
+    private final DisLikeService disLikeService;
 
     /**
      * 싫어요 등록
-     * @param unlikeCreateDto
+     * @param dislikeCreateDto
      * @return Response
      */
     @PostMapping
     @PreAuthorize("isAuthenticated()")
-    public ResponseEntity<Response> createLike(@RequestBody UnLikeCreateDto unlikeCreateDto) {
-        Optional<UnLike> like = unLikeService.createUnLike(unlikeCreateDto);
-        if(like.isPresent()){
+    public ResponseEntity<Response> createLike(@RequestBody DisLikeCreateDto dislikeCreateDto) {
+        Optional<DisLike> dislike = disLikeService.createDisLike(dislikeCreateDto);
+        if(dislike.isPresent()){
             Response response = Response.builder()
                 .status(200)
                 .message("싫어요 취소").build();

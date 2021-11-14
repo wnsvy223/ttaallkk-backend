@@ -7,9 +7,9 @@ import org.springframework.data.querydsl.QuerydslPredicateExecutor;
 
 import security.ttaallkk.domain.member.Member;
 import security.ttaallkk.domain.post.Post;
-import security.ttaallkk.domain.post.UnLike;
+import security.ttaallkk.domain.post.DisLike;
 
-public interface UnLikeRepository extends JpaRepository<UnLike, Long>,  QuerydslPredicateExecutor<UnLike>{
+public interface DisLikeRepository extends JpaRepository<DisLike, Long>,  QuerydslPredicateExecutor<DisLike>{
     
-    Optional<UnLike> findByPostAndMember(Post post, Member member);
+    Optional<DisLike> findByPostAndMember(Post post, Member member);
 }

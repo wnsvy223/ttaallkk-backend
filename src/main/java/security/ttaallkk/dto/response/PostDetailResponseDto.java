@@ -29,7 +29,7 @@ public class PostDetailResponseDto {
 
     private Integer likeCnt;
 
-    private Integer unLikeCnt;
+    private Integer disLikeCnt;
 
     private Integer views;
 
@@ -58,5 +58,5 @@ public class PostDetailResponseDto {
     private Boolean isAlreadyLike;
 
     //UnLike
-    private Boolean isAlreadyUnLike;
+    private Boolean isAlreadyDisLike;
 }

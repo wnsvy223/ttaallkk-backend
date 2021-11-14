@@ -7,7 +7,7 @@ import lombok.NoArgsConstructor;
 import security.ttaallkk.domain.CommonDateTime;
 import security.ttaallkk.domain.post.Like;
 import security.ttaallkk.domain.post.Post;
-import security.ttaallkk.domain.post.UnLike;
+import security.ttaallkk.domain.post.DisLike;
 
 import javax.persistence.Column;
 import javax.persistence.ElementCollection;
@@ -108,7 +108,7 @@ public class Member extends CommonDateTime implements Serializable{
     //싫어요
     @JsonIgnore
     @OneToMany(mappedBy = "member")
-    private Set<UnLike> unlikes = new HashSet<>();
+    private Set<DisLike> dislikes = new HashSet<>();
 
     @Builder
     public Member(String email, String password, String displayName, String uid, String profileUrl,Set<MemberRole> roles) {

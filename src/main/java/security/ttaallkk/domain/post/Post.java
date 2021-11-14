@@ -91,7 +91,7 @@ public class Post extends CommonDateTime {
     //싫어요
     @OneToMany(mappedBy = "post", cascade = CascadeType.ALL)
     @JsonIgnore
-    private Set<UnLike> unlikes = new HashSet<>();
+    private Set<DisLike> dislikes = new HashSet<>();
 
     @Column(name = "title")
     @Field
@@ -107,8 +107,8 @@ public class Post extends CommonDateTime {
     @Column(name = "likeCnt", nullable = false)
     private Integer likeCnt;
 
-    @Column(name = "unlikeCnt", nullable = false)
-    private Integer unlikeCnt;
+    @Column(name = "dislikeCnt", nullable = false)
+    private Integer dislikeCnt;
 
     @Column(name = "views", nullable = false)
     private Integer views;
@@ -118,14 +118,14 @@ public class Post extends CommonDateTime {
     private PostStatus postStatus;
     
     @Builder
-    public Post(Member writer, String title, String content, PostStatus postStatus, Integer views, Integer likeCnt, Integer unlikeCnt, Category category) {
+    public Post(Member writer, String title, String content, PostStatus postStatus, Integer views, Integer likeCnt, Integer dislikeCnt, Category category) {
         this.writer = writer;
         this.title = title;
         this.content = content;
         this.postStatus = postStatus;
         this.views = views;
         this.likeCnt = likeCnt;
-        this.unlikeCnt = unlikeCnt;
+        this.dislikeCnt = dislikeCnt;
         this.category = category;
     }
 
@@ -151,12 +151,12 @@ public class Post extends CommonDateTime {
     }
 
     //싫어요 카운트 증가
-    public void increaseUnLikeCount() {
-        this.unlikeCnt++;
+    public void increaseDisLikeCount() {
+        this.dislikeCnt++;
     }
 
     //싫어요 카운트 감소
-    public void decreaseUnLikeCount() {
-        this.unlikeCnt--;
+    public void decreaseDisLikeCount() {
+        this.dislikeCnt--;
     }
 }

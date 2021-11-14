@@ -20,7 +20,7 @@ import lombok.extern.log4j.Log4j2;
 import security.ttaallkk.domain.member.Member;
 import security.ttaallkk.domain.post.Category;
 import security.ttaallkk.domain.post.Like;
-import security.ttaallkk.domain.post.UnLike;
+import security.ttaallkk.domain.post.DisLike;
 import security.ttaallkk.domain.post.Post;
 import security.ttaallkk.domain.post.PostStatus;
 import security.ttaallkk.dto.querydsl.PostCommonDto;
@@ -35,7 +35,7 @@ import security.ttaallkk.exception.UidNotFoundException;
 import security.ttaallkk.repository.member.MemberRepository;
 import security.ttaallkk.repository.post.CategoryRepository;
 import security.ttaallkk.repository.post.LikeRepository;
-import security.ttaallkk.repository.post.UnLikeRepository;
+import security.ttaallkk.repository.post.DisLikeRepository;
 import security.ttaallkk.repository.post.PostRepository;
 import security.ttaallkk.repository.post.PostRepositorySupport;
 
@@ -49,7 +49,7 @@ public class PostService {
     private final PostRepositorySupport postRepositorySupport; //Query DSL Repository
     private final MemberRepository memberRepository;
     private final LikeRepository likeRepository;
-    private final UnLikeRepository unLikeRepository;
+    private final DisLikeRepository disLikeRepository;
     private final CategoryRepository categoryRepository;
 
     /**
@@ -73,7 +73,7 @@ public class PostService {
             .category(category)
             .views(0)
             .likeCnt(0)
-            .unlikeCnt(0)
+            .dislikeCnt(0)
             .build();
 
         return postRepository.save(post);
@@ -89,7 +89,7 @@ public class PostService {
         Post post = postRepository.findPostByPostId(postId).orElseThrow(PostNotFoundException::new); //게시글 데이터를 조회
         List<CommentResponseDto> comments = CommentResponseDto.convertCommentStructure(post.getComments()); //게시글에 연관된 댓글데이터를 가져와서 계층형 댓글구조로 변환
         Boolean isLike = isCurrentUserAlreadyLike(post); //인증된 사용자의 좋아요 유무 체크
-        Boolean isUnLike = isCurrentUserAlreadyUnLike(post); //인증된 사용자의 싫어요 유무 체크
+        Boolean isDisLike = isCurrentUserAlreadyDisLike(post); //인증된 사용자의 싫어요 유무 체크
         if(isNormalPermissionAuthUser() == true) {
             post.updateViewsCount();
         }
@@ -99,7 +99,7 @@ public class PostService {
             .content(post.getContent())
             .commentCnt(post.getCommentCnt())
             .likeCnt(post.getLikeCnt())
-            .unLikeCnt(post.getUnlikeCnt())
+            .disLikeCnt(post.getDislikeCnt())
             .views(post.getViews())
             .postStatus(post.getPostStatus())
             .createdAt(post.getCreatedAt())
@@ -111,7 +111,7 @@ public class PostService {
             .profileUrl(post.getWriter().getProfileUrl())
             .comments(comments)
             .isAlreadyLike(isLike)
-            .isAlreadyUnLike(isUnLike)
+            .isAlreadyDisLike(isDisLike)
             .build();
         return postDetailResponseDto;
     }
@@ -157,12 +157,12 @@ public class PostService {
      * @param post
      * @return Boolean
      */
-    private Boolean isCurrentUserAlreadyUnLike(Post post) {
+    private Boolean isCurrentUserAlreadyDisLike(Post post) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (!(authentication instanceof AnonymousAuthenticationToken)) {
             Member member = memberRepository.findMemberByEmail(authentication.getName()).orElseThrow(() -> new UsernameNotFoundException("이메일이 일치하지 않습니다."));
-            Optional<UnLike> unlike = unLikeRepository.findByPostAndMember(post, member);
-            return unlike.isPresent();
+            Optional<DisLike> dislike = disLikeRepository.findByPostAndMember(post, member);
+            return dislike.isPresent();
         }else{
             return false;
         }

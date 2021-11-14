@@ -7,7 +7,7 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class UnLikeCreateDto {
+public class DisLikeCreateDto {
     
     Long postId;
 

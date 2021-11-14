@@ -22,24 +22,24 @@ import lombok.Builder;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
 @DynamicUpdate
-@Table(name = "unLikes")
-public class UnLike {
+@Table(name = "disLikes")
+public class DisLike {
     
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "unlike_id")
+    @Column(name = "dislike_id")
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "unlike_member_id", referencedColumnName = "uid")
+    @JoinColumn(name = "dislike_member_id", referencedColumnName = "uid")
     private Member member;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "unlike_post_id")
+    @JoinColumn(name = "dislike_post_id")
     private Post post;
 
     @Builder
-    public UnLike(Member member, Post post) {
+    public DisLike(Member member, Post post) {
         this.member = member;
         this.post = post;
     }

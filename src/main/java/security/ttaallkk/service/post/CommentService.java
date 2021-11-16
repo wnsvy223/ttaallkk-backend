@@ -107,7 +107,7 @@ public class CommentService {
     }
     
     /**
-     * 댓글 내용 업데이트 (댓글 권한이 있는 사용자만 수정 가능 + 삭제상태가 아닌 댓글만 수정 가능)
+     * 댓글 내용 업데이트 (댓글 권한이 있는 사용자 또는 관리자만 수정 가능 + 삭제상태가 아닌 댓글만 수정 가능)
      * @param commentUpdateDto
      */
     @Transactional
@@ -126,15 +126,22 @@ public class CommentService {
     }
 
     /**
-     * 댓글 삭제(댓글 주인 or 관리자만 삭제가능)
+     * 댓글 삭제(댓글 권한이 있는 사용자 또는 관리자만 삭제 가능 + 삭제상태가 아닌 댓글만 삭제 가능)
      * @param commentId
      */
     @Transactional
     public void deleteComment(Long commentId) {
         Comment comment = commentRepository.findCommentByIdWithParent(commentId).orElseThrow(CommentNotFoundException::new);
         Boolean isOwner = validationIsOwner(comment);
-        if(!isOwner) throw new PermissionDeniedException(); //댓글 주인이 아니면 권한오류
-        comment.updateCommentIsDeleted(true); //추후 데이터 확인을 위해 삭제 상태로 업데이트, content 값은 데이터베이스에 유지
+        if(!comment.getIsDeleted()) {
+            if(isOwner) {
+                comment.updateCommentIsDeleted(true); //추후 데이터 확인을 위해 삭제 상태로 업데이트, content 값은 데이터베이스에 유지
+            }else{
+                throw new PermissionDeniedException(); //댓글 주인이 아니면 권한오류
+            }
+        }else{
+            throw new CommentIsAlreadyRemovedException();
+        }
         /*
         if(comment.getChildren().size() > 0){
             comment.updateCommentIsDeleted(true); //자식댓글이 있으면 삭제상태로 업데이트

@@ -41,14 +41,11 @@ public class CommentController {
      * @return Response
      */
     @PostMapping
-    public ResponseEntity<Response> createComment(@RequestBody CommentCreateDto commentCreateDto) {
+    public ResponseEntity<CommentResponseDto> createComment(@RequestBody CommentCreateDto commentCreateDto) {
         
-        commentService.createComment(commentCreateDto);
+        CommentResponseDto commentResponseDto = commentService.createComment(commentCreateDto);
         
-        Response response = Response.builder()
-            .status(200)
-            .message("댓글 작성 성공").build();
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(commentResponseDto);
     }
 
     /**

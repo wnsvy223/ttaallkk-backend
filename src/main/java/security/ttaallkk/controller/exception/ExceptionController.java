@@ -174,7 +174,7 @@ public class ExceptionController {
     public ResponseEntity CommentIsAlreadyRemovedException(Exception e) {
         Response response = Response.builder()
                 .status(Status.COMMENT_ALREADY_REMOVED)
-                .message("이미 삭제된 댓글은 수정할 수 없습니다.")
+                .message("이미 삭제 처리된 댓글입니다.")
                 .build();
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
     }

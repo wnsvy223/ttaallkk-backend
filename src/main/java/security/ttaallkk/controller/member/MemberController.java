@@ -86,10 +86,11 @@ public class MemberController {
         //로그인 서비스 로직
         LoginResponse loginResponse = memberService.login(loginDto, authenticationManager);
 
-        //엑세스토큰 + 리프래시토큰 쿠키 생성
+        //엑세스토큰 + 리프래시토큰 + uid 쿠키 생성
         httpServletResponse.addCookie(createTokenCookie("accessToken", loginResponse.getAccessToken(), accessTokenCookieExpiredTime));
         httpServletResponse.addCookie(createTokenCookie("refreshToken", loginResponse.getRefreshToken(), refreshTokenCookieExpiredTime));
-    
+        httpServletResponse.addCookie(createTokenCookie("uid", loginResponse.getUid(), refreshTokenCookieExpiredTime));
+
         return ResponseEntity.ok(loginResponse);
     }
 
@@ -108,9 +109,10 @@ public class MemberController {
         //토큰 재발급 서비스 로직
         LoginResponse loginResponse = memberService.refreshToken(refreshTokenDto, refreshTokenFromCookie);
 
-        //엑세스토큰 + 리프래시토큰 쿠키 생성
+        //엑세스토큰 + 리프래시토큰 + uid 쿠키 생성
         httpServletResponse.addCookie(createTokenCookie("accessToken", loginResponse.getAccessToken(), accessTokenCookieExpiredTime));
         httpServletResponse.addCookie(createTokenCookie("refreshToken", loginResponse.getRefreshToken(), refreshTokenCookieExpiredTime));
+        httpServletResponse.addCookie(createTokenCookie("uid", loginResponse.getUid(), refreshTokenCookieExpiredTime));
 
         return ResponseEntity.ok(loginResponse);
     }

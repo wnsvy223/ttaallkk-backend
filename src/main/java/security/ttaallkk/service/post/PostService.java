@@ -6,14 +6,17 @@ import java.time.temporal.TemporalAdjusters;
 import java.util.List;
 import java.util.Optional;
 
+import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletRequest;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
+import org.springframework.web.util.WebUtils;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
@@ -131,17 +134,17 @@ public class PostService {
     }
 
     /**
-     * 인증된 사용자의 좋아요 유무 체크
-     * 인증O 좋아요 데이터 존재O -> true
-     * 인증O 좋아요 데이터 존재X -> false
-     * 인증X 사용자 -> false
+     * 사용자의 좋아요 유무 체크
+     * 쿠키에서 추출한 uid를 통해 좋아요 데이터를 조회 후 사용자의 좋아요 유무 상태를 반환
      * @param post
      * @return Boolean
      */
     private Boolean isCurrentUserAlreadyLike(Post post) {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (!(authentication instanceof AnonymousAuthenticationToken)) {
-            Member member = memberRepository.findMemberByEmail(authentication.getName()).orElseThrow(() -> new UsernameNotFoundException("이메일이 일치하지 않습니다."));
+        HttpServletRequest request = ((ServletRequestAttributes)RequestContextHolder.getRequestAttributes()).getRequest();
+        Cookie cookie = WebUtils.getCookie(request, "uid");
+        if (cookie != null) {
+            String uid = cookie.getValue();
+            Member member = memberRepository.findMemberByUid(uid).orElseThrow(() -> new UidNotFoundException());
             Optional<Like> like = likeRepository.findByPostAndMember(post, member);
             return like.isPresent();
         }else{
@@ -150,17 +153,17 @@ public class PostService {
     }
 
     /**
-     * 인증된 사용자의 싫어요 유무 체크
-     * 인증O 싫어요 데이터 존재O -> true
-     * 인증O 싫어요 데이터 존재X -> false
-     * 인증X 사용자 -> false
+     * 사용자의 싫어요 유무 체크
+     * 쿠키에서 추출한 uid를 통해 싫어요 데이터를 조회 후 사용자의 싫어요 유무 상태를 반환
      * @param post
      * @return Boolean
      */
     private Boolean isCurrentUserAlreadyDisLike(Post post) {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (!(authentication instanceof AnonymousAuthenticationToken)) {
-            Member member = memberRepository.findMemberByEmail(authentication.getName()).orElseThrow(() -> new UsernameNotFoundException("이메일이 일치하지 않습니다."));
+        HttpServletRequest request = ((ServletRequestAttributes)RequestContextHolder.getRequestAttributes()).getRequest();
+        Cookie cookie = WebUtils.getCookie(request, "uid");
+        if (cookie != null) {
+            String uid = cookie.getValue();
+            Member member = memberRepository.findMemberByUid(uid).orElseThrow(() -> new UidNotFoundException());
             Optional<DisLike> dislike = disLikeRepository.findByPostAndMember(post, member);
             return dislike.isPresent();
         }else{

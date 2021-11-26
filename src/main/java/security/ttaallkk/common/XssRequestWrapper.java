@@ -108,7 +108,6 @@ public class XssRequestWrapper extends HttpServletRequestWrapper{
             
             XssSaxFilter lucyFilter = XssSaxFilter.getInstance("lucy-xss-sax.xml", true);
             value = lucyFilter.doFilter(value);
-            log.info(value);
         }
         return value;
     }

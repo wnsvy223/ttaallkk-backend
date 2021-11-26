@@ -159,4 +159,9 @@ public class Post extends CommonDateTime {
     public void decreaseDisLikeCount() {
         this.dislikeCnt--;
     }
+
+    //게시글 삭제상태로 변경
+    public void updatePostStatusToDelete() {
+        this.postStatus = PostStatus.REMOVED;
+    }
 }

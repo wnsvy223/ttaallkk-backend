@@ -13,7 +13,7 @@ import org.springframework.data.jpa.repository.support.QuerydslRepositorySupport
 import org.springframework.data.support.PageableExecutionUtils;
 import org.springframework.stereotype.Repository;
 
-import security.ttaallkk.common.Constnat;
+import security.ttaallkk.common.Constant;
 import security.ttaallkk.domain.post.Post;
 import security.ttaallkk.dto.querydsl.PostCommonDto;
 
@@ -62,7 +62,7 @@ public class PostRepositorySupport extends QuerydslRepositorySupport {
             .innerJoin(post.writer, member)
             .innerJoin(post.category, category)
             .orderBy(post.id.desc(), post.createdAt.desc())
-            .limit(Constnat.POST_ROW_LIMIT)
+            .limit(Constant.POST_ROW_LIMIT)
             .fetch();
     }
 
@@ -97,7 +97,8 @@ public class PostRepositorySupport extends QuerydslRepositorySupport {
                 )
             )
             .fetchAll();            
-        List<PostCommonDto> list = getQuerydsl().applyPagination(pageable, query).fetch();
+        List<PostCommonDto> posts = getQuerydsl().applyPagination(pageable, query).fetch();
+        List<PostCommonDto> list = PostCommonDto.convertPostCommonDtoElement(posts);
         return PageableExecutionUtils.getPage(list, pageable, query::fetchCount);
     }
 
@@ -152,7 +153,7 @@ public class PostRepositorySupport extends QuerydslRepositorySupport {
             .fetchJoin()
             .where(post.createdAt.between(from, to), post.likeCnt.gt(0)) //주간 데이터 + 좋아요 수가 0보다 큰경우
             .orderBy(post.likeCnt.desc())
-            .limit(Constnat.POST_ROW_LIMIT)
+            .limit(Constant.POST_ROW_LIMIT)
             .fetch();
     }
 }

@@ -7,6 +7,7 @@ import java.util.List;
 import com.querydsl.core.annotations.QueryProjection;
 
 import lombok.Getter;
+import security.ttaallkk.common.Constant;
 import security.ttaallkk.domain.post.Post;
 import security.ttaallkk.domain.post.PostStatus;
 
@@ -76,7 +77,7 @@ public class PostCommonDto{
     }
 
     /**
-     * 게시글 Full Text Search 결과값에 댓글 카운트 추가를 위해 댓글 카운트가 포함된 커스텀 Dto로 변환
+     * 커스텀 Dto로 변환
      * @param List<Post>
      * @return List<PostWithMemberDto>
      */
@@ -88,7 +89,7 @@ public class PostCommonDto{
                 post.getWriter().getDisplayName(), 
                 post.getWriter().getProfileUrl(), 
                 post.getId(), 
-                post.getTitle(), 
+                post.getPostStatus() == PostStatus.REMOVED ? Constant.POST_REMOVED_STATUS_MESSAGE : post.getTitle(), 
                 post.getCommentCnt(), 
                 post.getLikeCnt(),
                 post.getDislikeCnt(),
@@ -98,6 +99,34 @@ public class PostCommonDto{
                 post.getModifiedAt(),
                 post.getCategory().getCtgName(),
                 post.getCategory().getCtgTag());
+            result.add(postCommonDto);
+        });
+        return result;
+    }
+
+    /**
+     * 커스텀 Dto로 반환(QueryDsl에서 Dto로 반환받은 값 중 필요한 부분 수정 후 반환)
+     * @param posts
+     * @return List<PostCommonDto>
+     */
+    public static List<PostCommonDto> convertPostCommonDtoElement(List<PostCommonDto> posts) {
+        List<PostCommonDto> result = new ArrayList<>();
+        posts.stream().forEach(post -> {
+            PostCommonDto postCommonDto = new PostCommonDto(
+                post.getEmail(), 
+                post.getDisplayName(), 
+                post.getProfileUrl(), 
+                post.getId(), 
+                post.getPostStatus() == PostStatus.REMOVED ? Constant.POST_REMOVED_STATUS_MESSAGE : post.getTitle(), 
+                post.getCommentCnt(), 
+                post.getLikeCnt(),
+                post.getDisLikeCnt(),
+                post.getViews(), 
+                post.getPostStatus(), 
+                post.getCreatedAt(), 
+                post.getModifiedAt(),
+                post.getCategoryName(),
+                post.getCategoryTag());
             result.add(postCommonDto);
         });
         return result;

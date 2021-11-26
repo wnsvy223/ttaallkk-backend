@@ -69,6 +69,7 @@ public class PostController {
      * @return
      */
     @PutMapping("/{postId}")
+    @PreAuthorize("isAuthenticated()")
     public ResponseEntity<Response> updatePost(
                 @RequestBody PostUpdateDto postUpdateDto, 
                 @PathVariable("postId") Long postId) {
@@ -86,6 +87,7 @@ public class PostController {
      * @return Response
      */
     @DeleteMapping("/{postId}")
+    @PreAuthorize("isAuthenticated()")
     public ResponseEntity<Response> deletePost(@PathVariable("postId") Long postId) {
         Response response = postService.deletePost(postId);
         
@@ -121,7 +123,7 @@ public class PostController {
     }
 
     /**
-     * 게시글 Full Text Search + Paging
+     * 게시글 Full Text Search + 페이징
      * @param keyword
      * @param page
      * @param pageable
@@ -155,7 +157,7 @@ public class PostController {
      */
     @GetMapping("/weekly")
     public ResponseEntity<List<PostWeeklyLikeDto>> getPostsByWeekly() {
-        List<PostWeeklyLikeDto> result = PostWeeklyLikeDto.convertPostWeeklyLikeDto(postService.findPostWeeklyLike());
+        List<PostWeeklyLikeDto> result = postService.findPostWeeklyLike();
         
         return ResponseEntity.ok(result);
     }

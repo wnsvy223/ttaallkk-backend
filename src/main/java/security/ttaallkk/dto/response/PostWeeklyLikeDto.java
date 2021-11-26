@@ -7,7 +7,9 @@ import java.util.stream.Collectors;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import security.ttaallkk.common.Constant;
 import security.ttaallkk.domain.post.Post;
+import security.ttaallkk.domain.post.PostStatus;
 
 @Data
 @NoArgsConstructor
@@ -40,7 +42,7 @@ public class PostWeeklyLikeDto {
             .stream()
             .map(post -> new PostWeeklyLikeDto(
                 post.getId(),
-                post.getTitle(),
+                post.getPostStatus() == PostStatus.REMOVED ? Constant.POST_REMOVED_STATUS_MESSAGE : post.getTitle(),
                 post.getLikeCnt(),
                 post.getCreatedAt(),
                 post.getWriter().getUid(),

@@ -12,6 +12,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import security.ttaallkk.common.Constant;
 import security.ttaallkk.domain.post.Comment;
 
 @Data
@@ -36,7 +37,7 @@ public class CommentPagingResponseDto implements Serializable{
             .stream()
             .map(comment -> new CommentPagingResponseDto(
                 comment.getId(),
-                comment.getIsDeleted() ? "삭제된 댓글입니다." : comment.getContent(),
+                comment.getIsDeleted() ? Constant.COMMENT_REMOVED_STATUS_MESSAGE : comment.getContent(),
                 comment.getWriter().getUid(),
                 comment.getWriter().getEmail(),
                 comment.getWriter().getDisplayName(),

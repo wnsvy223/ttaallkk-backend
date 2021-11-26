@@ -10,6 +10,7 @@ import java.util.Map;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import security.ttaallkk.common.Constant;
 import security.ttaallkk.domain.post.Comment;
 
 @Data
@@ -51,7 +52,7 @@ public class CommentResponseDto implements Serializable{
         return comment.getIsDeleted()  == true ? 
                 new CommentResponseDto(
                     comment.getId(),
-                    "삭제된 댓글입니다.",
+                    Constant.COMMENT_REMOVED_STATUS_MESSAGE,
                     null,
                     null,
                     null,

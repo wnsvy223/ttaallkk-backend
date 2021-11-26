@@ -31,6 +31,7 @@ import security.ttaallkk.dto.request.PostCreateDto;
 import security.ttaallkk.dto.request.PostUpdateDto;
 import security.ttaallkk.dto.response.CommentResponseDto;
 import security.ttaallkk.dto.response.PostDetailResponseDto;
+import security.ttaallkk.dto.response.PostWeeklyLikeDto;
 import security.ttaallkk.dto.response.Response;
 import security.ttaallkk.exception.CategoryNotFoundException;
 import security.ttaallkk.exception.PostNotFoundException;
@@ -98,8 +99,8 @@ public class PostService {
         }
         PostDetailResponseDto postDetailResponseDto = PostDetailResponseDto.builder() //PostDetailResponseDto생성하여 데이터 세팅 후 반환
             .id(post.getId())
-            .title(post.getTitle())
-            .content(post.getContent())
+            .title(post.getPostStatus() == PostStatus.REMOVED ? "삭제된 게시글 입니다." : post.getTitle())
+            .content(post.getPostStatus() == PostStatus.REMOVED ? "삭제된 게시글 입니다." : post.getContent())
             .commentCnt(post.getCommentCnt())
             .likeCnt(post.getLikeCnt())
             .disLikeCnt(post.getDislikeCnt())
@@ -223,7 +224,7 @@ public class PostService {
 
         //현재 인증된 사용자의 이메일이 게시글 작성자 이메일과 같을 경우에만 삭제 가능
         if(isOwnerPermissionAuthUser(post.getWriter().getEmail())){
-            postRepository.deleteById(postId);
+            post.updatePostStatusToDelete();
             return Response.builder()
                 .status(200)
                 .message("게시글 삭제 성공")
@@ -242,8 +243,8 @@ public class PostService {
      * @return List<PostCommonDto> : 조회된 게시글의 작성자 정보를 포함한 목록
      */
     public List<PostCommonDto> findPostByRecent() {
-        List<PostCommonDto> result = postRepositorySupport.findPostByRecent();
-
+        List<PostCommonDto> posts = postRepositorySupport.findPostByRecent();
+        List<PostCommonDto> result = PostCommonDto.convertPostCommonDtoElement(posts);
         return result;
     }
 
@@ -264,7 +265,8 @@ public class PostService {
      * @return List<PostCommonDto> : 조회된 게시글의 작성자 정보를 포함한 목록
      */
     public List<PostCommonDto> findPostByUid(String uid) {
-        List<PostCommonDto> result = postRepositorySupport.findPostByUid(uid);
+        List<PostCommonDto> posts = postRepositorySupport.findPostByUid(uid);
+        List<PostCommonDto> result = PostCommonDto.convertPostCommonDtoElement(posts);
 
         return result;
     }
@@ -274,14 +276,15 @@ public class PostService {
      * @return List<PostWeeklyLikeDto>
      */
     @Transactional
-    public List<Post> findPostWeeklyLike() {
+    public List<PostWeeklyLikeDto> findPostWeeklyLike() {
         // 저번주 일요일 + 1 = 이번주 월요일
         LocalDateTime from = LocalDateTime.now().with(TemporalAdjusters.previousOrSame(DayOfWeek.SUNDAY.plus(1)));
         // 다음주 월요일 -1 = 이번주 일요일
         LocalDateTime to = LocalDateTime.now().with(TemporalAdjusters.nextOrSame(DayOfWeek.MONDAY.minus(1)));
         // 이번주 월요일 ~ 일요일까지의 주간 범위값 전달
-        List<Post> result = postRepositorySupport.findPostByWeeklyLike(from, to);
-
+        List<Post> posts = postRepositorySupport.findPostByWeeklyLike(from, to);
+        List<PostWeeklyLikeDto> result = PostWeeklyLikeDto.convertPostWeeklyLikeDto(posts);
+        
         return result;
     }
 

@@ -3,6 +3,7 @@ package security.ttaallkk.dto.querydsl;
 import com.querydsl.core.annotations.QueryProjection;
 
 import lombok.Getter;
+import security.ttaallkk.common.Constant;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -57,7 +58,7 @@ public class CommentCommonDto {
             .stream()
             .map(comment -> new CommentCommonDto(
                     comment.getId(),
-                    comment.getIsDeleted() ? "삭제된 댓글입니다." : comment.getContent(),
+                    comment.getIsDeleted() ? Constant.COMMENT_REMOVED_STATUS_MESSAGE : comment.getContent(),
                     comment.getCreatedAt(),
                     comment.getIsDeleted(),
                     comment.getPostId(),

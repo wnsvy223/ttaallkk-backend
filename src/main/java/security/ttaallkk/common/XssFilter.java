@@ -13,7 +13,7 @@ public class XssFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
         
-		if(request.getMethod().equals("GET") || request.getMethod().equals("POST")){
+		if(request.getMethod().equals("GET") || request.getMethod().equals("POST") || request.getMethod().equals("PUT")){
 			logger.info("========XSS 필터 진입========");
 			filterChain.doFilter(new XssRequestWrapper(request), response); 
 		}else{

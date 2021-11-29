@@ -20,6 +20,7 @@ import org.springframework.web.util.WebUtils;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
+import security.ttaallkk.common.Constant;
 import security.ttaallkk.domain.member.Member;
 import security.ttaallkk.domain.post.Category;
 import security.ttaallkk.domain.post.Like;
@@ -34,6 +35,8 @@ import security.ttaallkk.dto.response.PostDetailResponseDto;
 import security.ttaallkk.dto.response.PostWeeklyLikeDto;
 import security.ttaallkk.dto.response.Response;
 import security.ttaallkk.exception.CategoryNotFoundException;
+import security.ttaallkk.exception.PermissionDeniedException;
+import security.ttaallkk.exception.PostAlreadyRemovedException;
 import security.ttaallkk.exception.PostNotFoundException;
 import security.ttaallkk.exception.UidNotFoundException;
 import security.ttaallkk.repository.member.MemberRepository;
@@ -91,33 +94,12 @@ public class PostService {
     @Transactional
     public PostDetailResponseDto findPostForDetail(Long postId) { 
         Post post = postRepository.findPostByPostId(postId).orElseThrow(PostNotFoundException::new); //게시글 데이터를 조회
-        List<CommentResponseDto> comments = CommentResponseDto.convertCommentStructure(post.getComments()); //게시글에 연관된 댓글데이터를 가져와서 계층형 댓글구조로 변환
         Boolean isLike = isCurrentUserAlreadyLike(post); //인증된 사용자의 좋아요 유무 체크
         Boolean isDisLike = isCurrentUserAlreadyDisLike(post); //인증된 사용자의 싫어요 유무 체크
         if(isNormalPermissionAuthUser() == true) {
             post.updateViewsCount();
         }
-        PostDetailResponseDto postDetailResponseDto = PostDetailResponseDto.builder() //PostDetailResponseDto생성하여 데이터 세팅 후 반환
-            .id(post.getId())
-            .title(post.getPostStatus() == PostStatus.REMOVED ? "삭제된 게시글 입니다." : post.getTitle())
-            .content(post.getPostStatus() == PostStatus.REMOVED ? "삭제된 게시글 입니다." : post.getContent())
-            .commentCnt(post.getCommentCnt())
-            .likeCnt(post.getLikeCnt())
-            .disLikeCnt(post.getDislikeCnt())
-            .views(post.getViews())
-            .postStatus(post.getPostStatus())
-            .createdAt(post.getCreatedAt())
-            .modifiedAt(post.getModifiedAt())
-            .category(post.getCategory())
-            .email(post.getWriter().getEmail())
-            .displayName(post.getWriter().getDisplayName())
-            .uid(post.getWriter().getUid())
-            .profileUrl(post.getWriter().getProfileUrl())
-            .comments(comments)
-            .isAlreadyLike(isLike)
-            .isAlreadyDisLike(isDisLike)
-            .build();
-        return postDetailResponseDto;
+        return PostDetailResponseDto.convertPostDetailResponseDto(post, isLike, isDisLike);
     }
 
     /**
@@ -189,27 +171,31 @@ public class PostService {
      * 게시글 수정
      * @param postUpdateDto
      * @param postId
-     * @return Response
+     * @return PostDetailResponseDto
+     * @exception PostNotFoundException //게시글을 찾을 수 없음
+     * @exception PermissionDeniedException //권한 없음
      */
     @Transactional
-    public Response updatePost(PostUpdateDto postUpdateDto, Long postId) {
+    public PostDetailResponseDto updatePost(PostUpdateDto postUpdateDto, Long postId) {
         Post post = postRepository.findPostByPostId(postId).orElseThrow(PostNotFoundException::new);
-
+        Boolean isLike = isCurrentUserAlreadyLike(post); //인증된 사용자의 좋아요 유무 체크
+        Boolean isDisLike = isCurrentUserAlreadyDisLike(post); //인증된 사용자의 싫어요 유무 체크
+        if(isNormalPermissionAuthUser() == true) {
+            post.updateViewsCount();
+        }
         //현재 인증된 사용자의 이메일이 게시글 작성자 이메일과 같을 경우에만 수정 가능
-        if(isOwnerPermissionAuthUser(post.getWriter().getEmail())){
-            post.updatePost(
-                postUpdateDto.getTitle(), 
-                postUpdateDto.getContent()
-            );
-            return Response.builder()
-                .status(200)
-                .message("게시글 수정 성공")
-                .build();
+        if(isOwnerPermissionAuthUser(post.getWriter().getEmail())) {
+            if(post.getPostStatus() == PostStatus.REMOVED) { //이미 삭제된 게시글이면 오류 응답
+                throw new PostAlreadyRemovedException();
+            }else{
+                post.updatePost(
+                    postUpdateDto.getTitle(), 
+                    postUpdateDto.getContent()
+                );
+                return PostDetailResponseDto.convertPostDetailResponseDto(post, isLike, isDisLike);
+            }
         }else{
-            return Response.builder()
-                .status(403)
-                .message("게시글을 수정할 수 있는 권한이 없습니다.")
-                .build();
+            throw new PermissionDeniedException(); //권한 오류
         }  
     }
     
@@ -217,23 +203,26 @@ public class PostService {
      * 게시글 단일 삭제
      * @param postId
      * @return Response
+     * @exception PostNotFoundException //게시글을 찾을 수 없음
+     * @exception PermissionDeniedException //권한 없음
      */
     @Transactional
     public Response deletePost(Long postId) {
         Post post = postRepository.findPostByPostId(postId).orElseThrow(PostNotFoundException::new);
 
         //현재 인증된 사용자의 이메일이 게시글 작성자 이메일과 같을 경우에만 삭제 가능
-        if(isOwnerPermissionAuthUser(post.getWriter().getEmail())){
-            post.updatePostStatusToDelete();
-            return Response.builder()
-                .status(200)
-                .message("게시글 삭제 성공")
-                .build();
+        if(isOwnerPermissionAuthUser(post.getWriter().getEmail())) {
+            if(post.getPostStatus() == PostStatus.REMOVED) { //이미 삭제된 게시글이면 오류 응답
+                throw new PostAlreadyRemovedException();
+            }else{
+                post.updatePostStatusToDelete();
+                return Response.builder()
+                    .status(200)
+                    .message(Constant.POST_REMOVE_SUCCESS)
+                    .build();
+            }
         }else{
-            return Response.builder()
-                .status(403)
-                .message("게시글을 삭제할 수 있는 권한이 없습니다.")
-                .build();
+            throw new PermissionDeniedException(); //권한 오류
         }  
     }
 
@@ -287,7 +276,6 @@ public class PostService {
         
         return result;
     }
-
 
     /**
      * 게시글 전체 삭제

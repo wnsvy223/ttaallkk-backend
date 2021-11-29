@@ -13,8 +13,8 @@ import security.ttaallkk.domain.post.Post;
 
 public interface PostRepository extends JpaRepository<Post, Long>, QuerydslPredicateExecutor<Post>{
     
-    //게시글 아이디로 게시글 데이터 조회(작성자와 카테고리는 inner join, 댓글은 left outer join으로 댓글이 없을 경우도 조회)
-    @Query("select p from Post p join fetch p.writer join fetch p.category left join fetch p.comments where p.id = :postId")
+    //게시글 아이디로 게시글 데이터 조회(작성자와 카테고리는 inner fetch join)
+    @Query("select p from Post p join fetch p.writer join fetch p.category where p.id = :postId")
     Optional<Post> findPostByPostId(@Param("postId") Long postId);
 
     //JPA는 Bulk수행을 제공하지 않기 때문에 jpql로 쿼리로 직접수행 및 @Modifying의 옵션으로 영속성 처리.

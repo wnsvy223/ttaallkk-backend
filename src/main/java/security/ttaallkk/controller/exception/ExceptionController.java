@@ -14,6 +14,7 @@ import security.ttaallkk.exception.InvalidRefreshTokenException;
 import security.ttaallkk.exception.AuthenticatedFailureException;
 import security.ttaallkk.exception.PasswordNotMatchException;
 import security.ttaallkk.exception.PermissionDeniedException;
+import security.ttaallkk.exception.PostAlreadyRemovedException;
 import security.ttaallkk.exception.PostNotFoundException;
 import security.ttaallkk.exception.RefreshTokenGrantTypeException;
 import security.ttaallkk.exception.TokenNotFoundException;
@@ -184,6 +185,15 @@ public class ExceptionController {
         Response response = Response.builder()
                 .status(Status.PERMISSION_DENIED)
                 .message("권한이 없습니다.")
+                .build();
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+    }
+
+    @ExceptionHandler(PostAlreadyRemovedException.class)
+    public ResponseEntity PostAlreadyRemovedException(Exception e) {
+        Response response = Response.builder()
+                .status(Status.POST_ALREADY_REMOVED)
+                .message("이미 삭제 처리된 게시글 입니다.")
                 .build();
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
     }

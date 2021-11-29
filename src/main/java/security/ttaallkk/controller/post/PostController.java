@@ -70,15 +70,12 @@ public class PostController {
      */
     @PutMapping("/{postId}")
     @PreAuthorize("isAuthenticated()")
-    public ResponseEntity<Response> updatePost(
+    public ResponseEntity<PostDetailResponseDto> updatePost(
                 @RequestBody PostUpdateDto postUpdateDto, 
                 @PathVariable("postId") Long postId) {
 
-        Response response = postService.updatePost(postUpdateDto, postId);
-        
-        return ResponseEntity
-                .status(response.getStatus())
-                .body(response);
+        PostDetailResponseDto result = postService.updatePost(postUpdateDto, postId);
+        return ResponseEntity.ok(result);
     }
 
     /**

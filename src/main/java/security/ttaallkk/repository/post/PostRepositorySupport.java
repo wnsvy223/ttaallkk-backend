@@ -4,6 +4,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 import com.querydsl.core.types.Projections;
+import com.querydsl.core.types.dsl.PathBuilder;
 import com.querydsl.jpa.JPQLQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 
@@ -16,6 +17,7 @@ import org.springframework.stereotype.Repository;
 import security.ttaallkk.common.Constant;
 import security.ttaallkk.domain.post.Post;
 import security.ttaallkk.dto.querydsl.PostCommonDto;
+import security.ttaallkk.repository.common.SortUtils;
 
 import static security.ttaallkk.domain.post.QPost.post;
 import static security.ttaallkk.domain.member.QMember.member;
@@ -76,7 +78,6 @@ public class PostRepositorySupport extends QuerydslRepositorySupport {
             .innerJoin(post.writer, member)
             .innerJoin(post.category, category)
             .where(post.category.id.eq(categoryId))
-            .orderBy(post.id.desc())
             .select(
                 Projections.constructor(
                     PostCommonDto.class, 
@@ -95,8 +96,12 @@ public class PostRepositorySupport extends QuerydslRepositorySupport {
                     category.ctgName,
                     category.ctgTag
                 )
-            )
-            .fetchAll();            
+            );
+
+        PathBuilder<Post> pathBuilder = new PathBuilder<Post>(post.getType(), post.getMetadata()); //정렬 타겟 컬럼
+        query.orderBy(SortUtils.getOrderBy(pageable.getSort().descending(), pathBuilder)); //정렬 조건 설정
+        query.fetchAll();
+
         List<PostCommonDto> posts = getQuerydsl().applyPagination(pageable, query).fetch();
         List<PostCommonDto> list = PostCommonDto.convertPostCommonDtoElement(posts);
         return PageableExecutionUtils.getPage(list, pageable, query::fetchCount);

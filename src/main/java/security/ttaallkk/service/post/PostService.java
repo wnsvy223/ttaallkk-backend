@@ -30,7 +30,6 @@ import security.ttaallkk.domain.post.PostStatus;
 import security.ttaallkk.dto.querydsl.PostCommonDto;
 import security.ttaallkk.dto.request.PostCreateDto;
 import security.ttaallkk.dto.request.PostUpdateDto;
-import security.ttaallkk.dto.response.CommentResponseDto;
 import security.ttaallkk.dto.response.PostDetailResponseDto;
 import security.ttaallkk.dto.response.PostWeeklyLikeDto;
 import security.ttaallkk.dto.response.Response;

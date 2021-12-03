@@ -79,10 +79,6 @@ public class Post extends CommonDateTime {
     @JsonIgnore
     private List<Comment> comments = new ArrayList<>();
 
-    //댓글 카운트
-    @Formula("(select count(*) from comment c where c.post_id = post_id)")
-    private Integer commentCnt;
-
     //좋아요
     @OneToMany(mappedBy = "post", cascade = CascadeType.ALL)
     @JsonIgnore
@@ -93,26 +89,44 @@ public class Post extends CommonDateTime {
     @JsonIgnore
     private Set<DisLike> dislikes = new HashSet<>();
 
+    //제목
     @Column(name = "title")
     @Field
     @Analyzer(definition = "koreanAnalyzer_post")
     private String title;
 
+    //본문
     @Lob //Larg Object
     @Column(name = "content")
     @Field
     @Analyzer(definition = "koreanAnalyzer_post")
     private String content;
 
+    //댓글 카운트
+    @Formula("(select count(*) from comment c where c.post_id = post_id)")
+    @Field(index = Index.NO)
+    @SortableField
+    private Integer commentCnt;
+
+    //좋아요 카운트
     @Column(name = "likeCnt", nullable = false)
+    @Field(index = Index.NO)
+    @SortableField
     private Integer likeCnt;
 
+    //싫어요 카운트
     @Column(name = "dislikeCnt", nullable = false)
+    @Field(index = Index.NO)
+    @SortableField
     private Integer dislikeCnt;
 
+    //조회수 카운트
     @Column(name = "views", nullable = false)
+    @Field(index = Index.NO)
+    @SortableField
     private Integer views;
 
+    //게시글 상태
     @Column(name = "postStatus", nullable = false)
     @Enumerated(EnumType.STRING)
     private PostStatus postStatus;

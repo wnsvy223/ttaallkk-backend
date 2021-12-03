@@ -25,6 +25,7 @@ import org.springframework.transaction.annotation.Transactional;
 import lombok.extern.log4j.Log4j2;
 import security.ttaallkk.domain.post.Post;
 import security.ttaallkk.dto.querydsl.PostCommonDto;
+import security.ttaallkk.repository.common.SortUtils;
 
 @Service
 @Transactional(readOnly = true)
@@ -96,9 +97,12 @@ public class PostSearchService {
         
         FullTextQuery fullTextQuery = fullTextEntityManager.createFullTextQuery(query, Post.class).setCriteriaQuery(criteria);
 
-        Sort sort = queryBuilder.sort().byField("id_sort").desc().createSort(); //SortableField로 설정된 엔티티의 id필드를 기준으로 내림차순으로 정렬하도록 설정
-        fullTextQuery.setSort(sort);
+        // 정렬
+        String orderBy = SortUtils.getSearchOrderBy(pageable); //pageable에서 orderby 타겟 추출
+        Sort sort = queryBuilder.sort().byField(orderBy).desc().createSort(); //추출된 orderby propery로 lucene Sort 생성
+        fullTextQuery.setSort(sort); //order by절 쿼리에 적용
 
+        // 페이징
         int total = fullTextQuery.getResultSize(); //검색결과 게시글 전체 갯수
         int offset = (int)pageable.getOffset(); //시작점
         int pageSize = pageable.getPageSize(); //페이지 사이즈(페이지당 게시글 갯수)

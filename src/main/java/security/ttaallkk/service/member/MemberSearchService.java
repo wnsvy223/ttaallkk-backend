@@ -3,7 +3,6 @@ package security.ttaallkk.service.member;
 import java.util.List;
 
 import javax.persistence.EntityManager;
-import javax.persistence.NoResultException;
 import javax.persistence.PersistenceContext;
 
 import org.apache.lucene.search.Query;
@@ -12,11 +11,15 @@ import org.hibernate.search.jpa.FullTextQuery;
 import org.hibernate.search.jpa.Search;
 import org.hibernate.search.query.dsl.QueryBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
+import org.springframework.data.domain.SliceImpl;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import lombok.extern.log4j.Log4j2;
 import security.ttaallkk.domain.member.Member;
+import security.ttaallkk.dto.response.MemberSearchResponseDto;
 
 
 /**
@@ -52,7 +55,7 @@ public class MemberSearchService {
      */
     @Transactional
     @SuppressWarnings("unchecked")
-    public List<Member> searchMemberByEmailOrDisplayName(String keyword){
+    public Slice<MemberSearchResponseDto> searchMemberByEmailOrDisplayName(String keyword, Pageable pageable){
         FullTextEntityManager fullTextEntityManager = Search.getFullTextEntityManager(entityManager);
         QueryBuilder queryBuilder = fullTextEntityManager
             .getSearchFactory()
@@ -80,13 +83,14 @@ public class MemberSearchService {
 
         FullTextQuery fullTextQuery = fullTextEntityManager.createFullTextQuery(query, Member.class);
 
-        List<Member> result = null;
-        try{
-            result = (List<Member>)fullTextQuery.getResultList();
-            log.info("검색어 : " + keyword + "\n" +"검색결과 : " + result);
-        }catch(NoResultException noResultException){
-            log.error("검색결과 오류 : " + noResultException.getMessage());
-        }
-        return result;
+        fullTextQuery.setFirstResult((int)pageable.getOffset()); //Offset
+        fullTextQuery.setMaxResults(pageable.getPageSize()); //limit
+        
+        List<Member> members = fullTextQuery.getResultList(); //검색결과
+        boolean hasNext = members.size() >= pageable.getPageSize(); //다음 페이지 존재 유무
+        
+        List<MemberSearchResponseDto> result = MemberSearchResponseDto.convertMemberSearchResponseDto(members);
+
+        return new SliceImpl<>(result, pageable, hasNext);
     }
 }

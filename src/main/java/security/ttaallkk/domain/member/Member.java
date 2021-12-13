@@ -9,6 +9,7 @@ import security.ttaallkk.domain.post.Like;
 import security.ttaallkk.domain.post.Post;
 import security.ttaallkk.domain.post.DisLike;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
@@ -109,6 +110,16 @@ public class Member extends CommonDateTime implements Serializable{
     @JsonIgnore
     @OneToMany(mappedBy = "member")
     private Set<DisLike> dislikes = new HashSet<>();
+
+    //내가 친구추가 요청한 친구 목록
+    @JsonIgnore
+    @OneToMany(mappedBy = "from", cascade = CascadeType.REMOVE)
+    List<Friend> requestFriend;
+
+    //나에게 친구추가 요청한 친구 목록
+    @JsonIgnore
+    @OneToMany(mappedBy = "to", cascade = CascadeType.REMOVE)
+    List<Friend> receiveFriend;
 
     @Builder
     public Member(String email, String password, String displayName, String uid, String profileUrl,Set<MemberRole> roles) {

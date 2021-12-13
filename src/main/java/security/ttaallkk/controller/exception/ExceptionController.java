@@ -10,7 +10,11 @@ import security.ttaallkk.exception.CommentNotFoundException;
 import security.ttaallkk.exception.DisplayNameAlreadyExistException;
 import security.ttaallkk.exception.EmailAlreadyExistException;
 import security.ttaallkk.exception.ExpiredJwtException;
+import security.ttaallkk.exception.FriendAlreadyExistException;
+import security.ttaallkk.exception.FriendNotAllowSelfException;
+import security.ttaallkk.exception.FriendRelationNotFoundException;
 import security.ttaallkk.exception.InvalidRefreshTokenException;
+import security.ttaallkk.exception.MemberNotFoundException;
 import security.ttaallkk.exception.AuthenticatedFailureException;
 import security.ttaallkk.exception.PasswordNotMatchException;
 import security.ttaallkk.exception.PermissionDeniedException;
@@ -140,6 +144,42 @@ public class ExceptionController {
         Response response = Response.builder()
                 .status(Status.TOKEN_NOT_FOUND)
                 .message("존재하지 않는 토큰입니다.")
+                .build();
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+    }
+
+    @ExceptionHandler(MemberNotFoundException.class)
+    public ResponseEntity MemberNotFoundException(Exception e) {
+        Response response = Response.builder()
+                .status(Status.MEMBER_NOT_FOUND)
+                .message("존재하지 않는 사용자 입니다.")
+                .build();
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+    }
+
+    @ExceptionHandler(FriendAlreadyExistException.class)
+    public ResponseEntity FriendAlreadyExistException(Exception e) {
+        Response response = Response.builder()
+                .status(Status.FRIEND_ALREADY_EXIST)
+                .message("이미 친구 추가된 사용자 입니다.")
+                .build();
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+    }
+
+    @ExceptionHandler(FriendNotAllowSelfException.class)
+    public ResponseEntity FriendNotAllowSelfException(Exception e) {
+        Response response = Response.builder()
+                .status(Status.FRIEND_ALREADY_EXIST)
+                .message("자기 자신을 친구 추가할 수 없습니다.")
+                .build();
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+    }
+
+    @ExceptionHandler(FriendRelationNotFoundException.class)
+    public ResponseEntity FriendRelationNotFoundException(Exception e) {
+        Response response = Response.builder()
+                .status(Status.FRIEND_ALREADY_EXIST)
+                .message("존재하지 않는 친구 관계 입니다.")
                 .build();
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
     }

@@ -17,4 +17,8 @@ public class Status {
     public static final Integer COMMENT_ALREADY_REMOVED = 2013; //댓글 이미 삭제됨
     public static final Integer PERMISSION_DENIED = 2014; //권한 없음
     public static final Integer POST_ALREADY_REMOVED = 2015; //게시글 이미 삭제됨
+    public static final Integer MEMBER_NOT_FOUND = 2016; //해당하는 사용자 존재하지 않음
+    public static final Integer FRIEND_ALREADY_EXIST = 2017; //친구관계 이미 존재함
+    public static final Integer FRIEND_NOT_ALLOW_SELF = 2018; //자기 자신 친구 추가 불가
+    public static final Integer FRIEND_RELATION_NOT_FOUND = 2020; //친구 관계 존재하지 않음
 }

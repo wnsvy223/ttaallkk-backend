@@ -10,8 +10,6 @@ import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.context.request.RequestContextHolder;
@@ -21,6 +19,7 @@ import org.springframework.web.util.WebUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import security.ttaallkk.common.Constant;
+import security.ttaallkk.common.authentication.AuthenticationHelper;
 import security.ttaallkk.domain.member.Member;
 import security.ttaallkk.domain.post.Category;
 import security.ttaallkk.domain.post.Like;
@@ -57,6 +56,7 @@ public class PostService {
     private final LikeRepository likeRepository;
     private final DisLikeRepository disLikeRepository;
     private final CategoryRepository categoryRepository;
+    private final AuthenticationHelper authenticationHelper;
 
     /**
      * 게시글 생성
@@ -65,12 +65,9 @@ public class PostService {
      */
     @Transactional
     public Post createPost(PostCreateDto postCreateDto) {        
-        Member member = memberRepository.findMemberByUid(postCreateDto.getWriteUid())
-            .orElseThrow(() -> new UidNotFoundException("존재하지 않는 Uid입니다."));
-
-        Category category = categoryRepository.findById(postCreateDto.getCategoryId())
-            .orElseThrow(() -> new CategoryNotFoundException("존재하지 않는 카테고리 입니다."));
-        
+        Member member = memberRepository.findMemberByUid(postCreateDto.getWriteUid()).orElseThrow(UidNotFoundException::new);
+        Category category = categoryRepository.findById(postCreateDto.getCategoryId()).orElseThrow(CategoryNotFoundException::new);
+    
         Post post = Post.builder()
             .writer(member)
             .title(postCreateDto.getTitle())
@@ -95,75 +92,10 @@ public class PostService {
         Post post = postRepository.findPostByPostId(postId).orElseThrow(PostNotFoundException::new); //게시글 데이터를 조회
         Boolean isLike = isCurrentUserAlreadyLike(post); //인증된 사용자의 좋아요 유무 체크
         Boolean isDisLike = isCurrentUserAlreadyDisLike(post); //인증된 사용자의 싫어요 유무 체크
-        if(isNormalPermissionAuthUser() == true) {
+        if(authenticationHelper.isNormalOrAnonymousUser()) {
             post.updateViewsCount();
         }
         return PostDetailResponseDto.convertPostDetailResponseDto(post, isLike, isDisLike);
-    }
-
-    /**
-     * 인증정보에 담긴 이메일과 요청값으로 넘어오는 이메일값을 비교하여 본인 권한 체크
-     * @param email
-     * @return Boolean
-     */
-    private Boolean isOwnerPermissionAuthUser(String email) {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if(authentication.getName().equals(email)) {
-            return true;
-        }else{
-            return false;
-        }
-    }
-
-    /**
-     * 사용자의 좋아요 유무 체크
-     * 쿠키에서 추출한 uid를 통해 좋아요 데이터를 조회 후 사용자의 좋아요 유무 상태를 반환
-     * @param post
-     * @return Boolean
-     */
-    private Boolean isCurrentUserAlreadyLike(Post post) {
-        HttpServletRequest request = ((ServletRequestAttributes)RequestContextHolder.getRequestAttributes()).getRequest();
-        Cookie cookie = WebUtils.getCookie(request, "uid");
-        if (cookie != null) {
-            String uid = cookie.getValue();
-            Member member = memberRepository.findMemberByUid(uid).orElseThrow(() -> new UidNotFoundException());
-            Optional<Like> like = likeRepository.findByPostAndMember(post, member);
-            return like.isPresent();
-        }else{
-            return false;
-        }
-    }
-
-    /**
-     * 사용자의 싫어요 유무 체크
-     * 쿠키에서 추출한 uid를 통해 싫어요 데이터를 조회 후 사용자의 싫어요 유무 상태를 반환
-     * @param post
-     * @return Boolean
-     */
-    private Boolean isCurrentUserAlreadyDisLike(Post post) {
-        HttpServletRequest request = ((ServletRequestAttributes)RequestContextHolder.getRequestAttributes()).getRequest();
-        Cookie cookie = WebUtils.getCookie(request, "uid");
-        if (cookie != null) {
-            String uid = cookie.getValue();
-            Member member = memberRepository.findMemberByUid(uid).orElseThrow(() -> new UidNotFoundException());
-            Optional<DisLike> dislike = disLikeRepository.findByPostAndMember(post, member);
-            return dislike.isPresent();
-        }else{
-            return false;
-        }
-    }
-
-    /**
-     * 사용자 권한 체크 : 관리자(false) , 일반or익명유저(true) 반환 -> 관리자 계정은 조회수를 증가시키지않음
-     * @return Boolean
-     */
-    private Boolean isNormalPermissionAuthUser() {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (authentication.getAuthorities().stream().anyMatch(a -> a.getAuthority().equals("ROLE_USER") || a.getAuthority().equals("ROLE_ANONYMOUS"))){
-            return true;
-        }else{
-            return false;
-        }
     }
 
     /**
@@ -179,11 +111,11 @@ public class PostService {
         Post post = postRepository.findPostByPostId(postId).orElseThrow(PostNotFoundException::new);
         Boolean isLike = isCurrentUserAlreadyLike(post); //인증된 사용자의 좋아요 유무 체크
         Boolean isDisLike = isCurrentUserAlreadyDisLike(post); //인증된 사용자의 싫어요 유무 체크
-        if(isNormalPermissionAuthUser() == true) {
+        if(authenticationHelper.isNormalOrAnonymousUser()) {
             post.updateViewsCount();
         }
         //현재 인증된 사용자의 이메일이 게시글 작성자 이메일과 같을 경우에만 수정 가능
-        if(isOwnerPermissionAuthUser(post.getWriter().getEmail())) {
+        if(authenticationHelper.isOwnerEmail(post.getWriter().getEmail())) {
             if(post.getPostStatus() == PostStatus.REMOVED) { //이미 삭제된 게시글이면 오류 응답
                 throw new PostAlreadyRemovedException();
             }else{
@@ -210,7 +142,7 @@ public class PostService {
         Post post = postRepository.findPostByPostId(postId).orElseThrow(PostNotFoundException::new);
 
         //현재 인증된 사용자의 이메일이 게시글 작성자 이메일과 같을 경우에만 삭제 가능
-        if(isOwnerPermissionAuthUser(post.getWriter().getEmail())) {
+        if(authenticationHelper.isOwnerEmail(post.getWriter().getEmail())) {
             if(post.getPostStatus() == PostStatus.REMOVED) { //이미 삭제된 게시글이면 오류 응답
                 throw new PostAlreadyRemovedException();
             }else{
@@ -283,4 +215,43 @@ public class PostService {
     public void deleteAllPost() {
         postRepository.deleteAll();
     }
+
+    /**
+     * 사용자의 좋아요 유무 체크
+     * 쿠키에서 추출한 uid를 통해 좋아요 데이터를 조회 후 사용자의 좋아요 유무 상태를 반환
+     * @param post
+     * @return Boolean
+     */
+    private Boolean isCurrentUserAlreadyLike(Post post) {
+        HttpServletRequest request = ((ServletRequestAttributes)RequestContextHolder.getRequestAttributes()).getRequest();
+        Cookie cookie = WebUtils.getCookie(request, "uid");
+        if (cookie != null) {
+            String uid = cookie.getValue();
+            Member member = memberRepository.findMemberByUid(uid).orElseThrow(UidNotFoundException::new);
+            Optional<Like> like = likeRepository.findByPostAndMember(post, member);
+            return like.isPresent();
+        }else{
+            return false;
+        }
+    }
+
+    /**
+     * 사용자의 싫어요 유무 체크
+     * 쿠키에서 추출한 uid를 통해 싫어요 데이터를 조회 후 사용자의 싫어요 유무 상태를 반환
+     * @param post
+     * @return Boolean
+     */
+    private Boolean isCurrentUserAlreadyDisLike(Post post) {
+        HttpServletRequest request = ((ServletRequestAttributes)RequestContextHolder.getRequestAttributes()).getRequest();
+        Cookie cookie = WebUtils.getCookie(request, "uid");
+        if (cookie != null) {
+            String uid = cookie.getValue();
+            Member member = memberRepository.findMemberByUid(uid).orElseThrow(UidNotFoundException::new);
+            Optional<DisLike> dislike = disLikeRepository.findByPostAndMember(post, member);
+            return dislike.isPresent();
+        }else{
+            return false;
+        }
+    }
+
 }

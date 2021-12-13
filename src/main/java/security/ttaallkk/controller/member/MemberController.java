@@ -1,12 +1,12 @@
 package security.ttaallkk.controller.member;
 
 import lombok.RequiredArgsConstructor;
-import security.ttaallkk.domain.member.Member;
 import security.ttaallkk.dto.request.LoginDto;
 import security.ttaallkk.dto.request.MemeberUpdateDto;
 import security.ttaallkk.dto.request.RefreshTokenDto;
 import security.ttaallkk.dto.request.SignUpDto;
 import security.ttaallkk.dto.response.LoginResponse;
+import security.ttaallkk.dto.response.MemberSearchResponseDto;
 import security.ttaallkk.dto.response.MemberUpdateResponseDto;
 import security.ttaallkk.dto.response.Response;
 import security.ttaallkk.service.member.MemberSearchService;
@@ -15,13 +15,14 @@ import security.ttaallkk.service.member.MemberService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletResponse;
@@ -132,14 +133,20 @@ public class MemberController {
     } 
 
     /**
-     * 유저 검색(HibernateSearch를 이용한 FullTextSearch)
+     * 유저 검색(HibernateSearch를 이용한 FullTextSearch) + 페이징
      * @param keyword
-     * @return SearchMemberResponse
+     * @param page
+     * @return Slice<MemberSearchResponseDto>
      */
     @GetMapping("/search")
-    public ResponseEntity<List<Member>> search(@RequestParam(value = "keyword") String keyword) {
-        List<Member> searchMemebers = memberSearchService.searchMemberByEmailOrDisplayName(keyword);
-        return ResponseEntity.ok(searchMemebers);
+    public ResponseEntity<Slice<MemberSearchResponseDto>> searchMember(
+                @RequestParam(value = "keyword") String keyword,
+                @RequestParam(value = "page", defaultValue = "0") int page,
+                @PageableDefault(size = 20) Pageable pageable) {
+
+        Slice<MemberSearchResponseDto> searchMembers = memberSearchService.searchMemberByEmailOrDisplayName(keyword, pageable);
+        
+        return ResponseEntity.ok(searchMembers);
     }
 
 

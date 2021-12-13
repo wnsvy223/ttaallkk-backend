@@ -6,12 +6,11 @@ import java.util.List;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
+import security.ttaallkk.common.authentication.AuthenticationHelper;
 import security.ttaallkk.domain.member.Member;
 import security.ttaallkk.domain.post.Comment;
 import security.ttaallkk.domain.post.Post;
@@ -40,6 +39,7 @@ public class CommentService {
     private final PostRepository postRepository;
     private final CommentRepository commentRepository;
     private final CommentRepositorySupport commentRepositorySupport;
+    private final AuthenticationHelper authenticationHelper;
     
     /**
      * 댓글 생성
@@ -157,8 +157,7 @@ public class CommentService {
      * @return Boolean
      */
     private Boolean validationIsOwner(Comment comment) {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if(comment.getWriter().getEmail().equals(authentication.getName()) || authentication.getAuthorities().stream().anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"))){
+        if(authenticationHelper.isOwnerEmail(comment.getWriter().getEmail()) || authenticationHelper.isAdmin()){
             return true;
         }else{
             return false;

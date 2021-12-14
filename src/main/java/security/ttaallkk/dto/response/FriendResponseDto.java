@@ -1,12 +1,10 @@
-package security.ttaallkk.dto.querydsl;
+package security.ttaallkk.dto.response;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.Getter;
 import lombok.NoArgsConstructor;
 import security.ttaallkk.domain.member.Friend;
 import security.ttaallkk.domain.member.FriendStatus;
-import security.ttaallkk.dto.response.MemberResponsDto;
 
 import java.io.Serializable;
 

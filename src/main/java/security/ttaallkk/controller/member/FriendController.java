@@ -1,7 +1,5 @@
 package security.ttaallkk.controller.member;
 
-import java.util.List;
-
 import javax.validation.Valid;
 
 import org.springframework.data.domain.Pageable;
@@ -15,9 +13,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import lombok.RequiredArgsConstructor;
-import security.ttaallkk.dto.querydsl.FriendResponseDto;
 import security.ttaallkk.dto.request.FriendCreateDto;
 import security.ttaallkk.dto.request.FriendUpdateDto;
+import security.ttaallkk.dto.response.FriendResponseDto;
 import security.ttaallkk.dto.response.MemberResponsDto;
 import security.ttaallkk.service.member.FriendService;
 import org.springframework.web.bind.annotation.GetMapping;

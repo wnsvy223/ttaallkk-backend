@@ -12,7 +12,7 @@ import lombok.RequiredArgsConstructor;
 import security.ttaallkk.common.authentication.AuthenticationHelper;
 import security.ttaallkk.domain.member.Friend;
 import security.ttaallkk.domain.member.Member;
-import security.ttaallkk.dto.querydsl.FriendResponseDto;
+import security.ttaallkk.dto.response.FriendResponseDto;
 import security.ttaallkk.dto.response.MemberResponsDto;
 import security.ttaallkk.exception.FriendAlreadyExistException;
 import security.ttaallkk.exception.FriendNotAllowSelfException;

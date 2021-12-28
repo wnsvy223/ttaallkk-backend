@@ -28,6 +28,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -117,7 +118,7 @@ public class MemberService implements UserDetailsService {
             removeAllPostBySignOutMember(member.getUid());
             memberRepository.deleteByEmail(email);
         }else{
-            throw new PasswordNotMatchException("비밀번호가 틀렸습니다.");
+            throw new PasswordNotMatchException();
         }    
     }
 
@@ -167,6 +168,18 @@ public class MemberService implements UserDetailsService {
         }else{
             throw new AuthenticatedFailureException();
         }
+    }
+
+    /**
+     * 로그아웃(현재 인증 유저의 리프래시 토큰 DB에서 삭제)
+     */
+    @Transactional
+    public void logout() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        Member member = memberRepository.findMemberByEmail(authentication.getName())
+            .orElseThrow(() -> new UsernameNotFoundException(authentication.getName() + " 이메일이 일치하지 않습니다"));
+
+        member.updateRefreshToken(null); //리프래시 토큰 삭제
     }
 
     /**

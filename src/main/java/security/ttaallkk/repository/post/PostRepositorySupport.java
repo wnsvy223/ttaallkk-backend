@@ -157,7 +157,7 @@ public class PostRepositorySupport extends QuerydslRepositorySupport {
             .innerJoin(post.category, category)
             .fetchJoin()
             .where(post.createdAt.between(from, to), post.likeCnt.gt(0)) //주간 데이터 + 좋아요 수가 0보다 큰경우
-            .orderBy(post.likeCnt.desc())
+            .orderBy(post.likeCnt.desc(), post.createdAt.desc())
             .limit(Constant.POST_ROW_LIMIT)
             .fetch();
     }

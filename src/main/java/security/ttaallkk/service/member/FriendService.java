@@ -2,6 +2,9 @@ package security.ttaallkk.service.member;
 
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+import java.util.Optional;
+
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.security.core.Authentication;
@@ -9,7 +12,6 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import lombok.RequiredArgsConstructor;
-import security.ttaallkk.common.authentication.AuthenticationHelper;
 import security.ttaallkk.domain.member.Friend;
 import security.ttaallkk.domain.member.Member;
 import security.ttaallkk.dto.response.FriendResponseDto;
@@ -18,7 +20,6 @@ import security.ttaallkk.exception.FriendAlreadyExistException;
 import security.ttaallkk.exception.FriendNotAllowSelfException;
 import security.ttaallkk.exception.FriendRelationNotFoundException;
 import security.ttaallkk.exception.MemberNotFoundException;
-import security.ttaallkk.exception.PermissionDeniedException;
 import security.ttaallkk.repository.member.FriendRepository;
 import security.ttaallkk.repository.member.MemberRepository;
 
@@ -29,7 +30,6 @@ public class FriendService {
     
     private final FriendRepository friendRepository;
     private final MemberRepository memberRepository;
-    private final AuthenticationHelper authenticationHelper;
 
     /**
      * 친구 요청
@@ -104,14 +104,20 @@ public class FriendService {
      * @return Slice<FriendResponseDto>
      */
     @Transactional
-    public Slice<FriendResponseDto> findFriendByCurrentUser(Long id, Pageable pageable) {
-        Member member = memberRepository.findById(id).orElseThrow(MemberNotFoundException::new);
-        //친구 목록 조회는 본인 또는 관리자만 가능. 아닐 경우 권한 예외 발생
-        if (authenticationHelper.isAdmin() || authenticationHelper.isOwnerEmail(member.getEmail())){
-            return friendRepository.findMyFriendsByUserIdOrderByUid(id, pageable).map(f -> FriendResponseDto.convertFriendToDto(f));
-        } else {
-            throw new PermissionDeniedException();
-        }
+    public Slice<FriendResponseDto> findFriendsByCurrentUser(String uid, Pageable pageable) {
+        Member member = memberRepository.findMemberByUid(uid).orElseThrow(MemberNotFoundException::new);
+        Slice<FriendResponseDto> friends = friendRepository.findMyFriendsByUserIdOrderByUid(member.getId(), pageable).map(f -> FriendResponseDto.convertFriendToDto(f));
+        
+        return friends;
     }
 
+    /**
+     * uid로 친구 목록 조회
+     * @param uid
+     * @return List<Friend>
+     */
+    @Transactional
+    public List<Friend> findFromOrToByUid(String uid) {
+        return friendRepository.findFromOrToByUid(uid);
+    }
 }

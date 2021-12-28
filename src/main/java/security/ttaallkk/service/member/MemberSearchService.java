@@ -1,6 +1,7 @@
 package security.ttaallkk.service.member;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
@@ -18,6 +19,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import lombok.extern.log4j.Log4j2;
+import security.ttaallkk.domain.member.Friend;
 import security.ttaallkk.domain.member.Member;
 import security.ttaallkk.dto.response.MemberSearchResponseDto;
 
@@ -55,7 +57,7 @@ public class MemberSearchService {
      */
     @Transactional
     @SuppressWarnings("unchecked")
-    public Slice<MemberSearchResponseDto> searchMemberByEmailOrDisplayName(String keyword, Pageable pageable){
+    public Slice<MemberSearchResponseDto> searchMemberByEmailOrDisplayName(String keyword, Pageable pageable, List<Friend> friends){
         FullTextEntityManager fullTextEntityManager = Search.getFullTextEntityManager(entityManager);
         QueryBuilder queryBuilder = fullTextEntityManager
             .getSearchFactory()
@@ -87,10 +89,31 @@ public class MemberSearchService {
         fullTextQuery.setMaxResults(pageable.getPageSize()); //limit
         
         List<Member> members = fullTextQuery.getResultList(); //검색결과
+        
+        List<Member> filteredMembers = getfilteredMembers(members, friends); //이미 친구인 유저 검색 결과 제외 필터링
+
         boolean hasNext = members.size() >= pageable.getPageSize(); //다음 페이지 존재 유무
         
-        List<MemberSearchResponseDto> result = MemberSearchResponseDto.convertMemberSearchResponseDto(members);
+        List<MemberSearchResponseDto> result = MemberSearchResponseDto.convertMemberSearchResponseDto(filteredMembers); //Dto 변환
 
         return new SliceImpl<>(result, pageable, hasNext);
+    }
+
+    /**
+     * 컨트롤에서 현재 접속 유저의 친구 목록을 조회한뒤 검색된 유저 목록과 친구목록을 비교하여 현재 친구관계인 유저 필터링 후 반환
+     * @param members 검색된 유저 목록
+     * @param friends 현재 접속된 유저의 친구 목록
+     * @return List<Member> 필터링 된 유저 목록
+     */
+    private List<Member> getfilteredMembers(List<Member> members, List<Friend> friends) {
+        List<Member> filteredMembers = members
+            .stream()
+            .filter(m -> (
+                friends
+                    .stream()
+                        .filter(f -> f.getTo().getUid().equals(m.getUid())).count()) < 1)
+            .collect(Collectors.toList());
+        
+        return filteredMembers;
     }
 }

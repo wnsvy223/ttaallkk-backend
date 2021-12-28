@@ -6,6 +6,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -18,8 +19,9 @@ import security.ttaallkk.dto.request.FriendUpdateDto;
 import security.ttaallkk.dto.response.FriendResponseDto;
 import security.ttaallkk.dto.response.MemberResponsDto;
 import security.ttaallkk.service.member.FriendService;
+
+import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
 
 
@@ -36,6 +38,7 @@ public class FriendController {
      * @return MemberResponsDto 친구 추가한 사용자 정보
      */
     @PostMapping
+    @PreAuthorize("isAuthenticated()")
     public ResponseEntity<MemberResponsDto> requestFriend(@Valid @RequestBody FriendCreateDto friendCreateDto) {
         MemberResponsDto memberResponsDto = friendService.requestFriend(friendCreateDto.getToUserUid());
         
@@ -48,6 +51,7 @@ public class FriendController {
      * @return MemberResponsDto 친구 추가한 사용자 정보
      */
     @PutMapping("/accept")
+    @PreAuthorize("isAuthenticated()")
     public ResponseEntity<MemberResponsDto> acceptFriend(@Valid @RequestBody FriendUpdateDto friendUpdateDto) {
         MemberResponsDto memberResponsDto = friendService.acceptFriend(friendUpdateDto.getFromUserUid());
         
@@ -60,6 +64,7 @@ public class FriendController {
      * @return MemberResponsDto 친구 추가한 사용자 정보
      */
     @PutMapping("/reject")
+    @PreAuthorize("isAuthenticated()")
     public ResponseEntity<MemberResponsDto> rejectFriend(@Valid @RequestBody FriendUpdateDto friendUpdateDto) {
         MemberResponsDto memberResponsDto = friendService.rejectFriend(friendUpdateDto.getFromUserUid());
         
@@ -73,13 +78,14 @@ public class FriendController {
      * @param id
      * @return Slice<FriendResponseDto>
      */
-    @GetMapping("/{id}")
+    @GetMapping
+    @PreAuthorize("isAuthenticated()")
     public ResponseEntity<Slice<FriendResponseDto>> getCurrentUserFriends(
                 @RequestParam(value = "page", defaultValue = "0") int page,
                 @PageableDefault(size = 20) Pageable pageable,
-                @PathVariable("id") Long id) {
+                @CookieValue(value = "uid") String uid) {
         
-        Slice<FriendResponseDto> friends = friendService.findFriendByCurrentUser(id, pageable);
+        Slice<FriendResponseDto> friends = friendService.findFriendsByCurrentUser(uid, pageable);
         return ResponseEntity.ok(friends);
     }
 

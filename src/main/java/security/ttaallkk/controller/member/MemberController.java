@@ -1,6 +1,7 @@
 package security.ttaallkk.controller.member;
 
 import lombok.RequiredArgsConstructor;
+import security.ttaallkk.domain.member.Friend;
 import security.ttaallkk.dto.request.LoginDto;
 import security.ttaallkk.dto.request.MemeberUpdateDto;
 import security.ttaallkk.dto.request.RefreshTokenDto;
@@ -9,6 +10,7 @@ import security.ttaallkk.dto.response.LoginResponse;
 import security.ttaallkk.dto.response.MemberSearchResponseDto;
 import security.ttaallkk.dto.response.MemberUpdateResponseDto;
 import security.ttaallkk.dto.response.Response;
+import security.ttaallkk.service.member.FriendService;
 import security.ttaallkk.service.member.MemberSearchService;
 import security.ttaallkk.service.member.MemberService;
 
@@ -20,11 +22,17 @@ import org.springframework.data.domain.Slice;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.util.WebUtils;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 
@@ -43,6 +51,7 @@ public class MemberController {
     private final MemberService memberService;
     private final AuthenticationManager authenticationManager;
     private final MemberSearchService memberSearchService;
+    private final FriendService friendService;
 
     
     /**
@@ -56,7 +65,7 @@ public class MemberController {
         memberService.signUp(signUpDto);
         Response response = Response.builder()
                 .status(HttpStatus.CREATED.value())
-                .message("회원가입성공")
+                .message("회원가입이 완료되었습니다.")
                 .build();
         return ResponseEntity.ok(response);
     }
@@ -71,7 +80,7 @@ public class MemberController {
         memberService.signOut(loginDto.getEmail(), loginDto.getPassword());
         Response response = Response.builder()
                 .status(HttpStatus.OK.value())
-                .message("회원탈퇴성공")
+                .message("회원탈퇴가 완료되었습니다.")
                 .build();
         return ResponseEntity.ok(response);
     }
@@ -93,6 +102,30 @@ public class MemberController {
         httpServletResponse.addCookie(createTokenCookie("uid", loginResponse.getUid(), refreshTokenCookieExpiredTime));
 
         return ResponseEntity.ok(loginResponse);
+    }
+
+    /**
+     * 로그아웃
+     * @param httpServletResponse
+     * @return Response
+     */
+    @PostMapping("/logout")
+    public ResponseEntity<Response> logout(HttpServletResponse httpServletResponse) {
+        
+        //로그아웃 서비스 로직
+        memberService.logout();
+
+        //쿠키 정보 제거
+        httpServletResponse.addCookie(createTokenCookie("accessToken", null, 0));
+        httpServletResponse.addCookie(createTokenCookie("refreshToken", null, 0));
+        httpServletResponse.addCookie(createTokenCookie("uid", null, 0));
+
+        Response response = Response.builder()
+                .status(HttpStatus.CREATED.value())
+                .message("성공적으로 로그아웃 되었습니다.")
+                .build();
+
+        return ResponseEntity.ok(response);
     }
 
     /**
@@ -125,6 +158,7 @@ public class MemberController {
      * @return Response
      */
     @PutMapping("/{uid}")
+    @PreAuthorize("isAuthenticated()")
     public ResponseEntity<MemberUpdateResponseDto> updateProfile(@RequestBody MemeberUpdateDto memeberUpdateDto, @PathVariable("uid") String uid) {
         
         MemberUpdateResponseDto memberUpdateResponseDto= memberService.updateProfile(memeberUpdateDto, uid);
@@ -136,15 +170,23 @@ public class MemberController {
      * 유저 검색(HibernateSearch를 이용한 FullTextSearch) + 페이징
      * @param keyword
      * @param page
+     * @param pageable
+     * @param httpServletRequest
      * @return Slice<MemberSearchResponseDto>
      */
     @GetMapping("/search")
     public ResponseEntity<Slice<MemberSearchResponseDto>> searchMember(
                 @RequestParam(value = "keyword") String keyword,
                 @RequestParam(value = "page", defaultValue = "0") int page,
-                @PageableDefault(size = 20) Pageable pageable) {
-
-        Slice<MemberSearchResponseDto> searchMembers = memberSearchService.searchMemberByEmailOrDisplayName(keyword, pageable);
+                @PageableDefault(size = 20) Pageable pageable,
+                HttpServletRequest httpServletRequest) {
+        
+        Cookie cookie = WebUtils.getCookie(httpServletRequest, "uid"); //request에서 uid 쿠키 추출
+        List<Friend> friends = new ArrayList<>();
+        if(cookie != null){
+            friends = friendService.findFromOrToByUid(cookie.getValue()); //로그인 유저의 경우 uid 쿠키가 존재하므로 추출한 uid로 친구 목록 조회
+        }
+        Slice<MemberSearchResponseDto> searchMembers = memberSearchService.searchMemberByEmailOrDisplayName(keyword, pageable, friends);
         
         return ResponseEntity.ok(searchMembers);
     }

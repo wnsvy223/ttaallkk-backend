@@ -1,5 +1,6 @@
 package security.ttaallkk.repository.member;
 
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.data.domain.Pageable;
@@ -24,4 +25,11 @@ public interface FriendRepository extends JpaRepository<Friend, Long>, QuerydslP
     "where f.from.id = :id or f.to.id = :id "+
     "order by f.id asc")
     Slice<Friend> findMyFriendsByUserIdOrderByUid(@Param("id") Long id, Pageable pageable);
+
+    @Query("select f from Friend f "+
+    "join fetch f.from "+
+    "join fetch f.to "+
+    "where f.from.uid = :uid or f.to.uid = :uid "+
+    "order by f.id asc")
+    List<Friend> findFromOrToByUid(@Param("uid") String uid);
 }

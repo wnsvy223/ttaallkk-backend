@@ -3,7 +3,6 @@ package security.ttaallkk.service.member;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.Optional;
 
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
@@ -47,7 +46,10 @@ public class FriendService {
             throw new FriendNotAllowSelfException(); //자기 자신 친구추가 불가 예외
         }
         friendRepository.findByFromAndTo(fromUser, toUser).ifPresent(friend -> {
-            throw new FriendAlreadyExistException(); //이미 친구 상태인 경우 예외
+            throw new FriendAlreadyExistException(); //이미 친구 요청한 경우 예외
+        });
+        friendRepository.findByFromAndTo(toUser, fromUser).ifPresent(friend -> {
+            throw new FriendAlreadyExistException(); //이미 친구 요청받은 경우 예외
         });
         //친구 관계 데이터 생성
         Friend friend = friendRepository.save(Friend.createFriend(fromUser, toUser)); 

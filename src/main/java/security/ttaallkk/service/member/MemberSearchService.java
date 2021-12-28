@@ -111,7 +111,7 @@ public class MemberSearchService {
             .filter(m -> (
                 friends
                     .stream()
-                        .filter(f -> f.getTo().getUid().equals(m.getUid())).count()) < 1)
+                        .filter(f -> f.getFrom().getUid().equals(m.getUid()) || f.getTo().getUid().equals(m.getUid())).count()) < 1)
             .collect(Collectors.toList());
         
         return filteredMembers;

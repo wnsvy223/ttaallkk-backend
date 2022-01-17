@@ -1,7 +1,9 @@
 package security.ttaallkk.service.post;
 
 import java.time.DayOfWeek;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.time.temporal.TemporalAdjusters;
 import java.util.List;
 import java.util.Optional;
@@ -197,10 +199,10 @@ public class PostService {
      */
     @Transactional
     public List<PostWeeklyLikeDto> findPostWeeklyLike() {
-        // 저번주 일요일 + 1 = 이번주 월요일
-        LocalDateTime from = LocalDateTime.now().with(TemporalAdjusters.previousOrSame(DayOfWeek.SUNDAY.plus(1)));
-        // 다음주 월요일 -1 = 이번주 일요일
-        LocalDateTime to = LocalDateTime.now().with(TemporalAdjusters.nextOrSame(DayOfWeek.MONDAY.minus(1)));
+        // 저번주 일요일 + 1 = 이번주 월요일 0시 0분 0초
+        LocalDateTime from = LocalDate.now().with(TemporalAdjusters.previousOrSame(DayOfWeek.SUNDAY.plus(1))).atTime(LocalTime.MIDNIGHT);
+        // 다음주 월요일 -1 = 이번주 일요일 23시 59분 59초
+        LocalDateTime to = LocalDate.now().with(TemporalAdjusters.nextOrSame(DayOfWeek.MONDAY.minus(1))).atTime(LocalTime.MAX);
         // 이번주 월요일 ~ 일요일까지의 주간 범위값 전달
         List<Post> posts = postRepositorySupport.findPostByWeeklyLike(from, to);
         List<PostWeeklyLikeDto> result = PostWeeklyLikeDto.convertPostWeeklyLikeDto(posts);

@@ -107,10 +107,13 @@ public class PostSearchService {
         int offset = (int)pageable.getOffset(); //시작점
         int pageSize = pageable.getPageSize(); //페이지 사이즈(페이지당 게시글 갯수)
         fullTextQuery.setFirstResult(offset); //검색결과값의 시작점을 pageable의 offset값으로 설정
-        if(total - offset >= pageSize){
-            fullTextQuery.setMaxResults(pageSize); //검색결과 갯수가 페이지사이즈와 같거나 클경우 설정된 페이지 사이즈만큼 반환
-        }else{
-            fullTextQuery.setMaxResults(total - offset); //작을경우 해당 남은 갯수만큼 반환
+        int resultSize = total - offset; //검색 결과 갯수
+        if(resultSize > 0){
+            if(resultSize >= pageSize){
+                fullTextQuery.setMaxResults(pageSize); //검색결과 갯수가 페이지사이즈와 같거나 클경우 설정된 페이지 사이즈만큼 반환
+            }else{
+                fullTextQuery.setMaxResults(resultSize); //작을경우 해당 남은 갯수만큼 반환
+            }
         }
         List<Post> result = fullTextQuery.getResultList(); //검색결과 데이터셋
 

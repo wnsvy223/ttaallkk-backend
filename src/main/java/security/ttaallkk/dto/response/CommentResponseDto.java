@@ -19,6 +19,7 @@ import security.ttaallkk.domain.post.Comment;
 public class CommentResponseDto implements Serializable{
     
     private Long id; //댓글 아이디
+    private Long parent; //부모 댓글 아이디
     private String content; //댓글 내용
     private String uid; //댓글 작성자 uid
     private String email; //댓글 작성자 email
@@ -30,6 +31,7 @@ public class CommentResponseDto implements Serializable{
 
     public CommentResponseDto(
                 Long id, 
+                Long parent,
                 String content, 
                 String uid, 
                 String email, 
@@ -38,6 +40,7 @@ public class CommentResponseDto implements Serializable{
                 LocalDateTime createdAt, 
                 LocalDateTime modifiedAt) {
         this.id = id;
+        this.parent = parent;
         this.content = content;
         this.uid = uid;
         this.email = email;
@@ -52,6 +55,7 @@ public class CommentResponseDto implements Serializable{
         return comment.getIsDeleted()  == true ? 
                 new CommentResponseDto(
                     comment.getId(),
+                    comment.getParent() != null ?  comment.getParent().getId() : null,
                     Constant.COMMENT_REMOVED_STATUS_MESSAGE,
                     null,
                     null,
@@ -62,6 +66,7 @@ public class CommentResponseDto implements Serializable{
                     :
                 new CommentResponseDto(
                     comment.getId(),
+                    comment.getParent() != null ?  comment.getParent().getId() : null,
                     comment.getContent(),
                     comment.getWriter().getUid(),
                     comment.getWriter().getEmail(),

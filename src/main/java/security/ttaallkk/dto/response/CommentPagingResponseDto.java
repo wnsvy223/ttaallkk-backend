@@ -2,10 +2,7 @@ package security.ttaallkk.dto.response;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 import lombok.AllArgsConstructor;
@@ -22,6 +19,7 @@ import security.ttaallkk.domain.post.Comment;
 public class CommentPagingResponseDto implements Serializable{
 
     private Long id; //댓글 아이디
+    private Long parent; //부모 댓글 아이디
     private String content; //댓글 내용
     private String uid; //댓글 작성자 uid
     private String email; //댓글 작성자 email
@@ -37,6 +35,7 @@ public class CommentPagingResponseDto implements Serializable{
             .stream()
             .map(comment -> new CommentPagingResponseDto(
                 comment.getId(),
+                comment.getParent() != null ?  comment.getParent().getId() : null,
                 comment.getIsDeleted() ? Constant.COMMENT_REMOVED_STATUS_MESSAGE : comment.getContent(),
                 comment.getWriter().getUid(),
                 comment.getWriter().getEmail(),

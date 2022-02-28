@@ -41,6 +41,7 @@ public class WebMvcConfig implements WebMvcConfigurer{
                 .allowCredentials(true)
                 .allowedMethods("GET", "POST", "PUT", "DELETE")
                 .allowedHeaders("*")
+                .exposedHeaders("X-Custom-Uid") // 사용자 정보 기반 공통 조회 로직에 사용될 커스텀 헤더 허용
 				.maxAge(MAX_AGE_SECS);
     }
 }

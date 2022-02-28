@@ -159,7 +159,8 @@ public class MemberService implements UserDetailsService {
                     .displayName(member.getDisplayName())
                     .profileUrl(member.getProfileUrl())
                     .accessToken(accessToken)
-                    .expiredAt(LocalDateTime.now().plusSeconds(jwtProvider.getAccessTokenValidMilliSeconds()/1000))
+                    .expiredAtAccessToken(LocalDateTime.now().plusSeconds(jwtProvider.getAccessTokenValidMilliSeconds() / 1000))
+                    .expiredAtRefereshToken(LocalDateTime.now().plusSeconds(jwtProvider.getRefreshTokenValidMilliSeconds() / 1000))
                     .refreshToken(refreshToken)
                     .issuedAt(LocalDateTime.now())
                     .build();
@@ -212,7 +213,8 @@ public class MemberService implements UserDetailsService {
                 .displayName(member.getDisplayName())
                 .profileUrl(member.getProfileUrl())
                 .accessToken(accessToken)
-                .expiredAt(LocalDateTime.now().plusSeconds(jwtProvider.getAccessTokenValidMilliSeconds()/1000))
+                .expiredAtAccessToken(LocalDateTime.now().plusSeconds(jwtProvider.getAccessTokenValidMilliSeconds() / 1000))
+                .expiredAtRefereshToken(LocalDateTime.now().plusSeconds(jwtProvider.getRefreshTokenValidMilliSeconds() / 1000))
                 .refreshToken(refreshToken)
                 .issuedAt(LocalDateTime.now())
                 .build();

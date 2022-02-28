@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
@@ -58,8 +59,11 @@ public class PostController {
      * @return PostDetailResponseDto
      */
     @GetMapping("/{postId}")
-    public ResponseEntity<PostDetailResponseDto> getPostDetail(@PathVariable("postId") Long postId) {
-        PostDetailResponseDto result = postService.findPostForDetail(postId);
+    public ResponseEntity<PostDetailResponseDto> getPostDetail(
+                @PathVariable("postId") Long postId,
+                @RequestHeader("X-Custom-Uid") String uid) {
+        
+        PostDetailResponseDto result = postService.findPostForDetail(postId, uid);
         return ResponseEntity.ok(result);
     }
 
@@ -72,9 +76,10 @@ public class PostController {
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity<PostDetailResponseDto> updatePost(
                 @RequestBody PostUpdateDto postUpdateDto, 
-                @PathVariable("postId") Long postId) {
+                @PathVariable("postId") Long postId,
+                @RequestHeader("X-Custom-Uid") String uid) {
 
-        PostDetailResponseDto result = postService.updatePost(postUpdateDto, postId);
+        PostDetailResponseDto result = postService.updatePost(postUpdateDto, postId, uid);
         return ResponseEntity.ok(result);
     }
 

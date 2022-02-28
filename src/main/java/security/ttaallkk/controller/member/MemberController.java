@@ -26,13 +26,9 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.util.WebUtils;
-
-import java.util.ArrayList;
 import java.util.List;
 
 import javax.servlet.http.Cookie;
-import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 
@@ -99,7 +95,6 @@ public class MemberController {
         //엑세스토큰 + 리프래시토큰 + uid 쿠키 생성
         httpServletResponse.addCookie(createTokenCookie("accessToken", loginResponse.getAccessToken(), accessTokenCookieExpiredTime));
         httpServletResponse.addCookie(createTokenCookie("refreshToken", loginResponse.getRefreshToken(), refreshTokenCookieExpiredTime));
-        httpServletResponse.addCookie(createTokenCookie("uid", loginResponse.getUid(), refreshTokenCookieExpiredTime));
 
         return ResponseEntity.ok(loginResponse);
     }
@@ -118,7 +113,6 @@ public class MemberController {
         //쿠키 정보 제거
         httpServletResponse.addCookie(createTokenCookie("accessToken", null, 0));
         httpServletResponse.addCookie(createTokenCookie("refreshToken", null, 0));
-        httpServletResponse.addCookie(createTokenCookie("uid", null, 0));
 
         Response response = Response.builder()
                 .status(HttpStatus.CREATED.value())
@@ -146,7 +140,6 @@ public class MemberController {
         //엑세스토큰 + 리프래시토큰 + uid 쿠키 생성
         httpServletResponse.addCookie(createTokenCookie("accessToken", loginResponse.getAccessToken(), accessTokenCookieExpiredTime));
         httpServletResponse.addCookie(createTokenCookie("refreshToken", loginResponse.getRefreshToken(), refreshTokenCookieExpiredTime));
-        httpServletResponse.addCookie(createTokenCookie("uid", loginResponse.getUid(), refreshTokenCookieExpiredTime));
 
         return ResponseEntity.ok(loginResponse);
     }
@@ -171,7 +164,7 @@ public class MemberController {
      * @param keyword
      * @param page
      * @param pageable
-     * @param httpServletRequest
+     * @param uid
      * @return Slice<MemberSearchResponseDto>
      */
     @GetMapping("/search")
@@ -179,13 +172,9 @@ public class MemberController {
                 @RequestParam(value = "keyword") String keyword,
                 @RequestParam(value = "page", defaultValue = "0") int page,
                 @PageableDefault(size = 20) Pageable pageable,
-                HttpServletRequest httpServletRequest) {
+                @RequestHeader("X-Custom-Uid") String uid) {
         
-        Cookie cookie = WebUtils.getCookie(httpServletRequest, "uid"); //request에서 uid 쿠키 추출
-        List<Friend> friends = new ArrayList<>();
-        if(cookie != null){
-            friends = friendService.findFromOrToByUid(cookie.getValue()); //로그인 유저의 경우 uid 쿠키가 존재하므로 추출한 uid로 친구 목록 조회
-        }
+        List<Friend> friends = friendService.findFromOrToByUid(uid);
         Slice<MemberSearchResponseDto> searchMembers = memberSearchService.searchMemberByEmailOrDisplayName(keyword, pageable, friends);
         
         return ResponseEntity.ok(searchMembers);

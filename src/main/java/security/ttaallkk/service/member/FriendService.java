@@ -2,6 +2,7 @@ package security.ttaallkk.service.member;
 
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Collections;
 import java.util.List;
 
 import org.springframework.data.domain.Pageable;
@@ -11,6 +12,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import lombok.RequiredArgsConstructor;
+import security.ttaallkk.common.Constant;
 import security.ttaallkk.domain.member.Friend;
 import security.ttaallkk.domain.member.Member;
 import security.ttaallkk.dto.response.FriendResponseDto;
@@ -101,12 +103,12 @@ public class FriendService {
 
     /**
      * 친구 목록 조회 + 페이징
-     * @param id
      * @param pageable
+     * @param uid
      * @return Slice<FriendResponseDto>
      */
     @Transactional
-    public Slice<FriendResponseDto> findFriendsByCurrentUser(String uid, Pageable pageable) {
+    public Slice<FriendResponseDto> findFriendsByCurrentUser(Pageable pageable, String uid) {
         Member member = memberRepository.findMemberByUid(uid).orElseThrow(MemberNotFoundException::new);
         Slice<FriendResponseDto> friends = friendRepository.findMyFriendsByUserIdOrderByUid(member.getId(), pageable).map(f -> FriendResponseDto.convertFriendToDto(f));
         
@@ -115,11 +117,11 @@ public class FriendService {
 
     /**
      * uid로 친구 목록 조회
-     * @param uid
+     * @param uid 커스텀 헤더에서 추출한 uid(현재 로그인 유저와 이미 친구관계인 유저 필터링을 위한 파라미터)
      * @return List<Friend>
      */
     @Transactional
     public List<Friend> findFromOrToByUid(String uid) {
-        return friendRepository.findFromOrToByUid(uid);
+        return uid.equals(Constant.ANONYMOUS_IDENTIFIER) ? Collections.emptyList() : friendRepository.findFromOrToByUid(uid);
     }
 }

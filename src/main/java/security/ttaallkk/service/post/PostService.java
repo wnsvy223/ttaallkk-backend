@@ -8,15 +8,10 @@ import java.time.temporal.TemporalAdjusters;
 import java.util.List;
 import java.util.Optional;
 
-import javax.servlet.http.Cookie;
-import javax.servlet.http.HttpServletRequest;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.context.request.RequestContextHolder;
-import org.springframework.web.context.request.ServletRequestAttributes;
-import org.springframework.web.util.WebUtils;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
@@ -87,13 +82,14 @@ public class PostService {
     /**
      * 게시글내용 + 댓글(계층형 구조로 반환) + 좋아요(인증된 사용자 정보를 기반으로 좋아요 등록 유무값으로 반환) 조회하여 반환 
      * @param postId
+     * @param uid
      * @return PostDetailResponseDto
      */
     @Transactional
-    public PostDetailResponseDto findPostForDetail(Long postId) { 
+    public PostDetailResponseDto findPostForDetail(Long postId, String uid) { 
         Post post = postRepository.findPostByPostId(postId).orElseThrow(PostNotFoundException::new); //게시글 데이터를 조회
-        Boolean isLike = isCurrentUserAlreadyLike(post); //인증된 사용자의 좋아요 유무 체크
-        Boolean isDisLike = isCurrentUserAlreadyDisLike(post); //인증된 사용자의 싫어요 유무 체크
+        Boolean isLike = isCurrentUserAlreadyLike(post, uid); //인증된 사용자의 좋아요 유무 체크
+        Boolean isDisLike = isCurrentUserAlreadyDisLike(post, uid); //인증된 사용자의 싫어요 유무 체크
         if(authenticationHelper.isNormalOrAnonymousUser()) {
             post.updateViewsCount();
         }
@@ -104,15 +100,16 @@ public class PostService {
      * 게시글 수정
      * @param postUpdateDto
      * @param postId
+     * @param uid
      * @return PostDetailResponseDto
      * @exception PostNotFoundException //게시글을 찾을 수 없음
      * @exception PermissionDeniedException //권한 없음
      */
     @Transactional
-    public PostDetailResponseDto updatePost(PostUpdateDto postUpdateDto, Long postId) {
+    public PostDetailResponseDto updatePost(PostUpdateDto postUpdateDto, Long postId, String uid) {
         Post post = postRepository.findPostByPostId(postId).orElseThrow(PostNotFoundException::new);
-        Boolean isLike = isCurrentUserAlreadyLike(post); //인증된 사용자의 좋아요 유무 체크
-        Boolean isDisLike = isCurrentUserAlreadyDisLike(post); //인증된 사용자의 싫어요 유무 체크
+        Boolean isLike = isCurrentUserAlreadyLike(post, uid); //인증된 사용자의 좋아요 유무 체크
+        Boolean isDisLike = isCurrentUserAlreadyDisLike(post, uid); //인증된 사용자의 싫어요 유무 체크
         if(authenticationHelper.isNormalOrAnonymousUser()) {
             post.updateViewsCount();
         }
@@ -173,6 +170,7 @@ public class PostService {
     /**
      * 페이징
      * @param pageable
+     * @param categoryId
      * @return Page<PostCommonDto> : 페이징정보 + 조회된 게시글의 작성자 정보를 포함한 목록
      */
     public Page<PostCommonDto> paging(Pageable pageable, Long categoryId) {
@@ -220,15 +218,13 @@ public class PostService {
 
     /**
      * 사용자의 좋아요 유무 체크
-     * 쿠키에서 추출한 uid를 통해 좋아요 데이터를 조회 후 사용자의 좋아요 유무 상태를 반환
+     * 커스텀 헤더에서 추출한 uid를 통해 좋아요 데이터를 조회 후 사용자의 좋아요 유무 상태를 반환
      * @param post
+     * @param uid
      * @return Boolean
      */
-    private Boolean isCurrentUserAlreadyLike(Post post) {
-        HttpServletRequest request = ((ServletRequestAttributes)RequestContextHolder.getRequestAttributes()).getRequest();
-        Cookie cookie = WebUtils.getCookie(request, "uid");
-        if (cookie != null) {
-            String uid = cookie.getValue();
+    private Boolean isCurrentUserAlreadyLike(Post post, String uid) {
+        if(!uid.equals(Constant.ANONYMOUS_IDENTIFIER)) {
             Member member = memberRepository.findMemberByUid(uid).orElseThrow(UidNotFoundException::new);
             Optional<Like> like = likeRepository.findByPostAndMember(post, member);
             return like.isPresent();
@@ -239,15 +235,13 @@ public class PostService {
 
     /**
      * 사용자의 싫어요 유무 체크
-     * 쿠키에서 추출한 uid를 통해 싫어요 데이터를 조회 후 사용자의 싫어요 유무 상태를 반환
+     * 커스텀 헤더에서 추출한 uid를 통해 싫어요 데이터를 조회 후 사용자의 싫어요 유무 상태를 반환
      * @param post
+     * @param uid
      * @return Boolean
      */
-    private Boolean isCurrentUserAlreadyDisLike(Post post) {
-        HttpServletRequest request = ((ServletRequestAttributes)RequestContextHolder.getRequestAttributes()).getRequest();
-        Cookie cookie = WebUtils.getCookie(request, "uid");
-        if (cookie != null) {
-            String uid = cookie.getValue();
+    private Boolean isCurrentUserAlreadyDisLike(Post post, String uid) {
+        if(!uid.equals(Constant.ANONYMOUS_IDENTIFIER)) {
             Member member = memberRepository.findMemberByUid(uid).orElseThrow(UidNotFoundException::new);
             Optional<DisLike> dislike = disLikeRepository.findByPostAndMember(post, member);
             return dislike.isPresent();

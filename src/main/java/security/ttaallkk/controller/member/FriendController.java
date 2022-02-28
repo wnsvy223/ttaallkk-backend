@@ -10,6 +10,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -20,7 +21,6 @@ import security.ttaallkk.dto.response.FriendResponseDto;
 import security.ttaallkk.dto.response.MemberResponsDto;
 import security.ttaallkk.service.member.FriendService;
 
-import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
@@ -75,7 +75,7 @@ public class FriendController {
      * 현재 사용자의 친구 목록 + 친구 관계 상태
      * @param page
      * @param pageable
-     * @param id
+     * @param uid
      * @return Slice<FriendResponseDto>
      */
     @GetMapping
@@ -83,9 +83,9 @@ public class FriendController {
     public ResponseEntity<Slice<FriendResponseDto>> getCurrentUserFriends(
                 @RequestParam(value = "page", defaultValue = "0") int page,
                 @PageableDefault(size = 20) Pageable pageable,
-                @CookieValue(value = "uid") String uid) {
+                @RequestHeader("X-Custom-Uid") String uid) {
         
-        Slice<FriendResponseDto> friends = friendService.findFriendsByCurrentUser(uid, pageable);
+        Slice<FriendResponseDto> friends = friendService.findFriendsByCurrentUser(pageable, uid);
         return ResponseEntity.ok(friends);
     }
 

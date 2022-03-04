@@ -79,7 +79,6 @@ public class FriendController {
      * @return Slice<FriendResponseDto>
      */
     @GetMapping
-    @PreAuthorize("isAuthenticated()")
     public ResponseEntity<Slice<FriendResponseDto>> getCurrentUserFriends(
                 @RequestParam(value = "page", defaultValue = "0") int page,
                 @PageableDefault(size = 20) Pageable pageable,

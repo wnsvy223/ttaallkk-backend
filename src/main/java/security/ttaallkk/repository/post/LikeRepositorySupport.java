@@ -11,6 +11,7 @@ import security.ttaallkk.dto.querydsl.LikeCommonDto;
 
 import static security.ttaallkk.domain.member.QMember.member;
 import static security.ttaallkk.domain.post.QPost.post;
+import static security.ttaallkk.domain.post.QCategory.category;
 import static security.ttaallkk.domain.post.QLike.like;
 
 import java.util.List;
@@ -38,6 +39,8 @@ public class LikeRepositorySupport extends QuerydslRepositorySupport{
                     LikeCommonDto.class, 
                     like.id,
                     post.id,
+                    post.category.ctgTag,
+                    post.category.ctgName,
                     post.createdAt,
                     post.likeCnt,
                     post.title,
@@ -50,6 +53,7 @@ public class LikeRepositorySupport extends QuerydslRepositorySupport{
             .from(like)
             .innerJoin(like.post, post)
             .innerJoin(post.writer, member)
+            .innerJoin(post.category, category)
             .orderBy(post.id.desc(), post.createdAt.desc())
             .where(like.member.uid.eq(uid))
             .fetch();

@@ -18,6 +18,7 @@ import security.ttaallkk.dto.response.CommentPagingResponseDto;
 import static security.ttaallkk.domain.post.QComment.comment;
 import static security.ttaallkk.domain.member.QMember.member;
 import static security.ttaallkk.domain.post.QPost.post;
+import static security.ttaallkk.domain.post.QCategory.category;
 
 @Repository
 public class CommentRepositorySupport extends QuerydslRepositorySupport{
@@ -124,6 +125,8 @@ public class CommentRepositorySupport extends QuerydslRepositorySupport{
                         comment.createdAt,
                         comment.isDeleted,
                         post.id,
+                        post.category.ctgTag,
+                        post.category.ctgName,
                         post.writer.uid,
                         post.writer.email,
                         post.writer.displayName,
@@ -133,6 +136,7 @@ public class CommentRepositorySupport extends QuerydslRepositorySupport{
             .from(comment)
             .innerJoin(comment.post, post)
             .innerJoin(post.writer, member)
+            .innerJoin(post.category, category)
             .orderBy(post.id.desc(), post.createdAt.desc())
             .where(comment.writer.uid.eq(uid))
             .fetch();

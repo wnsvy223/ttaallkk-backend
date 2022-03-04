@@ -21,6 +21,10 @@ public class CommentCommonDto {
 
     private Long postId;
 
+    private String categoryTag;
+
+    private String categoryName;
+
     private String uid;
 
     private String email;
@@ -36,6 +40,8 @@ public class CommentCommonDto {
                 LocalDateTime createdAt,
                 Boolean isDeleted,
                 Long postId,
+                String categoryTag,
+                String categoryName,
                 String uid, 
                 String email,
                 String displayName,
@@ -46,6 +52,8 @@ public class CommentCommonDto {
         this.createdAt = createdAt;
         this.isDeleted = isDeleted;
         this.postId = postId;
+        this.categoryTag = categoryTag;
+        this.categoryName = categoryName;
         this.uid = uid;
         this.email = email;
         this.displayName = displayName;
@@ -62,6 +70,8 @@ public class CommentCommonDto {
                     comment.getCreatedAt(),
                     comment.getIsDeleted(),
                     comment.getPostId(),
+                    comment.getCategoryTag(),
+                    comment.getCategoryName(),
                     comment.getUid(),
                     comment.getEmail(),
                     comment.getDisplayName(),

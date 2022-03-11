@@ -12,4 +12,6 @@ import security.ttaallkk.domain.post.Post;
 public interface LikeRepository extends JpaRepository<Like, Long>,  QuerydslPredicateExecutor<Like>{
     
     Optional<Like> findByPostAndMember(Post post, Member member);
+
+    boolean existsByPostAndMember(Post post, Member member);
 }

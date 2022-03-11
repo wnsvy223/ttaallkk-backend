@@ -6,7 +6,6 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.temporal.TemporalAdjusters;
 import java.util.List;
-import java.util.Optional;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -19,8 +18,6 @@ import security.ttaallkk.common.Constant;
 import security.ttaallkk.common.authentication.AuthenticationHelper;
 import security.ttaallkk.domain.member.Member;
 import security.ttaallkk.domain.post.Category;
-import security.ttaallkk.domain.post.Like;
-import security.ttaallkk.domain.post.DisLike;
 import security.ttaallkk.domain.post.Post;
 import security.ttaallkk.domain.post.PostStatus;
 import security.ttaallkk.dto.querydsl.PostCommonDto;
@@ -226,8 +223,7 @@ public class PostService {
     private Boolean isCurrentUserAlreadyLike(Post post, String uid) {
         if(!uid.equals(Constant.ANONYMOUS_IDENTIFIER)) {
             Member member = memberRepository.findMemberByUid(uid).orElseThrow(UidNotFoundException::new);
-            Optional<Like> like = likeRepository.findByPostAndMember(post, member);
-            return like.isPresent();
+            return likeRepository.existsByPostAndMember(post, member);
         }else{
             return false;
         }
@@ -243,8 +239,7 @@ public class PostService {
     private Boolean isCurrentUserAlreadyDisLike(Post post, String uid) {
         if(!uid.equals(Constant.ANONYMOUS_IDENTIFIER)) {
             Member member = memberRepository.findMemberByUid(uid).orElseThrow(UidNotFoundException::new);
-            Optional<DisLike> dislike = disLikeRepository.findByPostAndMember(post, member);
-            return dislike.isPresent();
+            return disLikeRepository.existsByPostAndMember(post, member);
         }else{
             return false;
         }

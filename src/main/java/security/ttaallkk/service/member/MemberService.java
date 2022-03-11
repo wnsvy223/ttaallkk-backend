@@ -254,7 +254,7 @@ public class MemberService implements UserDetailsService {
      * @throws EmailAlreadyExistException
      */
     private void validateDuplicateUserByEmail(String email) {
-        if(memberRepository.findMemberByEmail(email).isPresent()) throw new EmailAlreadyExistException("이미 존재하는 이메일 입니다. 새로운 이메일로 시도해 보세요.");
+        if(memberRepository.existsByEmail(email)) throw new EmailAlreadyExistException("이미 존재하는 이메일 입니다. 새로운 이메일로 시도해 보세요.");
     }
 
     /**
@@ -263,7 +263,7 @@ public class MemberService implements UserDetailsService {
      * @throws DisplayNameAlreadyExistException
      */
     private void validateDuplicateUserByDisplayName(String displayName) {
-        if(memberRepository.findMemberByDisplayName(displayName).isPresent()) throw new DisplayNameAlreadyExistException("이미 존재하는 닉네임 입니다. 새로운 닉네임으로 시도해 보세요.");
+        if(memberRepository.existsByDisplayName(displayName)) throw new DisplayNameAlreadyExistException("이미 존재하는 닉네임 입니다. 새로운 닉네임으로 시도해 보세요.");
     }
 
     /**

@@ -113,7 +113,7 @@ public class MemberService implements UserDetailsService {
     @Transactional
     public void signOut(String email, String password) {
         Member member = memberRepository.findMemberByEmail(email)
-            .orElseThrow(() -> new UsernameNotFoundException(email + " 이메일이 일치하지 않습니다"));
+                .orElseThrow(() -> new UsernameNotFoundException(email + " 이메일이 일치하지 않습니다"));
         if(passwordEncoder.matches(password, member.getPassword())){
             removeAllPostBySignOutMember(member.getUid());
             memberRepository.deleteByEmail(email);
@@ -178,7 +178,7 @@ public class MemberService implements UserDetailsService {
     public void logout() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         Member member = memberRepository.findMemberByEmail(authentication.getName())
-            .orElseThrow(() -> new UsernameNotFoundException(authentication.getName() + " 이메일이 일치하지 않습니다"));
+                .orElseThrow(() -> new UsernameNotFoundException(authentication.getName() + " 이메일이 일치하지 않습니다"));
 
         member.updateRefreshToken(null); //리프래시 토큰 삭제
     }
@@ -246,6 +246,19 @@ public class MemberService implements UserDetailsService {
                 .build();
 
         return memberUpdateResponseDto;
+    }
+
+    /**
+     * 디바이스 토큰 등록 및 갱신
+     * @param deviceToken //사용자 기기 토큰
+     * @param uid //사용자 고유 uid
+     */
+    @Transactional
+    public void updateDeviceToken(String deviceToken, String uid) {
+        Member member = memberRepository.findMemberByUid(uid)
+                .orElseThrow(() -> new UsernameNotFoundException("사용자 정보를 찾을 수 없습니다."));
+        
+        member.updateDeviceToken(deviceToken);
     }
 
     /**

@@ -4,14 +4,18 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
+import com.google.firebase.messaging.Message;
+import com.google.firebase.messaging.WebpushConfig;
+
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import lombok.RequiredArgsConstructor;
-import lombok.extern.log4j.Log4j2;
 import security.ttaallkk.common.authentication.AuthenticationHelper;
 import security.ttaallkk.domain.member.Member;
+import security.ttaallkk.domain.notification.NotificationType;
 import security.ttaallkk.domain.post.Comment;
 import security.ttaallkk.domain.post.Post;
 import security.ttaallkk.dto.querydsl.CommentCommonDto;
@@ -24,6 +28,7 @@ import security.ttaallkk.repository.member.MemberRepository;
 import security.ttaallkk.repository.post.CommentRepository;
 import security.ttaallkk.repository.post.CommentRepositorySupport;
 import security.ttaallkk.repository.post.PostRepository;
+import security.ttaallkk.service.notification.FcmService;
 import security.ttaallkk.exception.CommentIsAlreadyRemovedException;
 import security.ttaallkk.exception.CommentNotFoundException;
 import security.ttaallkk.exception.PermissionDeniedException;
@@ -32,7 +37,6 @@ import security.ttaallkk.exception.PostNotFoundException;
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
-@Log4j2
 public class CommentService {
 
     private final MemberRepository memberRepository;
@@ -40,6 +44,7 @@ public class CommentService {
     private final CommentRepository commentRepository;
     private final CommentRepositorySupport commentRepositorySupport;
     private final AuthenticationHelper authenticationHelper;
+    private final FcmService fcmService;
     
     /**
      * 댓글 생성
@@ -60,6 +65,12 @@ public class CommentService {
                 commentCreateDto.getContent()
             )
         );
+
+        // 댓글 생성 시 푸시메시지 전송 : 부모 댓글 없으면 글 작성자, 있으면 부모 댓글 작성자
+        String deviceToken = (comment.getParent() == null)
+                ? post.getWriter().getDeviceToken()
+                : comment.getParent().getWriter().getDeviceToken();
+        createFcmByCommentToSingleDevice(deviceToken, comment);
 
         return CommentResponseDto.convertCommentToDto(comment);
     }
@@ -142,14 +153,44 @@ public class CommentService {
         }else{
             throw new CommentIsAlreadyRemovedException();
         }
-        /*
-        if(comment.getChildren().size() > 0){
-            comment.updateCommentIsDeleted(true); //자식댓글이 있으면 삭제상태로 업데이트
-        }else{
-            commentRepository.delete(getDeletableParentComment(comment)); //자식댓글이 없으면 DB에서 삭제처리
-        }
-        */
     }
+
+    /**
+     * 단일타겟(글 또는 부모 댓글 작성자)에게 보낼 FCM Message 객체 생성
+     * @param deviceToken
+     * @param comment
+     */
+    private void createFcmByCommentToSingleDevice(String deviceToken, Comment comment) {
+        if(StringUtils.isNotEmpty(deviceToken)) {
+            Message message = Message.builder()
+                    .putData("title", comment.getWriter().getDisplayName())
+                    .putData("body", comment.getContent())
+                    .putData("notificationType", getNotificationType(comment))
+                    .putData("postId", comment.getPost().getId().toString())
+                    .putData("categoryTag", comment.getPost().getCategory().getCtgTag())
+                    .setToken(deviceToken)
+                    .setWebpushConfig(
+                        WebpushConfig.builder()
+                            .putHeader("ttl", "300")
+                            .build()
+                        )
+                    .build();
+            fcmService.sendFcm(message);
+        }
+    }
+
+    /**
+     * 루트댓글이면 COMMENT, 자식댓글이면 CHILDRENCOMMENT 값의 알림타입 설정
+     * @param comment
+     * @return notificationType
+     */
+    private String getNotificationType(Comment comment) {
+        String notificationType = (comment.getParent() == null) 
+            ? NotificationType.COMMENT.getTypeName()
+            : NotificationType.CHILDRENCOMMENT.getTypeName();
+    
+        return notificationType;
+    };
 
     /**
      * 댓글 주인 or 관리자인지 체크

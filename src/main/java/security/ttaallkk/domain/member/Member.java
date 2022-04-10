@@ -86,6 +86,9 @@ public class Member extends CommonDateTime implements Serializable{
     @Column(name = "profileUrl")
     private String profileUrl;
 
+    @Column(name = "deviceToken")
+    private String deviceToken;
+
     @Column(name = "roles")
     @ElementCollection(fetch = FetchType.LAZY)
     @Enumerated(EnumType.STRING)
@@ -137,9 +140,14 @@ public class Member extends CommonDateTime implements Serializable{
     }
 
     //프로필 정보 갱신
-    public void updateProfile(String displayName, String profileUrl){
+    public void updateProfile(String displayName, String profileUrl) {
         this.displayName = displayName;
         this.profileUrl = profileUrl;
+    }
+
+    //디바이스 토큰 업데이트
+    public void updateDeviceToken(String deviceToken) {
+        this.deviceToken = deviceToken;
     }
 }
 

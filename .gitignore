@@ -42,3 +42,6 @@ security.ttaallkk.domain.post.Post
 
 ### Query DSL ###
 /src/main/generated/*
+
+### Firebase Credential ###
+/src/main/resources/service-account.json

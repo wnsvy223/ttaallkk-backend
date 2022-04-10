@@ -2,6 +2,7 @@ package security.ttaallkk.controller.member;
 
 import lombok.RequiredArgsConstructor;
 import security.ttaallkk.domain.member.Friend;
+import security.ttaallkk.dto.request.DeviceTokenUpdateDto;
 import security.ttaallkk.dto.request.LoginDto;
 import security.ttaallkk.dto.request.MemeberUpdateDto;
 import security.ttaallkk.dto.request.RefreshTokenDto;
@@ -158,6 +159,24 @@ public class MemberController {
         
         return ResponseEntity.ok(memberUpdateResponseDto);
     } 
+
+    /**
+     * 디바이스 토큰 등록 및 갱신
+     * @param deviceTokenUpdateDto
+     * @return Response
+     */
+    @PutMapping("/devicetoken")
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<Response> updateDeviceToken(@RequestBody DeviceTokenUpdateDto deviceTokenUpdateDto) {
+        memberService.updateDeviceToken(deviceTokenUpdateDto.getDeviceToken(), deviceTokenUpdateDto.getUid());
+
+        Response response = Response.builder()
+                .status(HttpStatus.OK.value())
+                .message("디바이스 토큰이 등록되었습니다.")
+                .build();
+        return ResponseEntity.ok(response);
+    }
+
 
     /**
      * 유저 검색(HibernateSearch를 이용한 FullTextSearch) + 페이징

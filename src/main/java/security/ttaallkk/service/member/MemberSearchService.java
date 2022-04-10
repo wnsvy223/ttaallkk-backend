@@ -41,15 +41,6 @@ public class MemberSearchService {
         this.entityManager = entityManager;
     }
 
-    public void initializeHibernateSearch(){
-        try {
-            FullTextEntityManager fullTextEntityManager = Search.getFullTextEntityManager(entityManager);
-            fullTextEntityManager.createIndexer().startAndWait();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-    }
-
     /**
      * Email 또는 DisplyName을 이용해 사용자 검색(Full Text Search)
      * @param keyword 검색키워드

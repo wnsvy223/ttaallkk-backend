@@ -11,6 +11,7 @@ import security.ttaallkk.dto.response.LoginResponse;
 import security.ttaallkk.dto.response.MemberSearchResponseDto;
 import security.ttaallkk.dto.response.MemberUpdateResponseDto;
 import security.ttaallkk.dto.response.Response;
+import security.ttaallkk.service.file.FileStorageService;
 import security.ttaallkk.service.member.FriendService;
 import security.ttaallkk.service.member.MemberSearchService;
 import security.ttaallkk.service.member.MemberService;
@@ -27,6 +28,9 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+
 import java.util.List;
 
 import javax.servlet.http.Cookie;
@@ -49,6 +53,7 @@ public class MemberController {
     private final AuthenticationManager authenticationManager;
     private final MemberSearchService memberSearchService;
     private final FriendService friendService;
+    private final FileStorageService fileStorageService;
 
     
     /**
@@ -149,7 +154,7 @@ public class MemberController {
      * 유저 프로필 정보 업데이트
      * @param uid 업데이트할 유저의 고유 아이디
      * @param memeberUpdateDto 업데이트 할 데이터
-     * @return Response
+     * @return MemberUpdateResponseDto
      */
     @PutMapping("/{uid}")
     @PreAuthorize("isAuthenticated()")
@@ -159,6 +164,30 @@ public class MemberController {
         
         return ResponseEntity.ok(memberUpdateResponseDto);
     } 
+
+    /**
+     * 유저 프로필 이미지 업로드
+     * @param profileImage
+     * @param uid
+     * @return 프로필 이미지 url
+     */
+    @PostMapping("/{uid}/profile")
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<?> uploadUserProfileImage(
+            @RequestParam(value = "files") MultipartFile profileImage,
+            @PathVariable("uid") String uid) {
+        
+        String fileName = fileStorageService.storeProfileImage(profileImage, uid);
+    
+        String downloadUrl = ServletUriComponentsBuilder.fromCurrentContextPath()
+                                                    .path("/profile/")
+                                                    .path(fileName)
+                                                    .toUriString();
+
+        memberService.updateProfileUrl(downloadUrl, uid);
+
+        return new ResponseEntity<>(downloadUrl, HttpStatus.OK); 
+    }
 
     /**
      * 디바이스 토큰 등록 및 갱신

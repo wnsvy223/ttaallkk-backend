@@ -234,7 +234,7 @@ public class MemberService implements UserDetailsService {
         Member member = memberRepository.findMemberByUid(uid)
                 .orElseThrow(() -> new UsernameNotFoundException("사용자 정보를 찾을 수 없습니다."));
 
-        member.updateProfile(memeberUpdateDto.getDisplayName(), memeberUpdateDto.getProfileUrl());
+        member.updateProfile(memeberUpdateDto.getDisplayName());
 
         MemberUpdateResponseDto memberUpdateResponseDto = MemberUpdateResponseDto.builder()
                 .status(200)
@@ -246,6 +246,19 @@ public class MemberService implements UserDetailsService {
                 .build();
 
         return memberUpdateResponseDto;
+    }
+
+    /**
+     * 유저 프로필 이미지 업데이트
+     * @param profileUrl
+     * @param uid
+     */
+    @Transactional
+    public void updateProfileUrl(String profileUrl, String uid) {
+        Member member = memberRepository.findMemberByUid(uid)
+                .orElseThrow(() -> new UsernameNotFoundException("사용자 정보를 찾을 수 없습니다."));
+        
+        member.updateProfileUrl(profileUrl);
     }
 
     /**

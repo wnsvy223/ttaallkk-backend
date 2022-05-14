@@ -134,14 +134,18 @@ public class Member extends CommonDateTime implements Serializable{
         this.roles = roles;
     }
 
-    //refreshToken 갱신
+    //refreshToken 업데이트
     public void updateRefreshToken(String refreshToken) {
         this.refreshToken = refreshToken;
     }
 
-    //프로필 정보 갱신
-    public void updateProfile(String displayName, String profileUrl) {
+    //프로필 정보 업데이트
+    public void updateProfile(String displayName) {
         this.displayName = displayName;
+    }
+
+    //프로필 이미지 업데이트
+    public void updateProfileUrl(String profileUrl) {
         this.profileUrl = profileUrl;
     }
 

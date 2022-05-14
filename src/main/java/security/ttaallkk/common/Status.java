@@ -21,4 +21,6 @@ public class Status {
     public static final Integer FRIEND_ALREADY_EXIST = 2017; //친구관계 이미 존재함
     public static final Integer FRIEND_NOT_ALLOW_SELF = 2018; //자기 자신 친구 추가 불가
     public static final Integer FRIEND_RELATION_NOT_FOUND = 2020; //친구 관계 존재하지 않음
+    public static final Integer FILE_UPLOAD_FAILURE = 2021; //파일 업로드 실패
+    public static final Integer INVALIDE_FILE_MIME = 2022; //잘못된 파일 형식
 }

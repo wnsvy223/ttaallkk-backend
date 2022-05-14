@@ -10,9 +10,11 @@ import security.ttaallkk.exception.CommentNotFoundException;
 import security.ttaallkk.exception.DisplayNameAlreadyExistException;
 import security.ttaallkk.exception.EmailAlreadyExistException;
 import security.ttaallkk.exception.ExpiredJwtException;
+import security.ttaallkk.exception.FileUploadFailureException;
 import security.ttaallkk.exception.FriendAlreadyExistException;
 import security.ttaallkk.exception.FriendNotAllowSelfException;
 import security.ttaallkk.exception.FriendRelationNotFoundException;
+import security.ttaallkk.exception.InvalidFileMimeTypeException;
 import security.ttaallkk.exception.InvalidRefreshTokenException;
 import security.ttaallkk.exception.MemberNotFoundException;
 import security.ttaallkk.exception.AuthenticatedFailureException;
@@ -234,6 +236,24 @@ public class ExceptionController {
         Response response = Response.builder()
                 .status(Status.POST_ALREADY_REMOVED)
                 .message("이미 삭제 처리된 게시글 입니다.")
+                .build();
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+    }
+
+    @ExceptionHandler(FileUploadFailureException.class)
+    public ResponseEntity FileUploadFailureException(Exception e) {
+        Response response = Response.builder()
+                .status(Status.FILE_UPLOAD_FAILURE)
+                .message("파일 업로드가 실패했습니다.")
+                .build();
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+    }
+
+    @ExceptionHandler(InvalidFileMimeTypeException.class)
+    public ResponseEntity InvalidFileMimeTypeException(Exception e) {
+        Response response = Response.builder()
+                .status(Status.INVALIDE_FILE_MIME)
+                .message("잘못된 형식의 파일입니다.")
                 .build();
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
     }

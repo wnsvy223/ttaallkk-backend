@@ -180,6 +180,7 @@ public class MemberController {
         String fileName = fileStorageService.storeProfileImage(profileImage, uid);
     
         String downloadUrl = ServletUriComponentsBuilder.fromCurrentContextPath()
+                                                    .scheme("https")
                                                     .path("/profile/")
                                                     .path(fileName)
                                                     .toUriString();

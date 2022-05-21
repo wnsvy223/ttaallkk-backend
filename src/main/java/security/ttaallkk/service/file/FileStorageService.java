@@ -106,4 +106,11 @@ public class FileStorageService {
             throw new FileNotFoundException("Could not download file");
         }
     }
+
+    /**
+     * 파일 삭제
+     */
+    public void removeFile(String pathName) {
+        new File(pathName).delete();
+    }
 }

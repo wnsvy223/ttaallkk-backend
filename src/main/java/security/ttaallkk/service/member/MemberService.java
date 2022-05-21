@@ -17,8 +17,11 @@ import security.ttaallkk.exception.RefreshTokenGrantTypeException;
 import security.ttaallkk.repository.member.MemberRepository;
 import security.ttaallkk.repository.post.PostRepository;
 import security.ttaallkk.security.JwtProvider;
+import security.ttaallkk.service.file.FileStorageService;
 
+import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.RandomStringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -36,6 +39,10 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+import org.springframework.web.util.UriComponents;
+import org.springframework.web.util.UriComponentsBuilder;
 
 import java.time.LocalDateTime;
 import java.util.Collection;
@@ -52,9 +59,13 @@ public class MemberService implements UserDetailsService {
     private final PostRepository postRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtProvider jwtProvider;
+    private final FileStorageService fileStorageService;
 
     @Value("${admin.email}")
     private String adminEmail;
+
+    @Value("${upload.image.location.profile}")
+    private String profileStoragePath;
     
     /**
      * Security에서 제공되는 로그인 요청 회원 조회 메소드(Security인증매니저의 인증로직 수행 시 호출)
@@ -252,13 +263,32 @@ public class MemberService implements UserDetailsService {
      * 유저 프로필 이미지 업데이트
      * @param profileUrl
      * @param uid
+     * @return downloadUrl
      */
     @Transactional
-    public void updateProfileUrl(String profileUrl, String uid) {
+    public String updateProfileUrl(MultipartFile multipartFile, String uid) {
         Member member = memberRepository.findMemberByUid(uid)
                 .orElseThrow(() -> new UsernameNotFoundException("사용자 정보를 찾을 수 없습니다."));
         
-        member.updateProfileUrl(profileUrl);
+        //이미 저장된 프로필 이미지 파일이 있는 경우 기존 파일 삭제     
+        if (StringUtils.isNotEmpty(member.getProfileUrl())) {
+            //프로필 이미지 url 경로에서 파일명 추출
+            UriComponents uriComponents = UriComponentsBuilder.fromUriString(member.getProfileUrl()).build();
+            String originFileName = FilenameUtils.getName(uriComponents.getPath());
+            fileStorageService.removeFile(profileStoragePath + originFileName);
+        }
+
+        //프로필 이미지 파일 업로드
+        String fileName = fileStorageService.storeProfileImage(multipartFile, member.getUid());
+    
+        String downloadUrl = ServletUriComponentsBuilder.fromCurrentContextPath()
+                                                    .scheme("https")
+                                                    .path("/profile/")
+                                                    .path(fileName)
+                                                    .toUriString();
+        member.updateProfileUrl(downloadUrl);
+        
+        return downloadUrl;
     }
 
     /**

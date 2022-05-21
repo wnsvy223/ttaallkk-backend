@@ -11,7 +11,6 @@ import security.ttaallkk.dto.response.LoginResponse;
 import security.ttaallkk.dto.response.MemberSearchResponseDto;
 import security.ttaallkk.dto.response.MemberUpdateResponseDto;
 import security.ttaallkk.dto.response.Response;
-import security.ttaallkk.service.file.FileStorageService;
 import security.ttaallkk.service.member.FriendService;
 import security.ttaallkk.service.member.MemberSearchService;
 import security.ttaallkk.service.member.MemberService;
@@ -29,7 +28,6 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.util.List;
 
@@ -53,7 +51,6 @@ public class MemberController {
     private final AuthenticationManager authenticationManager;
     private final MemberSearchService memberSearchService;
     private final FriendService friendService;
-    private final FileStorageService fileStorageService;
 
     
     /**
@@ -174,18 +171,10 @@ public class MemberController {
     @PostMapping("/{uid}/profile")
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity<?> uploadUserProfileImage(
-            @RequestParam(value = "files") MultipartFile profileImage,
+            @RequestParam(value = "files") MultipartFile multipartFile,
             @PathVariable("uid") String uid) {
         
-        String fileName = fileStorageService.storeProfileImage(profileImage, uid);
-    
-        String downloadUrl = ServletUriComponentsBuilder.fromCurrentContextPath()
-                                                    .scheme("https")
-                                                    .path("/profile/")
-                                                    .path(fileName)
-                                                    .toUriString();
-
-        memberService.updateProfileUrl(downloadUrl, uid);
+        String downloadUrl = memberService.updateProfileUrl(multipartFile, uid);
 
         return new ResponseEntity<>(downloadUrl, HttpStatus.OK); 
     }

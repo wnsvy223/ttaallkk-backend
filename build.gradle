@@ -44,6 +44,9 @@ dependencies {
 	// StringEscapeUtils(commons-lang3 -> commons-text)
 	implementation 'org.apache.commons:commons-text:1.9'
 
+	// https://mvnrepository.com/artifact/commons-io/commons-io	
+	implementation 'commons-io:commons-io:2.6'
+
 	// firebase-admin
 	implementation 'com.google.firebase:firebase-admin:7.3.0'
 

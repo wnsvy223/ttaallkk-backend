@@ -13,15 +13,15 @@ public class LikeCommonDto {
 
     private Long postId;
 
-    private String categoryTag;
-    
-    private String categoryName;
-
     private LocalDateTime createdAt;
 
     private Integer likeCnt;
 
     private String title;
+
+    private String categoryTag;
+    
+    private String categoryName;
 
     private String uid;
 
@@ -35,11 +35,11 @@ public class LikeCommonDto {
     public LikeCommonDto(
                 Long id,
                 Long postId,
-                String categoryTag,
-                String categoryName,
                 LocalDateTime createdAt,
                 Integer likeCnt,
                 String title,
+                String categoryTag,
+                String categoryName,
                 String uid,
                 String email,
                 String displayName,
@@ -47,11 +47,11 @@ public class LikeCommonDto {
 
         this.id = id;
         this.postId = postId;
-        this.categoryTag = categoryTag;
-        this.categoryName = categoryName;
         this.createdAt = createdAt;
         this.likeCnt = likeCnt;
         this.title = title;
+        this.categoryTag = categoryTag;
+        this.categoryName = categoryName;
         this.uid = uid;
         this.email = email;
         this.displayName = displayName;

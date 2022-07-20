@@ -39,15 +39,15 @@ public class LikeRepositorySupport extends QuerydslRepositorySupport{
                     LikeCommonDto.class, 
                     like.id,
                     post.id,
-                    post.category.ctgTag,
-                    post.category.ctgName,
                     post.createdAt,
                     post.likeCnt,
                     post.title,
-                    post.writer.uid,
-                    post.writer.email,
-                    post.writer.displayName,
-                    post.writer.profileUrl
+                    category.ctgTag,
+                    category.ctgName,
+                    member.uid,
+                    member.email,
+                    member.displayName,
+                    member.profileUrl
                 )
             )
             .from(like)

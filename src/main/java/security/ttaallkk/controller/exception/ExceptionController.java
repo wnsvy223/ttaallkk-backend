@@ -109,7 +109,7 @@ public class ExceptionController {
     public ResponseEntity AuthenticatedFailureException(Exception e) {
         Response response = Response.builder()
                 .status(Status.AUTHENTICATED_FAILURE)
-                .message("로그인 인증에 실패했습니다.")
+                .message("아이디 또는 비밀번호가 틀렸습니다. 다시 확인하세요.")
                 .build();
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
     }

@@ -14,6 +14,8 @@ import security.ttaallkk.domain.post.PostStatus;
 
 @Getter
 public class PostCommonDto{
+
+    private String uid;
     
     private String email;
 
@@ -45,6 +47,7 @@ public class PostCommonDto{
 
     @QueryProjection
     public PostCommonDto(
+                String uid,
                 String email, 
                 String displayName, 
                 String profileUrl, 
@@ -60,6 +63,7 @@ public class PostCommonDto{
                 String categoryName,
                 String categoryTag) {
 
+        this.uid = uid;
         this.email = email;
         this.displayName = displayName;
         this.profileUrl = profileUrl;
@@ -85,6 +89,7 @@ public class PostCommonDto{
         List<PostCommonDto> result = new ArrayList<>();
         posts.stream().forEach(post -> {
             PostCommonDto postCommonDto = new PostCommonDto(
+                post.getWriter().getUid(),
                 post.getWriter().getEmail(), 
                 post.getWriter().getDisplayName(), 
                 post.getWriter().getProfileUrl(), 
@@ -113,6 +118,7 @@ public class PostCommonDto{
         List<PostCommonDto> result = new ArrayList<>();
         posts.stream().forEach(post -> {
             PostCommonDto postCommonDto = new PostCommonDto(
+                post.getUid(),
                 post.getEmail(), 
                 post.getDisplayName(), 
                 post.getProfileUrl(), 

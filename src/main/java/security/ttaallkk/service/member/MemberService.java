@@ -7,6 +7,7 @@ import security.ttaallkk.dto.request.MemeberUpdateDto;
 import security.ttaallkk.dto.request.RefreshTokenDto;
 import security.ttaallkk.dto.request.SignUpDto;
 import security.ttaallkk.dto.response.LoginResponse;
+import security.ttaallkk.dto.response.MemberResponsDto;
 import security.ttaallkk.dto.response.MemberUpdateResponseDto;
 import security.ttaallkk.exception.AuthenticatedFailureException;
 import security.ttaallkk.exception.DisplayNameAlreadyExistException;
@@ -231,6 +232,21 @@ public class MemberService implements UserDetailsService {
                 .build();
 
         return response;
+    }
+
+    /**
+     * uid로 유저정보 조회
+     * @param uid
+     * @return
+     */
+    @Transactional
+    public MemberResponsDto findMemberByUid(String uid) {
+        Member member = memberRepository.findMemberByUid(uid)
+                .orElseThrow(() -> new UsernameNotFoundException("사용자 정보를 찾을 수 없습니다."));
+        
+        MemberResponsDto memberResponsDto = MemberResponsDto.convertUserToDto(member);
+        
+        return memberResponsDto;
     }
 
     /**

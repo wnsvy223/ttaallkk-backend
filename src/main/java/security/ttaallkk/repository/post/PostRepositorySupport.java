@@ -44,6 +44,7 @@ public class PostRepositorySupport extends QuerydslRepositorySupport {
             .select(
                 Projections.constructor(
                     PostCommonDto.class, 
+                    member.uid,
                     member.email, 
                     member.displayName,
                     member.profileUrl,
@@ -80,7 +81,8 @@ public class PostRepositorySupport extends QuerydslRepositorySupport {
             .where(post.category.id.eq(categoryId))
             .select(
                 Projections.constructor(
-                    PostCommonDto.class, 
+                    PostCommonDto.class,
+                    member.uid,
                     member.email, 
                     member.displayName,
                     member.profileUrl,
@@ -117,7 +119,8 @@ public class PostRepositorySupport extends QuerydslRepositorySupport {
         return jpaQueryFactory
             .select(
                 Projections.constructor(
-                    PostCommonDto.class, 
+                    PostCommonDto.class,
+                    member.uid,
                     member.email, 
                     member.displayName,
                     member.profileUrl,

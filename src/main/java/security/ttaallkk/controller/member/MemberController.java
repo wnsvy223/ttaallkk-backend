@@ -8,6 +8,7 @@ import security.ttaallkk.dto.request.MemeberUpdateDto;
 import security.ttaallkk.dto.request.RefreshTokenDto;
 import security.ttaallkk.dto.request.SignUpDto;
 import security.ttaallkk.dto.response.LoginResponse;
+import security.ttaallkk.dto.response.MemberResponsDto;
 import security.ttaallkk.dto.response.MemberSearchResponseDto;
 import security.ttaallkk.dto.response.MemberUpdateResponseDto;
 import security.ttaallkk.dto.response.Response;
@@ -145,6 +146,19 @@ public class MemberController {
         httpServletResponse.addCookie(createTokenCookie("refreshToken", loginResponse.getRefreshToken(), refreshTokenCookieExpiredTime));
 
         return ResponseEntity.ok(loginResponse);
+    }
+
+    /**
+     * uid로 유저 정보 조회
+     * @param uid
+     * @return MemberResponsDto
+     */
+    @GetMapping("/{uid}")
+    public ResponseEntity<MemberResponsDto> getMemberByUid(@PathVariable("uid") String uid) {
+        
+        MemberResponsDto memberResponsDto = memberService.findMemberByUid(uid);
+        
+        return ResponseEntity.ok(memberResponsDto);
     }
 
     /**

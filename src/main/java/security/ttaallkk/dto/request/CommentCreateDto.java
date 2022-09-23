@@ -9,12 +9,13 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class CommentCreateDto {
 
-    private String content;
+    private String content; // 댓글 본문
 
-    private Long postId;
+    private Long postId; // 게시글 아이디
 
-    private Long parentId;
+    private Long parentId;  // 부모댓글 아이디
    
-    private String writerUid;
+    private String writerUid; // 댓글 작성자 uid
 
+    private String toUserUid; // 댓글 작성 타겟 유저 uid
 }

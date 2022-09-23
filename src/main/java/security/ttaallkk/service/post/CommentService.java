@@ -61,6 +61,7 @@ public class CommentService {
             Comment.createComment(
                 post,
                 member, 
+                commentCreateDto.getToUserUid() != null ? memberRepository.findMemberByUid(commentCreateDto.getToUserUid()).orElseThrow(UidNotFoundException::new) : null,
                 commentCreateDto.getParentId() != null ? commentRepository.findById(commentCreateDto.getParentId()).orElseThrow(CommentNotFoundException::new) : null,
                 commentCreateDto.getContent()
             )
@@ -103,8 +104,8 @@ public class CommentService {
      * @param pageable
      * @return
      */
-    public Page<CommentPagingResponseDto> findCommentChildrenByParentIdForPaging(Long parentId, Long postId, Pageable pageable) {
-        Page<CommentPagingResponseDto> page = commentRepositorySupport.findCommentChildrenByParentIdForPaging(parentId, postId, pageable);
+    public Page<CommentPagingResponseDto> findCommentChildrenByToUserForPaging(Long parentId, Long postId, Pageable pageable) {
+        Page<CommentPagingResponseDto> page = commentRepositorySupport.findCommentChildrenByToUserForPaging(parentId, postId, pageable);
         return page;
     }
 

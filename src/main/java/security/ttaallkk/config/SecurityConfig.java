@@ -82,7 +82,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .and()
             .authorizeRequests()
                 .antMatchers(HttpMethod.POST, "/api/user/signUp", "/api/user/login", "/api/user/refreshToken", "/api/post/**", "/api/comment/**", "/api/like/**", "/api/unlike/**","/api/category/**", "/api/friend/**").permitAll()
-                .antMatchers(HttpMethod.GET, "/api/user/search/**", "/api/post/**", "/api/comment/**", "/api/like/**", "/api/unlike/**", "/api/category/**", "/api/friend/**").permitAll()
+                .antMatchers(HttpMethod.GET, "/api/user/search/**", "/api/user/{uid}","/api/post/**", "/api/comment/**", "/api/like/**", "/api/unlike/**", "/api/category/**", "/api/friend/**").permitAll()
                 .antMatchers(HttpMethod.DELETE, "/api/post/**", "/api/comment/**", "/api/like/**", "/api/unlike/**", "/api/category/**", "/api/friend/**").permitAll()
                 .antMatchers(HttpMethod.PUT, "/api/post/**", "/api/comment/**", "/api/like/**", "/api/unlike/**", "/api/category/**", "/api/friend/**").permitAll()
                 .antMatchers(HttpMethod.GET, "/profile/**", "/post/**").permitAll() //프로필 및 게시글 이미지 파일 앤드포인트 접근 허용

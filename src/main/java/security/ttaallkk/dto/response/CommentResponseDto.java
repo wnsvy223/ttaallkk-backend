@@ -25,6 +25,10 @@ public class CommentResponseDto implements Serializable{
     private String email; //댓글 작성자 email
     private String displayName; //댓글 작성자 닉네임
     private String profileUrl; //댓글 작성자 프로필 이미지
+    private String toUid; //댓글 타겟 유저 uid
+    private String toEmail; //댓글 타겟 유저 email
+    private String toDisplayName; //댓글 타겟 유저 닉네임 
+    private String toProfileUrl; //댓글 타겟 유저 프로필 이미지
     private LocalDateTime createdAt;
     private LocalDateTime modifiedAt;
     private List<CommentResponseDto> children = new ArrayList<>(); //대댓글목록(자식댓글 필드는 생성자에서 받지않고 convertCommentStructure메소드에서 계층형 구조로 변환 후 추가하여 반환)
@@ -37,6 +41,10 @@ public class CommentResponseDto implements Serializable{
                 String email, 
                 String displayName, 
                 String profileUrl,
+                String toUid, 
+                String toEmail, 
+                String toDisplayName, 
+                String toProfileUrl,
                 LocalDateTime createdAt, 
                 LocalDateTime modifiedAt) {
         this.id = id;
@@ -46,34 +54,30 @@ public class CommentResponseDto implements Serializable{
         this.email = email;
         this.displayName = displayName;
         this.profileUrl = profileUrl;
+        this.toUid = toUid;
+        this.toEmail = toEmail;
+        this.toDisplayName = toDisplayName;
+        this.toProfileUrl = toProfileUrl;
         this.createdAt = createdAt;
         this.modifiedAt = modifiedAt;
     }
 
     // Comment Entity -> CommentResponseDto 변환
     public static CommentResponseDto convertCommentToDto(Comment comment) {
-        return comment.getIsDeleted()  == true ? 
-                new CommentResponseDto(
-                    comment.getId(),
-                    comment.getParent() != null ?  comment.getParent().getId() : null,
-                    Constant.COMMENT_REMOVED_STATUS_MESSAGE,
-                    null,
-                    null,
-                    null,
-                    null,
-                    comment.getCreatedAt(),
-                    comment.getModifiedAt())
-                    :
-                new CommentResponseDto(
-                    comment.getId(),
-                    comment.getParent() != null ?  comment.getParent().getId() : null,
-                    comment.getContent(),
-                    comment.getWriter().getUid(),
-                    comment.getWriter().getEmail(),
-                    comment.getWriter().getDisplayName(),
-                    comment.getWriter().getProfileUrl(),
-                    comment.getCreatedAt(),
-                    comment.getModifiedAt());
+        return new CommentResponseDto(
+            comment.getId(),
+            comment.getParent() != null ?  comment.getParent().getId() : null,
+            comment.getIsDeleted() == true ? Constant.COMMENT_REMOVED_STATUS_MESSAGE : comment.getContent() ,
+            comment.getWriter().getUid(),
+            comment.getWriter().getEmail(),
+            comment.getWriter().getDisplayName(),
+            comment.getWriter().getProfileUrl(),
+            comment.getToUser() == null ? null : comment.getToUser().getUid(),
+            comment.getToUser() == null ? null : comment.getToUser().getEmail(),
+            comment.getToUser() == null ? null : comment.getToUser().getDisplayName(),
+            comment.getToUser() == null ? null : comment.getToUser().getProfileUrl(),
+            comment.getCreatedAt(),
+            comment.getModifiedAt());
     }
 
     /**

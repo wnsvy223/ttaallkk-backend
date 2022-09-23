@@ -40,6 +40,8 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import org.springframework.web.util.UriComponents;
@@ -50,6 +52,8 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
+
+import javax.servlet.http.HttpServletRequest;
 
 @Service
 @RequiredArgsConstructor
@@ -297,8 +301,11 @@ public class MemberService implements UserDetailsService {
         //프로필 이미지 파일 업로드
         String fileName = fileStorageService.storeProfileImage(multipartFile, member.getUid());
     
+        HttpServletRequest httpServletRequest = ((ServletRequestAttributes)RequestContextHolder.getRequestAttributes()).getRequest();
+        String scheme = httpServletRequest.isSecure() ? "https" : "http";
+
         String downloadUrl = ServletUriComponentsBuilder.fromCurrentContextPath()
-                                                    .scheme("https")
+                                                    .scheme(scheme)
                                                     .path("/profile/")
                                                     .path(fileName)
                                                     .toUriString();

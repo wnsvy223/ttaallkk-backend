@@ -49,19 +49,6 @@ public class CommentController {
     }
 
     /**
-     * 댓글 조회(해당 번호의 게시글에 연관된 댓글을 계층형 댓글로 조회)
-     * @param postId
-     * @return List<CommentResponseDto>
-     */
-    @GetMapping("/{postId}")
-    public ResponseEntity<List<CommentResponseDto>> getCommentByPostId(@PathVariable("postId") Long postId) {
-        
-        List<CommentResponseDto> result = commentService.findCommentByPostId(postId);
-
-        return ResponseEntity.ok(result);
-    }
-
-    /**
      * 최상위 부모 댓글 10개 페이징 조회
      * @param postId 게시글 아이디
      * @param pageable
@@ -90,7 +77,7 @@ public class CommentController {
                 @PathVariable("postId") Long postId,
                 @PageableDefault(size = 10) Pageable pageable) {
         
-        Page<CommentPagingResponseDto> result = commentService.findCommentChildrenByParentIdForPaging(parentId, postId, pageable);
+        Page<CommentPagingResponseDto> result = commentService.findCommentChildrenByToUserForPaging(parentId, postId, pageable);
 
         return ResponseEntity.ok(result);
     }

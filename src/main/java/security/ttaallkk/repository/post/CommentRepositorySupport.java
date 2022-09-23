@@ -11,6 +11,8 @@ import org.springframework.data.support.PageableExecutionUtils;
 import org.springframework.stereotype.Repository;
 import java.util.List;
 
+import security.ttaallkk.domain.member.QMember;
+
 import security.ttaallkk.domain.post.Comment;
 import security.ttaallkk.dto.querydsl.CommentCommonDto;
 import security.ttaallkk.dto.response.CommentPagingResponseDto;
@@ -79,7 +81,7 @@ public class CommentRepositorySupport extends QuerydslRepositorySupport{
     }
 
     /**
-     * 게시글 아이디 + 부모 댓글 번호로 자식댓글 조회
+     * 무한 대댓글 방식의 페이징
      * @param postId 게시글 아이디
      * @param parentId 부모 댓글 아이디
      * @param pageable
@@ -109,6 +111,59 @@ public class CommentRepositorySupport extends QuerydslRepositorySupport{
         // Pageable 인터페이스로 변경 후 반환
         return PageableExecutionUtils.getPage(convertList, pageable, query::fetchCount);
     }
+    
+    /**
+     * 대댓글 타겟 유저를 표시해주는 방식의 페이징
+     * @param postId 게시글 아이디
+     * @param parentId 부모 댓글 아이디
+     * @param pageable
+     * @return Page<CommentPagingResponseDto>
+     */
+    public Page<CommentPagingResponseDto> findCommentChildrenByToUserForPaging(Long parentId, Long postId, Pageable pageable) {
+        QMember writeUser = new QMember("writeUser");
+        QMember toUser = new QMember("toUser");
+
+        JPAQuery<CommentPagingResponseDto> query = jpaQueryFactory
+            .select(
+                Projections.constructor(
+                    CommentPagingResponseDto.class, 
+                        comment.id,
+                        comment.parent.id,
+                        comment.isDeleted,
+                        comment.content,
+                        comment.writer.uid,
+                        comment.writer.email,
+                        comment.writer.displayName,
+                        comment.writer.profileUrl,
+                        comment.toUser.uid,
+                        comment.toUser.email,
+                        comment.toUser.displayName,
+                        comment.toUser.profileUrl,
+                        comment.createdAt,
+                        comment.modifiedAt,
+                        comment.childrenCnt
+                    )
+            )
+            .from(comment)
+            .leftJoin(comment.parent) //부모 댓글
+            .innerJoin(comment.writer, writeUser) //댓글 작성자
+            .innerJoin(comment.toUser, toUser) //댓글 타겟 유저
+            .where(
+                comment.post.id.eq(postId),
+                comment.parent.id.eq(parentId)
+            )
+            .orderBy(
+                comment.parent.id.asc(),
+                comment.createdAt.asc()
+            )
+            .offset(pageable.getOffset())
+            .limit(pageable.getPageSize());
+
+        List<CommentPagingResponseDto> comments = getQuerydsl().applyPagination(pageable, query).fetch();
+
+        return PageableExecutionUtils.getPage(comments, pageable, query::fetchCount);
+    }
+
 
     /**
      * 댓글 작성자 uid로 댓글 조회(댓글을 단 게시물의 주인 유저 정보와 게시물 아이디값 조인)

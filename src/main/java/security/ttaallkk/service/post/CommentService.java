@@ -61,8 +61,8 @@ public class CommentService {
             Comment.createComment(
                 post,
                 member, 
-                commentCreateDto.getToUserUid() != null ? memberRepository.findMemberByUid(commentCreateDto.getToUserUid()).orElseThrow(UidNotFoundException::new) : null,
                 commentCreateDto.getParentId() != null ? commentRepository.findById(commentCreateDto.getParentId()).orElseThrow(CommentNotFoundException::new) : null,
+                commentCreateDto.getToCommentId() != null ? commentRepository.findById(commentCreateDto.getToCommentId()).orElseThrow(CommentNotFoundException::new) : null,
                 commentCreateDto.getContent()
             )
         );

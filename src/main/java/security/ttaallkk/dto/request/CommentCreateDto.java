@@ -14,8 +14,8 @@ public class CommentCreateDto {
     private Long postId; // 게시글 아이디
 
     private Long parentId;  // 부모댓글 아이디
+
+    private Long toCommentId; // 타겟 댓글 아이디
    
     private String writerUid; // 댓글 작성자 uid
-
-    private String toUserUid; // 댓글 작성 타겟 유저 uid
 }

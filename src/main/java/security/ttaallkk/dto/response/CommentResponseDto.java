@@ -20,6 +20,7 @@ public class CommentResponseDto implements Serializable{
     
     private Long id; //댓글 아이디
     private Long parent; //부모 댓글 아이디
+    private Long toCommentId; //타겟 댓글 아이디
     private String content; //댓글 내용
     private String uid; //댓글 작성자 uid
     private String email; //댓글 작성자 email
@@ -36,6 +37,7 @@ public class CommentResponseDto implements Serializable{
     public CommentResponseDto(
                 Long id, 
                 Long parent,
+                Long toCommentId,
                 String content, 
                 String uid, 
                 String email, 
@@ -49,6 +51,7 @@ public class CommentResponseDto implements Serializable{
                 LocalDateTime modifiedAt) {
         this.id = id;
         this.parent = parent;
+        this.toCommentId = toCommentId;
         this.content = content;
         this.uid = uid;
         this.email = email;
@@ -66,16 +69,17 @@ public class CommentResponseDto implements Serializable{
     public static CommentResponseDto convertCommentToDto(Comment comment) {
         return new CommentResponseDto(
             comment.getId(),
-            comment.getParent() != null ?  comment.getParent().getId() : null,
+            comment.getParent() == null ? null : comment.getParent().getId() ,
+            comment.getToComment() == null ? null : comment.getToComment().getId(),
             comment.getIsDeleted() == true ? Constant.COMMENT_REMOVED_STATUS_MESSAGE : comment.getContent() ,
             comment.getWriter().getUid(),
             comment.getWriter().getEmail(),
             comment.getWriter().getDisplayName(),
             comment.getWriter().getProfileUrl(),
-            comment.getToUser() == null ? null : comment.getToUser().getUid(),
-            comment.getToUser() == null ? null : comment.getToUser().getEmail(),
-            comment.getToUser() == null ? null : comment.getToUser().getDisplayName(),
-            comment.getToUser() == null ? null : comment.getToUser().getProfileUrl(),
+            comment.getToComment() == null ? null : comment.getToComment().getWriter().getUid(),
+            comment.getToComment() == null ? null : comment.getToComment().getWriter().getEmail(),
+            comment.getToComment() == null ? null : comment.getToComment().getWriter().getDisplayName(),
+            comment.getToComment() == null ? null : comment.getToComment().getWriter().getProfileUrl(),
             comment.getCreatedAt(),
             comment.getModifiedAt());
     }

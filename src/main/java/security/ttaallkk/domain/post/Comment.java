@@ -46,12 +46,12 @@ public class Comment extends CommonDateTime{
     private Member writer;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "comment_to_user_id",  referencedColumnName = "uid")
-    private Member toUser;
-
-    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "parent_comment_id")
     private Comment parent;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "to_comment_id")
+    private Comment toComment;
 
     @OneToMany(mappedBy = "parent", orphanRemoval = true)
     private List<Comment> children = new ArrayList<>();
@@ -60,12 +60,12 @@ public class Comment extends CommonDateTime{
     @Formula("(select count(*) from comment c where c.post_id = post_id and c.parent_comment_id = comment_id)")
     private Integer childrenCnt;
 
-    public static Comment createComment(Post post, Member writer, Member toUser, Comment parent, String content) {
+    public static Comment createComment(Post post, Member writer, Comment parent, Comment toComment, String content) {
         Comment comment = new Comment();
         comment.post = post;
         comment.writer = writer;
-        comment.toUser = toUser;
         comment.parent = parent;
+        comment.toComment = toComment;
         comment.content = content;
         comment.isDeleted = false;
         

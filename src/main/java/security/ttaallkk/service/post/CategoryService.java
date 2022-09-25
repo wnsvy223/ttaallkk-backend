@@ -2,6 +2,8 @@ package security.ttaallkk.service.post;
 
 import java.util.List;
 
+import javax.annotation.PostConstruct;
+
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -19,6 +21,39 @@ public class CategoryService {
 
     private final CategoryRepository categoryRepository;
     
+    /*
+    @PostConstruct
+    public void init(){ 
+        Category c1 = Category.builder()
+            .ctgName("자유 게시판")
+            .ctgTag("free")
+            .description("자유 게시판")
+            .build();
+        categoryRepository.save(c1);
+
+        Category c2 = Category.builder()
+            .ctgName("대화 게시판")
+            .ctgTag("talk")
+            .description("대화 게시판")
+            .build();
+        categoryRepository.save(c2);
+
+        Category c3 = Category.builder()
+            .ctgName("팁 게시판")
+            .ctgTag("tip")
+            .description("팁 게시판")
+            .build();
+        categoryRepository.save(c3);
+
+        Category c4 = Category.builder()
+            .ctgName("홍보 게시판")
+            .ctgTag("ads")
+            .description("홍보 게시판")
+            .build();
+        categoryRepository.save(c4);
+    }
+    */
+
     /**
      * 카테고리 생성
      * @param CategoryCreateDto

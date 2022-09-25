@@ -11,9 +11,8 @@ import org.springframework.data.support.PageableExecutionUtils;
 import org.springframework.stereotype.Repository;
 import java.util.List;
 
-import security.ttaallkk.domain.member.QMember;
-
 import security.ttaallkk.domain.post.Comment;
+import security.ttaallkk.domain.post.QComment;
 import security.ttaallkk.dto.querydsl.CommentCommonDto;
 import security.ttaallkk.dto.response.CommentPagingResponseDto;
 
@@ -93,6 +92,8 @@ public class CommentRepositorySupport extends QuerydslRepositorySupport{
             .selectFrom(comment)
             .leftJoin(comment.parent)
             .fetchJoin()
+            .leftJoin(comment.toComment)
+            .fetchJoin()
             .innerJoin(comment.writer, member)
             .fetchJoin()
             .where(
@@ -120,48 +121,33 @@ public class CommentRepositorySupport extends QuerydslRepositorySupport{
      * @return Page<CommentPagingResponseDto>
      */
     public Page<CommentPagingResponseDto> findCommentChildrenByToUserForPaging(Long parentId, Long postId, Pageable pageable) {
-        QMember writeUser = new QMember("writeUser");
-        QMember toUser = new QMember("toUser");
 
-        JPAQuery<CommentPagingResponseDto> query = jpaQueryFactory
-            .select(
-                Projections.constructor(
-                    CommentPagingResponseDto.class, 
-                        comment.id,
-                        comment.parent.id,
-                        comment.isDeleted,
-                        comment.content,
-                        comment.writer.uid,
-                        comment.writer.email,
-                        comment.writer.displayName,
-                        comment.writer.profileUrl,
-                        comment.toUser.uid,
-                        comment.toUser.email,
-                        comment.toUser.displayName,
-                        comment.toUser.profileUrl,
-                        comment.createdAt,
-                        comment.modifiedAt,
-                        comment.childrenCnt
-                    )
-            )
-            .from(comment)
-            .leftJoin(comment.parent) //부모 댓글
-            .innerJoin(comment.writer, writeUser) //댓글 작성자
-            .innerJoin(comment.toUser, toUser) //댓글 타겟 유저
+        QComment parent = new QComment("parent");
+        QComment toComment = new QComment("toComment");
+
+        JPAQuery<Comment> query = jpaQueryFactory
+            .selectFrom(comment)
+            .leftJoin(comment.parent, parent)
+            .fetchJoin()
+            .leftJoin(comment.toComment, toComment)
+            .fetchJoin()
+            .innerJoin(comment.writer, member)
+            .fetchJoin()
             .where(
                 comment.post.id.eq(postId),
-                comment.parent.id.eq(parentId)
-            )
+                comment.parent.id.eq(parentId))
             .orderBy(
                 comment.parent.id.asc(),
-                comment.createdAt.asc()
-            )
-            .offset(pageable.getOffset())
-            .limit(pageable.getPageSize());
+                comment.createdAt.asc());
+        
+        // 댓글 조회 쿼리 페이징 적용하여 조회
+        List<Comment> comments = getQuerydsl().applyPagination(pageable, query).fetch();
 
-        List<CommentPagingResponseDto> comments = getQuerydsl().applyPagination(pageable, query).fetch();
+        // 조회된 엔티티 페이징 데이터를 계층형 형태의 dto로 변경
+        List<CommentPagingResponseDto> convertComments = CommentPagingResponseDto.convertCommentPagingResponseDto(comments);
 
-        return PageableExecutionUtils.getPage(comments, pageable, query::fetchCount);
+         // Pageable 인터페이스로 변경 후 반환
+        return PageableExecutionUtils.getPage(convertComments, pageable, query::fetchCount);
     }
 
 

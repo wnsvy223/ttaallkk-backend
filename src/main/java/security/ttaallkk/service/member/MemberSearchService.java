@@ -62,14 +62,14 @@ public class MemberSearchService {
                 .keyword()
                 .wildcard()
                 .onField("email")
-                .matching("*" + keyword + "*")
+                .matching(keyword + "*")
                 .createQuery()
             )
             .should(queryBuilder
                 .keyword()
                 .wildcard()
                 .onField("displayName")
-                .matching("*" + keyword + "*")
+                .matching(keyword + "*")
                 .createQuery()
             )
             .createQuery();

@@ -26,13 +26,16 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.apache.lucene.analysis.core.LowerCaseFilterFactory;
 import org.apache.lucene.analysis.ko.KoreanFilterFactory;
 import org.apache.lucene.analysis.ko.KoreanTokenizerFactory;
-import org.apache.lucene.analysis.standard.ClassicTokenizerFactory;
+import org.apache.lucene.analysis.ngram.NGramFilterFactory;
+import org.apache.lucene.analysis.ngram.NGramTokenizerFactory;
+import org.apache.lucene.analysis.standard.StandardTokenizerFactory;
 import org.hibernate.search.annotations.Analyzer;
 import org.hibernate.search.annotations.AnalyzerDef;
 import org.hibernate.search.annotations.Field;
 import org.hibernate.search.annotations.Indexed;
 import org.hibernate.search.annotations.TokenFilterDef;
 import org.hibernate.search.annotations.TokenizerDef;
+import org.hibernate.search.annotations.Parameter;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -51,12 +54,28 @@ import java.util.Set;
 @Indexed
 @AnalyzerDef(
     name = "koreanAnalyzer", 
-    tokenizer = @TokenizerDef(factory = KoreanTokenizerFactory.class),
-    filters = {@TokenFilterDef(factory = KoreanFilterFactory.class)})
+    tokenizer = @TokenizerDef(factory = KoreanTokenizerFactory.class), //한글 Arirang Tokenizer
+    filters = {
+        @TokenFilterDef(factory = KoreanFilterFactory.class), //한글 Arirang Token Filter : 한글 문법에 맞게 토큰화
+        @TokenFilterDef(factory = NGramFilterFactory.class, //NGram Filter : 1~10 단위 글자로 토큰화
+            params = {
+                @Parameter(name = "minGramSize", value = "1"),
+                @Parameter(name = "maxGramSize", value = "10")
+            }
+        )
+    }
+)
 @AnalyzerDef(
     name = "emailAnalyzer",
-    tokenizer = @TokenizerDef(factory = ClassicTokenizerFactory.class),
-    filters = {@TokenFilterDef(factory = LowerCaseFilterFactory.class)})
+    tokenizer = @TokenizerDef(factory = NGramTokenizerFactory.class, //NGram Tokenizer : 1~10단위 글자로 토큰화
+        params = {
+            @Parameter(name = "minGramSize", value = "1"),
+            @Parameter(name = "maxGramSize", value = "10")
+        }),
+    filters = {
+        @TokenFilterDef(factory = LowerCaseFilterFactory.class) // 소문자 변환 필터
+    }
+)
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Member extends CommonDateTime implements Serializable{

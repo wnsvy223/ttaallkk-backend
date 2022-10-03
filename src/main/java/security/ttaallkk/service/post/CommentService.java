@@ -19,9 +19,10 @@ import security.ttaallkk.domain.notification.NotificationType;
 import security.ttaallkk.domain.post.Comment;
 import security.ttaallkk.domain.post.Post;
 import security.ttaallkk.dto.querydsl.CommentCommonDto;
+import security.ttaallkk.dto.querydsl.CommentRootPagingDto;
 import security.ttaallkk.dto.request.CommentCreateDto;
 import security.ttaallkk.dto.request.CommentUpdateDto;
-import security.ttaallkk.dto.response.CommentPagingResponseDto;
+import security.ttaallkk.dto.response.CommentChildPagingResponseDto;
 import security.ttaallkk.dto.response.CommentResponseDto;
 import security.ttaallkk.exception.UidNotFoundException;
 import security.ttaallkk.repository.member.MemberRepository;
@@ -92,8 +93,8 @@ public class CommentService {
      * @param pageable
      * @return Page<CommentPagingResponseDto>
      */
-    public Page<CommentPagingResponseDto> findCommentByPostIdForPaging(Long postId, Pageable pageable) {
-        Page<CommentPagingResponseDto> page = commentRepositorySupport.findCommentByPostIdForPaging(postId, pageable);
+    public Page<CommentRootPagingDto> findRootCommentByPostIdForPaging(Long postId, Pageable pageable) {
+        Page<CommentRootPagingDto> page = commentRepositorySupport.findRootCommentByPostIdForPaging(postId, pageable);
         return page;
     }
 
@@ -104,8 +105,8 @@ public class CommentService {
      * @param pageable
      * @return
      */
-    public Page<CommentPagingResponseDto> findCommentChildrenByToUserForPaging(Long parentId, Long postId, Pageable pageable) {
-        Page<CommentPagingResponseDto> page = commentRepositorySupport.findCommentChildrenByToUserForPaging(parentId, postId, pageable);
+    public Page<CommentChildPagingResponseDto> findCommentChildrenByToUserForPaging(Long parentId, Long postId, Pageable pageable) {
+        Page<CommentChildPagingResponseDto> page = commentRepositorySupport.findCommentChildrenByToUserForPaging(parentId, postId, pageable);
         return page;
     }
 

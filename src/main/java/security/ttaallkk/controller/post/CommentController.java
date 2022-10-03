@@ -19,9 +19,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import security.ttaallkk.dto.querydsl.CommentCommonDto;
+import security.ttaallkk.dto.querydsl.CommentRootPagingDto;
 import security.ttaallkk.dto.request.CommentCreateDto;
 import security.ttaallkk.dto.request.CommentUpdateDto;
-import security.ttaallkk.dto.response.CommentPagingResponseDto;
+import security.ttaallkk.dto.response.CommentChildPagingResponseDto;
 import security.ttaallkk.dto.response.CommentResponseDto;
 import security.ttaallkk.dto.response.Response;
 import security.ttaallkk.service.post.CommentService;
@@ -55,11 +56,11 @@ public class CommentController {
      * @return ResponseEntity<Page<CommentPagingResponseDto>>
      */
     @GetMapping("/post/{postId}")
-    public ResponseEntity<Page<CommentPagingResponseDto>> getCommentByPostIdForPaging(
+    public ResponseEntity<Page<CommentRootPagingDto>> getRootCommentByPostId(
                 @PathVariable("postId") Long postId,
                 @PageableDefault(size = 10) Pageable pageable) {
         
-        Page<CommentPagingResponseDto> result = commentService.findCommentByPostIdForPaging(postId, pageable);
+        Page<CommentRootPagingDto> result = commentService.findRootCommentByPostIdForPaging(postId, pageable);
 
         return ResponseEntity.ok(result);
     }
@@ -72,12 +73,12 @@ public class CommentController {
      * @return ResponseEntity<Page<CommentPagingResponseDto>>
      */
     @GetMapping("/parent/{parentId}/post/{postId}")
-    public ResponseEntity<Page<CommentPagingResponseDto>> getCommentChildrenByParentIdForPaging(
+    public ResponseEntity<Page<CommentChildPagingResponseDto>> getCommentChildrenByParentIdForPaging(
                 @PathVariable("parentId") Long parentId,
                 @PathVariable("postId") Long postId,
                 @PageableDefault(size = 10) Pageable pageable) {
         
-        Page<CommentPagingResponseDto> result = commentService.findCommentChildrenByToUserForPaging(parentId, postId, pageable);
+        Page<CommentChildPagingResponseDto> result = commentService.findCommentChildrenByToUserForPaging(parentId, postId, pageable);
 
         return ResponseEntity.ok(result);
     }

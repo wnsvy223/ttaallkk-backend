@@ -3,7 +3,6 @@ package security.ttaallkk.domain.post;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -16,7 +15,6 @@ import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 
 import org.hibernate.annotations.DynamicUpdate;
-import org.hibernate.annotations.Formula;
 
 import lombok.Getter;
 import security.ttaallkk.domain.CommonDateTime;
@@ -56,9 +54,6 @@ public class Comment extends CommonDateTime{
     @OneToMany(mappedBy = "parent", orphanRemoval = true)
     private List<Comment> children = new ArrayList<>();
 
-    //자식 댓글 카운트
-    @Formula("(select count(*) from comment c where c.post_id = post_id and c.parent_comment_id = comment_id)")
-    private Integer childrenCnt;
 
     public static Comment createComment(Post post, Member writer, Comment parent, Comment toComment, String content) {
         Comment comment = new Comment();

@@ -14,8 +14,8 @@ import security.ttaallkk.domain.post.Comment;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class CommentPagingResponseDto implements Serializable{
-
+public class CommentChildPagingResponseDto implements Serializable{
+    
     private Long id; //댓글 아이디
 
     private Long parent; //부모 댓글 아이디
@@ -46,13 +46,20 @@ public class CommentPagingResponseDto implements Serializable{
 
     private LocalDateTime modifiedAt;
 
-    private Integer childrenCnt; //댓글 카운트
+    private String postWriterUid; //게시글 작성자 uid
 
-    // Dto 변환
-    public static List<CommentPagingResponseDto> convertCommentPagingResponseDto(List<Comment> comments) {
-        List<CommentPagingResponseDto> result = comments
+    private String postWriterEmail; //게시글 작성자 email
+
+    private String postWriterDisplayName; //게시글 작성자 닉네임
+
+    private String postWriterProfileUrl; //게시글 작성자 프로필 이미지
+
+
+     // Dto 변환
+     public static List<CommentChildPagingResponseDto> convertCommentPagingResponseDto(List<Comment> comments) {
+        List<CommentChildPagingResponseDto> result = comments
             .stream()
-            .map(comment -> new CommentPagingResponseDto(
+            .map(comment -> new CommentChildPagingResponseDto(
                 comment.getId(),
                 comment.getParent() == null ? null : comment.getParent().getId(),
                 comment.getToComment() == null ? null : comment.getToComment().getId(),
@@ -68,7 +75,10 @@ public class CommentPagingResponseDto implements Serializable{
                 comment.getToComment() == null ? null : comment.getToComment().getWriter().getProfileUrl(),
                 comment.getCreatedAt(),
                 comment.getModifiedAt(),
-                comment.getChildrenCnt()
+                comment.getPost().getWriter().getUid(),
+                comment.getPost().getWriter().getEmail(),
+                comment.getPost().getWriter().getDisplayName(),
+                comment.getPost().getWriter().getProfileUrl()
                 )
             ).collect(Collectors.toList());
         return result;

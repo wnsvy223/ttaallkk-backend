@@ -31,6 +31,7 @@ import security.ttaallkk.domain.member.Member;
 
 import org.apache.lucene.analysis.ko.KoreanFilterFactory;
 import org.apache.lucene.analysis.ko.KoreanTokenizerFactory;
+import org.apache.lucene.analysis.ngram.NGramFilterFactory;
 import org.hibernate.annotations.DynamicUpdate;
 import org.hibernate.annotations.Formula;
 import org.hibernate.search.annotations.Analyzer;
@@ -42,6 +43,7 @@ import org.hibernate.search.annotations.IndexedEmbedded;
 import org.hibernate.search.annotations.SortableField;
 import org.hibernate.search.annotations.TokenFilterDef;
 import org.hibernate.search.annotations.TokenizerDef;
+import org.hibernate.search.annotations.Parameter;
 
 
 @Entity
@@ -52,7 +54,15 @@ import org.hibernate.search.annotations.TokenizerDef;
 @AnalyzerDef(
     name = "koreanAnalyzer_post", 
     tokenizer = @TokenizerDef(factory = KoreanTokenizerFactory.class),
-    filters = {@TokenFilterDef(factory = KoreanFilterFactory.class)})
+    filters = {@TokenFilterDef(factory = KoreanFilterFactory.class),
+        @TokenFilterDef(factory = KoreanFilterFactory.class), //한글 Arirang Token Filter : 한글 문법에 맞게 토큰화
+        @TokenFilterDef(factory = NGramFilterFactory.class, //NGram Filter : 1~10 단위 글자로 토큰화
+            params = {
+                @Parameter(name = "minGramSize", value = "1"),
+                @Parameter(name = "maxGramSize", value = "10")
+            }
+        )}
+)
 
 public class Post extends CommonDateTime {
     @Id

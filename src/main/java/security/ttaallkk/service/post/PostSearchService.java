@@ -48,7 +48,7 @@ public class PostSearchService {
      */
     @Transactional
     @SuppressWarnings("unchecked")
-    public Page<PostCommonDto> searchPostByCategoryAndTitleOrContent(String keyword,  Long categoryId, Pageable pageable){
+    public Page<PostCommonDto> searchPostByHibernateSearchEngine(String keyword,  Long categoryId, Pageable pageable){
 
         Session session = entityManager.unwrap(Session.class);
         
@@ -68,13 +68,13 @@ public class PostSearchService {
             .keyword()
             .wildcard()
             .onField("title")
-            .matching("*" + keyword + "*")
+            .matching(keyword + "*")
             .createQuery();
         Query contentQuery = queryBuilder
             .keyword()
             .wildcard()
             .onField("content")
-            .matching("*" + keyword + "*")
+            .matching(keyword + "*")
             .createQuery();
         Query categoryQuery = queryBuilder
             .keyword()

@@ -1,5 +1,7 @@
 package security.ttaallkk.controller.post;
 
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import org.springframework.data.domain.Page;
@@ -138,7 +140,7 @@ public class PostController {
                 @RequestParam(value = "page", defaultValue = "0") int page,
                 @PageableDefault(size = 20) Pageable pageable) {
 
-        Page<PostCommonDto> result = postSearchService.searchPostByCategoryAndTitleOrContent(keyword, categoryId, pageable);
+        Page<PostCommonDto> result = postSearchService.searchPostByHibernateSearchEngine(keyword, categoryId, pageable);
         return ResponseEntity.ok(result);
     }
 

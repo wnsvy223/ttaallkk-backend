@@ -2,7 +2,10 @@ package security.ttaallkk.service.file;
 
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import security.ttaallkk.exception.FileUploadFailureException;
 import security.ttaallkk.exception.InvalidFileMimeTypeException;
@@ -10,12 +13,15 @@ import security.ttaallkk.utils.FileUtils;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Base64;
 
 import javax.annotation.PostConstruct;
+import javax.servlet.http.HttpServletRequest;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
@@ -26,17 +32,19 @@ import org.springframework.core.io.UrlResource;
 public class FileStorageService {
     
     @Value("${upload.image.location.root}")
-    private String rootPath;
+    public String rootPath;
 
     @Value("${upload.image.location.profile}")
-    private String profileStoragePath;
+    public String profileStoragePath;
     
     @Value("${upload.image.location.post}")
-    private String postStoragePath;
+    public String postStoragePath;
 
     @PostConstruct
     void postConstruct() {
-        makeDir(rootPath);
+        makeDir(rootPath); //루트 디렉토리 생성
+        makeDir(profileStoragePath); //프로필 이미지 업로드 디렉토리 생성
+        makeDir(postStoragePath); //게시글 이미지 업로드 디렉토리 생성
     }
 
     /**
@@ -57,7 +65,6 @@ public class FileStorageService {
      * @return fileName
      */
     public String storeProfileImage(MultipartFile file, String uid) {
-        makeDir(profileStoragePath); //프로필 이미지 업로드 디렉토리 생성
         String fileName = StringUtils.cleanPath(uid + "_" + file.getOriginalFilename());
         File saveFile = new File(profileStoragePath, fileName);
         try {
@@ -81,7 +88,6 @@ public class FileStorageService {
      */
     public String storePostImage(MultipartFile file, Long postId) {
         //TODO: 게시글 파일 업로드
-        makeDir(postStoragePath); //게시글 이미지 업로드 디렉토리 생성
         String fileName = StringUtils.cleanPath(postId + "_" + file.getOriginalFilename());
         return fileName;
     }
@@ -105,6 +111,44 @@ public class FileStorageService {
         } catch (MalformedURLException e) {
             throw new FileNotFoundException("Could not download file");
         }
+    }
+
+    /**
+     * Base64데이터를 이미지 파일로 변환
+     * @param base64
+     * @param filename
+     * @param path
+     */
+    public void createFileFromBase64(String base64, String filename, String path) {
+        byte decode[] = Base64.getMimeDecoder().decode(base64);
+        FileOutputStream fileOutputStream;
+        try{
+            File file = new File(path + filename);
+            file.createNewFile();
+            fileOutputStream = new FileOutputStream(file);
+            fileOutputStream.write(decode);
+            fileOutputStream.close();
+        }catch(Exception e){
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * 파일 접근 url 생성하여 반환
+     * @param path
+     * @param fileName
+     * @return downloadUrl
+     */
+    public String getDownloadUrl(String path, String fileName) {
+        HttpServletRequest httpServletRequest = ((ServletRequestAttributes)RequestContextHolder.getRequestAttributes()).getRequest();
+        String scheme = httpServletRequest.isSecure() ? "https" : "http";
+
+        String downloadUrl = ServletUriComponentsBuilder.fromCurrentContextPath()
+                                                .scheme(scheme)
+                                                .path(path)
+                                                .path(fileName)
+                                                .toUriString();
+        return downloadUrl;
     }
 
     /**

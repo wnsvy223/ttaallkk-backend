@@ -100,7 +100,6 @@ public class XssRequestWrapper extends HttpServletRequestWrapper{
     private String cleanXss(String value) {
         if(value != null) {
             value = value.replaceAll("<", "&lt;").replaceAll(">", "&gt;");
-            value = value.replaceAll("\\(", "&#40;").replaceAll("\\)", "&#41;");
             value = value.replaceAll("'", "&#39;");
             value = value.replaceAll("&", "&amp;");
             value = value.replaceAll("eval\\((.*)\\)", "");

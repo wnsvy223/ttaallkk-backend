@@ -40,10 +40,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.context.request.RequestContextHolder;
-import org.springframework.web.context.request.ServletRequestAttributes;
 import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import org.springframework.web.util.UriComponents;
 import org.springframework.web.util.UriComponentsBuilder;
 
@@ -53,7 +50,6 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import javax.servlet.http.HttpServletRequest;
 
 @Service
 @RequiredArgsConstructor
@@ -69,8 +65,6 @@ public class MemberService implements UserDetailsService {
     @Value("${admin.email}")
     private String adminEmail;
 
-    @Value("${upload.image.location.profile}")
-    private String profileStoragePath;
     
     /**
      * Security에서 제공되는 로그인 요청 회원 조회 메소드(Security인증매니저의 인증로직 수행 시 호출)
@@ -295,20 +289,15 @@ public class MemberService implements UserDetailsService {
             //프로필 이미지 url 경로에서 파일명 추출
             UriComponents uriComponents = UriComponentsBuilder.fromUriString(member.getProfileUrl()).build();
             String originFileName = FilenameUtils.getName(uriComponents.getPath());
-            fileStorageService.removeFile(profileStoragePath + originFileName);
+            fileStorageService.removeFile(fileStorageService.profileStoragePath + originFileName);
         }
 
         //프로필 이미지 파일 업로드
         String fileName = fileStorageService.storeProfileImage(multipartFile, member.getUid());
-    
-        HttpServletRequest httpServletRequest = ((ServletRequestAttributes)RequestContextHolder.getRequestAttributes()).getRequest();
-        String scheme = httpServletRequest.isSecure() ? "https" : "http";
 
-        String downloadUrl = ServletUriComponentsBuilder.fromCurrentContextPath()
-                                                    .scheme(scheme)
-                                                    .path("/profile/")
-                                                    .path(fileName)
-                                                    .toUriString();
+        //프로필 이미지 url
+        String downloadUrl = fileStorageService.getDownloadUrl("/profile/", fileName);
+
         member.updateProfileUrl(downloadUrl);
         
         return downloadUrl;

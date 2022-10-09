@@ -5,12 +5,8 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.temporal.TemporalAdjusters;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
-import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -260,7 +256,7 @@ public class PostService {
      * @return String : 이미지파일 url로 치환된 게시글 본문데이터
      */
     private String convertImageFromContent(PostCreateDto postCreateDto) {
-        List<FileCommonDto> images = extractDataUrlFromMarkdown(postCreateDto.getContent());
+        List<FileCommonDto> images = fileStorageService.extractDataUrlFromMarkdown(postCreateDto.getContent());
         for(FileCommonDto fileCommonDto : images){
             if(StringUtils.isNotEmpty(fileCommonDto.getFileBase64String())){
                 String downloadUrl = fileStorageService.getDownloadUrl("/post/", fileCommonDto.getFileName());
@@ -268,33 +264,5 @@ public class PostService {
             }
         }
         return postCreateDto.getContent();
-    }
-
-    /**
-     * 마크다운 데이터에서 base64 url 이미지 부분 추출하여, 이미지 파일 데이터 리스트 생성 후 반환
-     * @param content
-     * @return List<FileCommonDto>
-     */
-    private List<FileCommonDto> extractDataUrlFromMarkdown(String content) {   
-        String regex = "!\\[[^\\]]*\\]\\((?<dataUrl>.*?)(?=\\\"|\\))(\\\".*\\\")?\\)"; //게시글 마크다운 본문 전체내용에서 이미지 마크다운 태그들만 추출하는 정규표현식
-        Matcher matcher = Pattern.compile(regex).matcher(content);
-        List<FileCommonDto> list = new ArrayList<>();
-        while(matcher.find()){
-            String dataUrl = matcher.group("dataUrl");
-            String dataUrlRegex = "data:[^/]+/([^;]+);base64[^?]+"; //이미지 마크다운에서 data url값만 추출하는 정규표현식
-            Matcher matchUrl = Pattern.compile(dataUrlRegex).matcher(dataUrl);
-            if(matchUrl.find()){
-                String base64 = dataUrl.substring(dataUrl.indexOf(",") + 1); //base64 문자열만 추출
-                String uuid = RandomStringUtils.random(30, 32, 127, true, true);
-                FileCommonDto fileCommonDto = FileCommonDto.builder()
-                    .fileName(uuid)
-                    .fileBase64String(base64)
-                    .dataUrl(dataUrl)
-                    .build();
-                list.add(fileCommonDto);
-                fileStorageService.createFileFromBase64(base64, uuid, fileStorageService.postStoragePath);
-            }
-        }
-        return list;
     }
 }

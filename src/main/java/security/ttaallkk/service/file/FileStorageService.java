@@ -7,6 +7,7 @@ import org.springframework.web.context.request.ServletRequestAttributes;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
+import security.ttaallkk.dto.common.FileCommonDto;
 import security.ttaallkk.exception.FileUploadFailureException;
 import security.ttaallkk.exception.InvalidFileMimeTypeException;
 import security.ttaallkk.utils.FileUtils;
@@ -18,11 +19,16 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.Base64;
+import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.annotation.PostConstruct;
 import javax.servlet.http.HttpServletRequest;
 
+import org.apache.commons.lang3.RandomStringUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
@@ -111,6 +117,35 @@ public class FileStorageService {
         } catch (MalformedURLException e) {
             throw new FileNotFoundException("Could not download file");
         }
+    }
+
+    /**
+     * 마크다운 데이터에서 base64 url 이미지 부분 추출하여, 이미지 파일 데이터 리스트 생성 후 반환
+     * @param content
+     * @return List<FileCommonDto>
+     */
+    public List<FileCommonDto> extractDataUrlFromMarkdown(String content) {   
+        String regex = "!\\[[^\\]]*\\]\\((?<dataUrl>.*?)(?=\\\"|\\))(\\\".*\\\")?\\)"; //게시글 마크다운 본문 전체내용에서 이미지 마크다운 태그들만 추출하는 정규표현식
+        Matcher matcher = Pattern.compile(regex).matcher(content);
+        List<FileCommonDto> list = new ArrayList<>();
+        while(matcher.find()){
+            String dataUrl = matcher.group("dataUrl");
+            String dataUrlRegex = "data:[^/]+/([^;]+);base64[^?]+"; //이미지 마크다운에서 data url값만 추출하는 정규표현식
+            Matcher matchUrl = Pattern.compile(dataUrlRegex).matcher(dataUrl);
+            if(matchUrl.find()){
+                String base64 = dataUrl.substring(dataUrl.indexOf(",") + 1); //base64 문자열만 추출
+                String uuid = RandomStringUtils.random(30, 32, 127, true, true);
+                String fileName = uuid + ".jpg";
+                FileCommonDto fileCommonDto = FileCommonDto.builder()
+                    .fileName(fileName)
+                    .fileBase64String(base64)
+                    .dataUrl(dataUrl)
+                    .build();
+                list.add(fileCommonDto);
+                createFileFromBase64(base64, fileName, postStoragePath);
+            }
+        }
+        return list;
     }
 
     /**

@@ -18,6 +18,7 @@ import security.ttaallkk.domain.member.Member;
 import security.ttaallkk.domain.notification.NotificationType;
 import security.ttaallkk.domain.post.Comment;
 import security.ttaallkk.domain.post.Post;
+import security.ttaallkk.dto.common.FileCommonDto;
 import security.ttaallkk.dto.querydsl.CommentCommonDto;
 import security.ttaallkk.dto.querydsl.CommentRootPagingDto;
 import security.ttaallkk.dto.request.CommentCreateDto;
@@ -29,6 +30,7 @@ import security.ttaallkk.repository.member.MemberRepository;
 import security.ttaallkk.repository.post.CommentRepository;
 import security.ttaallkk.repository.post.CommentRepositorySupport;
 import security.ttaallkk.repository.post.PostRepository;
+import security.ttaallkk.service.file.FileStorageService;
 import security.ttaallkk.service.notification.FcmService;
 import security.ttaallkk.exception.CommentIsAlreadyRemovedException;
 import security.ttaallkk.exception.CommentNotFoundException;
@@ -46,6 +48,7 @@ public class CommentService {
     private final CommentRepositorySupport commentRepositorySupport;
     private final AuthenticationHelper authenticationHelper;
     private final FcmService fcmService;
+    private final FileStorageService fileStorageService;
     
     /**
      * 댓글 생성
@@ -64,7 +67,7 @@ public class CommentService {
                 member, 
                 commentCreateDto.getParentId() != null ? commentRepository.findById(commentCreateDto.getParentId()).orElseThrow(CommentNotFoundException::new) : null,
                 commentCreateDto.getToCommentId() != null ? commentRepository.findById(commentCreateDto.getToCommentId()).orElseThrow(CommentNotFoundException::new) : null,
-                commentCreateDto.getContent()
+                convertImageFromContent(commentCreateDto)
             )
         );
 
@@ -217,5 +220,21 @@ public class CommentService {
         if(parent != null && parent.getChildren().size() == 1 && parent.getIsDeleted() == true)
             return getDeletableParentComment(parent); //부모가 있고, 부모의 자식댓글이 현재댓글이고, 부모댓글의 상태가 삭제상태일 경우 재귀호출
         return comment; //삭제해야할 댓글 반환
+    }
+
+    /**
+     * 댓글 본문 마크다운에서 추출한 이미지들의 base64 data url을 file download url로 치환한 뒤 postCreateDto에 세팅
+     * @param commentCreateDto
+     * @return String : 이미지파일 url로 치환된 댓글 본문데이터
+     */
+    private String convertImageFromContent(CommentCreateDto commentCreateDto) {
+        List<FileCommonDto> images = fileStorageService.extractDataUrlFromMarkdown(commentCreateDto.getContent());
+        for(FileCommonDto fileCommonDto : images){
+            if(StringUtils.isNotEmpty(fileCommonDto.getFileBase64String())){
+                String downloadUrl = fileStorageService.getDownloadUrl("/post/", fileCommonDto.getFileName());
+                commentCreateDto.setContent(StringUtils.replace(commentCreateDto.getContent(), fileCommonDto.getDataUrl(), downloadUrl));
+            }
+        }
+        return commentCreateDto.getContent();
     }
 }

@@ -132,7 +132,7 @@ public class CommentService {
         Boolean isOwner = validationIsOwner(comment);
         if(!comment.getIsDeleted()) {
             if(isOwner) {
-                comment.updateCommentContent(commentUpdateDto.getContent());
+                comment.updateCommentContent(convertImageFromContent(commentUpdateDto));
             }else{
                 throw new PermissionDeniedException();
             }
@@ -223,7 +223,7 @@ public class CommentService {
     }
 
     /**
-     * 댓글 본문 마크다운에서 추출한 이미지들의 base64 data url을 file download url로 치환한 뒤 postCreateDto에 세팅
+     * 댓글 본문 마크다운에서 추출한 이미지들의 base64 data url을 file download url로 치환한 뒤 commentCreateDto 세팅
      * @param commentCreateDto
      * @return String : 이미지파일 url로 치환된 댓글 본문데이터
      */
@@ -236,5 +236,16 @@ public class CommentService {
             }
         }
         return commentCreateDto.getContent();
+    }
+
+    private String convertImageFromContent(CommentUpdateDto commentUpdateDto) {
+        List<FileCommonDto> images = fileStorageService.extractDataUrlFromMarkdown(commentUpdateDto.getContent());
+        for(FileCommonDto fileCommonDto : images){
+            if(StringUtils.isNotEmpty(fileCommonDto.getFileBase64String())){
+                String downloadUrl = fileStorageService.getDownloadUrl("/post/", fileCommonDto.getFileName());
+                commentUpdateDto.setContent(StringUtils.replace(commentUpdateDto.getContent(), fileCommonDto.getDataUrl(), downloadUrl));
+            }
+        }
+        return commentUpdateDto.getContent();
     }
 }

@@ -122,7 +122,7 @@ public class PostService {
             }else{
                 post.updatePost(
                     postUpdateDto.getTitle(), 
-                    postUpdateDto.getContent()
+                    convertImageFromContent(postUpdateDto)
                 );
                 return PostDetailResponseDto.convertPostDetailResponseDto(post, isLike, isDisLike);
             }
@@ -264,5 +264,16 @@ public class PostService {
             }
         }
         return postCreateDto.getContent();
+    }
+
+    private String convertImageFromContent(PostUpdateDto postUpdateDto) {
+        List<FileCommonDto> images = fileStorageService.extractDataUrlFromMarkdown(postUpdateDto.getContent());
+        for(FileCommonDto fileCommonDto : images){
+            if(StringUtils.isNotEmpty(fileCommonDto.getFileBase64String())){
+                String downloadUrl = fileStorageService.getDownloadUrl("/post/", fileCommonDto.getFileName());
+                postUpdateDto.setContent(StringUtils.replace(postUpdateDto.getContent(), fileCommonDto.getDataUrl(), downloadUrl));
+            }
+        }
+        return postUpdateDto.getContent();
     }
 }

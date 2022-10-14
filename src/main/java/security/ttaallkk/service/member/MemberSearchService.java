@@ -48,7 +48,7 @@ public class MemberSearchService {
      */
     @Transactional
     @SuppressWarnings("unchecked")
-    public Slice<MemberSearchResponseDto> searchMemberByEmailOrDisplayName(String keyword, Pageable pageable, List<Friend> friends){
+    public Slice<MemberSearchResponseDto> searchMemberByEmailOrDisplayName(String keyword, Pageable pageable, List<Friend> friends, String uid){
         FullTextEntityManager fullTextEntityManager = Search.getFullTextEntityManager(entityManager);
         QueryBuilder queryBuilder = fullTextEntityManager
             .getSearchFactory()
@@ -81,11 +81,13 @@ public class MemberSearchService {
         
         List<Member> members = fullTextQuery.getResultList(); //검색결과
         
-        List<Member> filteredMembers = getfilteredMembers(members, friends); //이미 친구인 유저 검색 결과 제외 필터링
+        List<Member> filteredFriends = getfilteredMembers(members, friends); //이미 친구인 유저 검색 결과 제외 필터링
+
+        List<Member> filteredMe = getfilteredMe(filteredFriends, uid); //본인 제외 필터링
 
         boolean hasNext = members.size() >= pageable.getPageSize(); //다음 페이지 존재 유무
         
-        List<MemberSearchResponseDto> result = MemberSearchResponseDto.convertMemberSearchResponseDto(filteredMembers); //Dto 변환
+        List<MemberSearchResponseDto> result = MemberSearchResponseDto.convertMemberSearchResponseDto(filteredMe); //Dto 변환
 
         return new SliceImpl<>(result, pageable, hasNext);
     }
@@ -103,6 +105,21 @@ public class MemberSearchService {
                 friends
                     .stream()
                         .filter(f -> f.getFrom().getUid().equals(m.getUid()) || f.getTo().getUid().equals(m.getUid())).count()) < 1)
+            .collect(Collectors.toList());
+        
+        return filteredMembers;
+    }
+
+    /**
+     * 검색결과에서 본인 제외
+     * @param members 검색된 유저 목록
+     * @param uid 현재 접속된 유저의 uid
+     * @return List<Member> 본인 필터링 된 유저 목록
+     */
+    private List<Member> getfilteredMe(List<Member> members, String uid) {
+        List<Member> filteredMembers = members
+            .stream()
+            .filter(m -> !m.getUid().equals(uid))
             .collect(Collectors.toList());
         
         return filteredMembers;

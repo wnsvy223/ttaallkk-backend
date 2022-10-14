@@ -227,7 +227,7 @@ public class MemberController {
                 @RequestHeader("X-Custom-Uid") String uid) {
         
         List<Friend> friends = friendService.findFromOrToByUid(uid);
-        Slice<MemberSearchResponseDto> searchMembers = memberSearchService.searchMemberByEmailOrDisplayName(keyword, pageable, friends);
+        Slice<MemberSearchResponseDto> searchMembers = memberSearchService.searchMemberByEmailOrDisplayName(keyword, pageable, friends, uid);
         
         return ResponseEntity.ok(searchMembers);
     }

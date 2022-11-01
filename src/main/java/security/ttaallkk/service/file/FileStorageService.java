@@ -33,7 +33,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
 
-
 @Service
 public class FileStorageService {
     
@@ -125,7 +124,8 @@ public class FileStorageService {
      * @return List<FileCommonDto>
      */
     public List<FileCommonDto> extractDataUrlFromMarkdown(String content) {   
-        String regex = "!\\[[^\\]]*\\]\\((?<dataUrl>.*?)(?=\\\"|\\))(\\\".*\\\")?\\)"; //게시글 마크다운 본문 전체내용에서 이미지 마크다운 태그들만 추출하는 정규표현식
+        // String regex = "!\\[[^\\]]*\\]\\((?<dataUrl>.*?)(?=\\\"|\\))(\\\".*\\\")?\\)"; //게시글 마크다운 본문 전체내용에서 이미지 마크다운 태그들만 추출하는 정규표현식
+        String regex = "(?i)&amp;lt;img.*?src=[\"|'](?<dataUrl>.*?)[\"|']";
         Matcher matcher = Pattern.compile(regex).matcher(content);
         List<FileCommonDto> list = new ArrayList<>();
         while(matcher.find()){

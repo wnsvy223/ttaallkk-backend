@@ -198,6 +198,7 @@ public class PostRepositorySupport extends QuerydslRepositorySupport {
             //TODO : 이미지 및 동영상 파일이 첨부되어있는지를 구분할수 있는 엔티티 필드를 추가하여 조건절에 추가.
         ) 
         .orderBy(post.likeCnt.desc())
+        .limit(1)
         .fetchOne();
     }
 

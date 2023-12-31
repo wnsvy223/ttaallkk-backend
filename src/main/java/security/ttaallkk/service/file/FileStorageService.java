@@ -119,33 +119,46 @@ public class FileStorageService {
     }
 
     /**
-     * 마크다운 데이터에서 base64 url 이미지 부분 추출하여, 이미지 파일 데이터 리스트 생성 후 반환
+     * 컨탠츠 문자열값에 포함된 HTML 또는 마크다운 이미지 태그 추출하여 리스트 추가 후 반환
      * @param content
      * @return List<FileCommonDto>
      */
-    public List<FileCommonDto> extractDataUrlFromMarkdown(String content) {   
-        // String regex = "!\\[[^\\]]*\\]\\((?<dataUrl>.*?)(?=\\\"|\\))(\\\".*\\\")?\\)"; //게시글 마크다운 본문 전체내용에서 이미지 마크다운 태그들만 추출하는 정규표현식
-        String regex = "(?i)&amp;lt;img.*?src=[\"|'](?<dataUrl>.*?)[\"|']";
-        Matcher matcher = Pattern.compile(regex).matcher(content);
+    public List<FileCommonDto> extractDataUrlFromMarkdown(String content) {
+        Matcher matcher = Pattern.compile("(?i)&amp;lt;img.*?src=[\"|'](?<htmlImageUrl>.*?)[\"|']|!\\[.*?\\]\\((?<markdownImageUrl>.*?)\\)").matcher(content);
         List<FileCommonDto> list = new ArrayList<>();
         while(matcher.find()){
-            String dataUrl = matcher.group("dataUrl");
-            String dataUrlRegex = "data:[^/]+/([^;]+);base64[^?]+"; //이미지 마크다운에서 data url값만 추출하는 정규표현식
-            Matcher matchUrl = Pattern.compile(dataUrlRegex).matcher(dataUrl);
-            if(matchUrl.find()){
-                String base64 = dataUrl.substring(dataUrl.indexOf(",") + 1); //base64 문자열만 추출
-                String uuid = RandomStringUtils.random(30, 32, 127, true, true);
-                String fileName = uuid + ".jpg";
-                FileCommonDto fileCommonDto = FileCommonDto.builder()
-                    .fileName(fileName)
-                    .fileBase64String(base64)
-                    .dataUrl(dataUrl)
-                    .build();
-                list.add(fileCommonDto);
-                createFileFromBase64(base64, fileName, postStoragePath);
+            String imagePath = matcher.group("htmlImageUrl"); //HTML 이미지 태그
+            String markdownImagePath = matcher.group("markdownImageUrl"); //마크다운 이미지 태그
+            if(imagePath != null){
+                extractImageFromDataUrl(imagePath, list);
+            }
+            if(markdownImagePath != null){
+                extractImageFromDataUrl(markdownImagePath, list);
             }
         }
         return list;
+    }
+
+    /**
+     * HTML 또는 마크다운 문자열에서 base64 data url을 추출하여 이미지 파일 배열에 추가
+     * @param dataUrl
+     * @param list
+     */
+    public void extractImageFromDataUrl(String dataUrl, List<FileCommonDto> list) {
+        String dataUrlRegex = "data:[^/]+/([^;]+);base64[^?]+";
+        Matcher matchUrl = Pattern.compile(dataUrlRegex).matcher(dataUrl);
+        if(matchUrl.find()){
+            String base64 = dataUrl.substring(dataUrl.indexOf(",") + 1); //base64 문자열만 추출
+            String uuid = RandomStringUtils.random(30, 32, 127, true, true);
+            String fileName = uuid + ".jpg";
+            FileCommonDto fileCommonDto = FileCommonDto.builder()
+                .fileName(fileName)
+                .fileBase64String(base64)
+                .dataUrl(dataUrl)
+                .build();
+            list.add(fileCommonDto);
+            createFileFromBase64(base64, fileName, postStoragePath);
+        }
     }
 
     /**

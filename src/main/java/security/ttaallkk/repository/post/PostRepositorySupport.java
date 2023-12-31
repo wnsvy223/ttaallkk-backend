@@ -17,6 +17,7 @@ import org.springframework.stereotype.Repository;
 import security.ttaallkk.common.Constant;
 import security.ttaallkk.domain.post.Post;
 import security.ttaallkk.dto.querydsl.PostCommonDto;
+import security.ttaallkk.dto.querydsl.PostTodayImageAndVideoDto;
 import security.ttaallkk.repository.common.SortUtils;
 
 import static security.ttaallkk.domain.post.QPost.post;
@@ -159,9 +160,46 @@ public class PostRepositorySupport extends QuerydslRepositorySupport {
             .fetchJoin()
             .innerJoin(post.category, category)
             .fetchJoin()
-            .where(post.createdAt.between(from, to), post.likeCnt.gt(0)) //주간 데이터 + 좋아요 수가 0보다 큰경우
+            .where(post.createdAt.between(from, to)) //주간 데이터
+            .where(post.likeCnt.gt(0)) //좋아요 수가 0보다 큰경우
             .orderBy(post.likeCnt.desc(), post.createdAt.desc())
             .limit(Constant.POST_ROW_LIMIT)
             .fetch();
     }
+
+    /**
+     * 오늘 날짜에 올라온 게시글 중 가장 좋아요를 많이받은 글의 이미지 또는 영상 조회
+     * @param todayStart
+     * @param tomorrowStart
+     * @return PostTodayImageAndVideoDto
+     */
+    public PostTodayImageAndVideoDto findPostByTodayImageAndVideo(LocalDateTime todayStart, LocalDateTime tomorrowStart) {
+        return jpaQueryFactory
+        .select(
+            Projections.constructor(
+                PostTodayImageAndVideoDto.class,
+                post.id,
+                post.title,
+                post.content,
+                post.createdAt,
+                post.writer.email,
+                post.writer.uid,
+                post.writer.displayName,
+                post.writer.profileUrl,
+                post.category.ctgName,
+                post.category.ctgTag
+            )
+        )
+        .from(post)
+        .innerJoin(post.writer, member)
+        .innerJoin(post.category, category)
+        .where(
+            post.createdAt.between(todayStart, tomorrowStart) //오늘 날짜 조건절
+            //TODO : 이미지 및 동영상 파일이 첨부되어있는지를 구분할수 있는 엔티티 필드를 추가하여 조건절에 추가.
+        ) 
+        .orderBy(post.likeCnt.desc())
+        .fetchOne();
+    }
+
+    
 }

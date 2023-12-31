@@ -21,6 +21,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import security.ttaallkk.dto.querydsl.PostCommonDto;
+import security.ttaallkk.dto.querydsl.PostTodayImageAndVideoDto;
 import security.ttaallkk.dto.request.PostCreateDto;
 import security.ttaallkk.dto.request.PostUpdateDto;
 import security.ttaallkk.dto.response.PostWeeklyLikeDto;
@@ -160,6 +161,13 @@ public class PostController {
     @GetMapping("/weekly")
     public ResponseEntity<List<PostWeeklyLikeDto>> getPostsByWeekly() {
         List<PostWeeklyLikeDto> result = postService.findPostWeeklyLike();
+        
+        return ResponseEntity.ok(result);
+    }
+
+    @GetMapping("/today")
+    public ResponseEntity<PostTodayImageAndVideoDto> getPostsByTodayImageAndVideo() {
+        PostTodayImageAndVideoDto result = postService.findPostsByTodayImageAndVideo();
         
         return ResponseEntity.ok(result);
     }

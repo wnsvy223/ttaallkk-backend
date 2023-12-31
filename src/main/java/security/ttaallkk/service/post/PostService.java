@@ -23,6 +23,7 @@ import security.ttaallkk.domain.post.Post;
 import security.ttaallkk.domain.post.PostStatus;
 import security.ttaallkk.dto.common.FileCommonDto;
 import security.ttaallkk.dto.querydsl.PostCommonDto;
+import security.ttaallkk.dto.querydsl.PostTodayImageAndVideoDto;
 import security.ttaallkk.dto.request.PostCreateDto;
 import security.ttaallkk.dto.request.PostUpdateDto;
 import security.ttaallkk.dto.response.PostDetailResponseDto;
@@ -207,6 +208,22 @@ public class PostService {
         List<Post> posts = postRepositorySupport.findPostByWeeklyLike(from, to);
         List<PostWeeklyLikeDto> result = PostWeeklyLikeDto.convertPostWeeklyLikeDto(posts);
         
+        return result;
+    }
+
+    /**
+     * 오늘 날짜의 이미지 또는 영상이 포함된 게시글중 좋아요를 가장 많이 받은 게시글 반환
+     * @return List<PostWeeklyLikeDto>
+     */
+    @Transactional
+    public PostTodayImageAndVideoDto findPostsByTodayImageAndVideo() {
+        
+        LocalDateTime todayStart = LocalDate.now().atStartOfDay();
+        LocalDateTime tomorrowStart = LocalDate.now().plusDays(1).atStartOfDay();
+
+        PostTodayImageAndVideoDto result = postRepositorySupport.findPostByTodayImageAndVideo(todayStart, tomorrowStart);
+        log.info(result);
+
         return result;
     }
 

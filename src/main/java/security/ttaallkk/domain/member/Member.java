@@ -142,12 +142,12 @@ public class Member extends CommonDateTime implements Serializable{
 
     //내가 친구추가 요청한 친구 목록
     @JsonIgnore
-    @OneToMany(mappedBy = "from", cascade = CascadeType.REMOVE)
+    @OneToMany(mappedBy = "from", cascade = CascadeType.REMOVE, orphanRemoval = true)
     List<Friend> requestFriend;
 
     //나에게 친구추가 요청한 친구 목록
     @JsonIgnore
-    @OneToMany(mappedBy = "to", cascade = CascadeType.REMOVE)
+    @OneToMany(mappedBy = "to", cascade = CascadeType.REMOVE, orphanRemoval = true)
     List<Friend> receiveFriend;
 
     @Builder

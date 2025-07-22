@@ -37,9 +37,9 @@ public class Friend{
     @JoinColumn(name = "to_id")
     private Member to;
 
-    //수락 상태
+    //수락 상태 (초기값은 IDLE)
     @Enumerated(EnumType.STRING)
-    private FriendStatus friendStatus;
+    private FriendStatus friendStatus = FriendStatus.IDLE;
 
     //친구 관계 데이터 생성
     public static Friend createFriend(Member from, Member to) {

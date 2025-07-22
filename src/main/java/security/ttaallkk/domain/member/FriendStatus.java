@@ -4,5 +4,5 @@ import lombok.Getter;
 
 @Getter
 public enum FriendStatus {
-    ACCEPT, REJECT, IDLE
+    IDLE, ACCEPT, REJECT
 }

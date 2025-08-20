@@ -1,6 +1,8 @@
 TTAALLKK BackEnd Rest API Server
 
 <div align=center><h1>📚 STACKS</h1></div>
+
+<div align=center> 
 <img src="https://img.shields.io/badge/oracle-F80000?style=for-the-badge&logo=oracle&logoColor=white">
 <br>
 <img src="https://img.shields.io/badge/java-007396?style=for-the-badge&logo=java&logoColor=white">
@@ -12,5 +14,6 @@ TTAALLKK BackEnd Rest API Server
 <img src="https://img.shields.io/badge/git-F05032?style=for-the-badge&logo=git&logoColor=white">
 <img src="https://img.shields.io/badge/github-181717?style=for-the-badge&logo=github&logoColor=white">
 <br>
+</div>
 프레임워크 : Spring boot + Spring Security + JPA
 DBMS : MariaDB
